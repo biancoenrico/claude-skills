@@ -1,29 +1,42 @@
 # claude-skills
 
-Skills for [Claude Code](https://claude.com/claude-code).
+A plugin marketplace of skills for [Claude Code](https://claude.com/claude-code).
 
-| Skill | What it does |
-|---|---|
-| [`git-flow`](skills/git-flow/SKILL.md) | Drives the `git flow` CLI (AVH Edition): install, init, full command reference with exact flags, branching model and workflow recipes. |
+| Plugin | Skill | What it does |
+|---|---|---|
+| [`git-flow`](plugins/git-flow/skills/git-flow/SKILL.md) | `/git-flow:git-flow` | Drives the `git flow` CLI (AVH Edition): install, init, full command reference with exact flags, branching model and workflow recipes. |
 
 ## Install
 
-Copy a skill into your skills directory — personal:
+Add the marketplace once:
 
-```bash
-mkdir -p ~/.claude/skills
-cp -r skills/git-flow ~/.claude/skills/
+```
+/plugin marketplace add biancoenrico/claude-skills
 ```
 
-…or per project, so the team gets it from the repo:
+Then install whichever plugin you want:
 
-```bash
-mkdir -p .claude/skills
-cp -r skills/git-flow .claude/skills/
+```
+/plugin install git-flow@claude-skills
 ```
 
-Claude Code picks up `SKILL.md` files from those directories at startup and invokes a
-skill when its `description` matches what you are doing.
+Browse and manage everything with `/plugin`. If the install summary says
+`Run /reload-plugins to activate.`, run that command.
+
+## Update
+
+```
+/plugin marketplace update claude-skills
+```
+
+Claude Code also refreshes marketplaces in the background, so you normally get new
+versions without doing anything.
+
+## How it works
+
+Each plugin ships one skill. Claude invokes a skill on its own when its `description`
+matches what you are doing; you can also call it explicitly by its namespaced name,
+for example `/git-flow:git-flow`.
 
 ## License
 

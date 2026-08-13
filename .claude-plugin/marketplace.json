@@ -1,0 +1,28 @@
+{
+  "name": "claude-skills",
+  "owner": {
+    "name": "Enrico Bianco",
+    "url": "https://github.com/biancoenrico"
+  },
+  "description": "Skills for Claude Code.",
+  "metadata": {
+    "pluginRoot": "./plugins"
+  },
+  "plugins": [
+    {
+      "name": "git-flow",
+      "source": "./git-flow",
+      "description": "Drives the git flow CLI (AVH Edition): install, init, full command reference with exact flags, branching model and workflow recipes.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Enrico Bianco",
+        "url": "https://github.com/biancoenrico"
+      },
+      "homepage": "https://github.com/biancoenrico/claude-skills",
+      "repository": "https://github.com/biancoenrico/claude-skills",
+      "license": "MIT",
+      "category": "version-control",
+      "keywords": ["git", "git-flow", "gitflow", "branching", "release"]
+    }
+  ]
+}

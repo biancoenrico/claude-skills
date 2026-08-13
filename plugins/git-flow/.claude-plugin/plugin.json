@@ -1,0 +1,13 @@
+{
+  "name": "git-flow",
+  "description": "Drives the git flow CLI (AVH Edition): install, init, full command reference with exact flags, branching model and workflow recipes.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Enrico Bianco",
+    "url": "https://github.com/biancoenrico"
+  },
+  "homepage": "https://github.com/biancoenrico/claude-skills",
+  "repository": "https://github.com/biancoenrico/claude-skills",
+  "license": "MIT",
+  "keywords": ["git", "git-flow", "gitflow", "branching", "release"]
+}
