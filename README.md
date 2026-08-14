@@ -1,10 +1,11 @@
-# claude-skills
+# Claude Code Skills — a plugin marketplace
 
-A plugin marketplace of skills for [Claude Code](https://claude.com/claude-code).
+Skills and plugins for [Claude Code](https://claude.com/claude-code), installable in one
+command as a plugin marketplace.
 
 | Plugin | Skill | What it does |
 |---|---|---|
-| [`git-flow`](plugins/git-flow/skills/git-flow/SKILL.md) | `/git-flow:git-flow` | Drives the `git flow` CLI (AVH Edition): install, init, full command reference with exact flags, branching model and workflow recipes. |
+| [`git-flow`](plugins/git-flow/) | `/git-flow:git-flow` | A Claude Code skill for the **gitflow** branching model: drives the `git flow` CLI (AVH Edition) — install, init, full command reference with exact flags, and workflow recipes. |
 
 ## Install
 
@@ -34,9 +35,9 @@ versions without doing anything.
 
 ## How it works
 
-Each plugin ships one skill. Claude invokes a skill on its own when its `description`
-matches what you are doing; you can also call it explicitly by its namespaced name,
-for example `/git-flow:git-flow`.
+Each plugin ships one skill. A skill is a Markdown file Claude loads on demand: Claude
+invokes it on its own when its `description` matches what you are doing, and you can
+also call it explicitly by its namespaced name, for example `/git-flow:git-flow`.
 
 ## License
 
