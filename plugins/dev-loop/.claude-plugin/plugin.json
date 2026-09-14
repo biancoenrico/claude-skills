@@ -1,0 +1,13 @@
+{
+  "name": "dev-loop",
+  "description": "Spec revision, plan batching, drafting, revision and execution, test writing, code, comment and design revision, backlog writing, with fresh-eyes reviewer agents.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Enrico Bianco",
+    "url": "https://github.com/biancoenrico"
+  },
+  "homepage": "https://github.com/biancoenrico/claude-skills",
+  "repository": "https://github.com/biancoenrico/claude-skills",
+  "license": "MIT",
+  "keywords": ["spec", "plan", "review", "testing", "refactoring", "workflow"]
+}
