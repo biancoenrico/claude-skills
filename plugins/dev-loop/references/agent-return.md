@@ -60,10 +60,11 @@ not apply.
 
 ### The state of whoever stopped
 
-Invariant I3: **whoever stops puts in `state` what it needs in order to start again.** A forked
-skill does not see the conversation and gets no context back for free when it is invoked a
-second time, so anything it worked out and would otherwise have to work out again belongs in
-this field — the lists it had already decided, the iteration it had reached, the findings it had
+**Whoever stops puts in `state` what it needs in order to start again.** A skill running in a
+forked context is picked up again by invoking it a second time with the state it returned —
+that is the only route back in (the specification calls this invariant I3). A fork does not see
+the conversation and gets no context back for free on that second invocation, so anything it
+worked out and would otherwise have to work out again belongs in this field — the lists it had already decided, the iteration it had reached, the findings it had
 already discarded, the point it had reached in its own procedure. The caller writes that state
 where the work of that object is recorded, and passes it back in the arguments when it invokes
 the skill again. An executor that is resumed is handed the same thing.

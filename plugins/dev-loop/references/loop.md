@@ -9,6 +9,11 @@ Everything between the two markers below is what `hooks/session-map.sh` prints a
 start and after a compaction. It carries the classification rule, one line per path, and one
 line of precedence — nothing else, so that it stays small enough to be repeated for free.
 
+**The extract has a size budget**, and it is not advisory: read it by name — the session map
+budget — from `${CLAUDE_PLUGIN_ROOT}/references/limits.md`. `tests/session-map_test.sh`
+measures the shipped map and turns red as soon as it goes over, so anything added between the
+markers below has to buy its room from something already there.
+
 <!-- session-map:start -->
 **Classify the work first.** With superpowers installed, brainstorming classifies. Without it,
 classify with these three lines and say out loud which one you picked:

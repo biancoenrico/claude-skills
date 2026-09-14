@@ -33,6 +33,17 @@ Four things, and nothing else:
   groups touched by fixes move on while the others stand still. The cap on those iterations is
   a declared number, so read it from `${CLAUDE_PLUGIN_ROOT}/references/limits.md` under the
   revision iteration cap instead of keeping a figure in the ledger.
+
+  **What the counter counts.** An iteration is one round of analysis-and-correction carried
+  out under the review's own steam. **Questions do not consume the budget.** A round spent
+  asking and waiting is not polishing: it is bringing in information that was not there
+  before, and it is the round worth the most. When the answers come back, the counter starts
+  again from zero on the groups those answers touch — an answer can open scenarios nobody had
+  looked at yet.
+
+  **What happens at the cap.** A group that reaches it does not go round again: consolidate
+  the state in the ledger and ask the user how to proceed, instead of iterating forever. A
+  finding still open at that point usually needs a human decision, not more polishing.
 - **The findings.** Each one gets an **ID** that never gets reused inside the ledger, a one-line
   statement, the group it belongs to, and a **state**: `open` (raised, not yet dealt with),
   `fixed` (the object was changed, and the ledger says in which iteration), or `rejected` (the
@@ -93,8 +104,7 @@ two findings gets a new ID for the second half; it does not renumber the first.
 
 ## How a reviewer is handed the ledger
 
-- **Every reviewer receives it**, from the second iteration on, together with its criteria file
-  and its slice of the object. A reviewer that has not read the ledger is a reviewer that will
+- **Every reviewer receives it**, together with its criteria file and its slice of the object. A reviewer that has not read the ledger is a reviewer that will
   spend its pass re-deriving what the last one already settled.
 - **A `rejected` finding is not raised again.** The user has already decided, and the reason is
   written down. If new evidence genuinely undercuts that reason, it goes in as a **new finding

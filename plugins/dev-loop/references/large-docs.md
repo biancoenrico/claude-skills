@@ -23,13 +23,20 @@ The signal is observable and it is about the pass, not about the object:
 
 Any one of those means the object does not fit in one pass, and the review goes group-wise.
 
-**The grouping threshold is qualitative, not a declared number.** There is no unit count that
-turns group-wise review on: the criterion is that the object *does not fit in one pass*, and
-that depends on how dense the material is, not on how many pieces it is cut into. Twenty thin
-sections read in one go; six dense ones do not. Do not look for a figure here or in
-`${CLAUDE_PLUGIN_ROOT}/references/limits.md` — none is declared, and inventing one would give
-it an air of provenance it does not have. What makes the call is the signal above, and a
-document whose parts are **distinct by subject** is already telling you where the groups are.
+A **unit** is one numbered piece of the object: a section, a task, a requirement. The word is
+used that way throughout this file.
+
+**The grouping threshold is an indication, not a mechanical cut.** As a rough indication,
+a document past **500 lines** or **8 units** is usually already group-wise work. That figure
+comes from the author's own review skills and is offered as an indication, not as a declared
+number: it is not one of the values in `${CLAUDE_PLUGIN_ROOT}/references/limits.md`, and the
+fact that it lands on eight like the batching threshold declared there is a coincidence of two
+unrelated decisions.
+
+What makes the call is cohesion, and the signal above. The criterion is that the object *does
+not fit in one pass*, and that depends on how dense the material is, not on how many pieces it
+is cut into: twenty thin sections read in one go, six dense ones do not. A document whose parts
+are **distinct by subject** is already telling you where the groups are.
 
 ## How the groups are cut
 

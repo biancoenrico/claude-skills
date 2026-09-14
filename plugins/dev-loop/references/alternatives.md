@@ -23,8 +23,9 @@ data comes from, where it is kept, how the user reaches it.
 
 **Open the project first.** This pass needs to know what the project already has — a mechanism used
 elsewhere, a stated convention, a platform constraint — and without that knowledge it produces
-abstract alternatives, which are noise. Read the conventions files the project keeps at its root and
-keep Grep within reach. If the code is out of reach, **say so**: that pass stays uncovered, and the
+abstract alternatives, which are noise. Read the conventions files the project keeps at its root —
+`CLAUDE.md`, `AGENTS.md`, `CONTRIBUTING` — and keep Grep within reach over the shared helpers, where
+a mechanism that already exists is most likely to be sitting. If the code is out of reach, **say so**: that pass stays uncovered, and the
 document gets approved knowing it rather than believing it done.
 
 For every load-bearing decision, ask three questions:

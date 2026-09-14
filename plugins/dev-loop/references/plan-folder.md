@@ -51,7 +51,8 @@ the plan becomes a folder with the same name the file would have had:
 
 **`00-index.md` is the piece that makes the rest work**, and without it this convention
 recreates between the batches the very seams it was meant to remove. It holds three things,
-and nothing else:
+and nothing else — every extra line is material that will drift from the batches, and once it
+has, nobody can tell which of the two versions counts:
 
 1. **The order of the batches and the dependencies between them** — who cannot start before
    whom, and why.
@@ -69,9 +70,20 @@ Two cutting criteria, and neither is negotiable:
 - **Units that touch the same file stay in the same batch.** Split apart, the second one works
   on code it did not write and has not read.
 
-**Shared foundations go in the first batch.** If two batches need the same rule, that rule is
-created *before* both of them, so the second has something to call instead of something to
-invent. It is the only order that makes duplication hard rather than merely discouraged.
+**Shared foundations go in the first batch that uses them.** If two batches need the same rule,
+that rule is created *before* both of them, so the second has something to call instead of
+something to invent. It is the only order that makes duplication hard rather than merely
+discouraged.
+
+**"The first batch that uses it", not "batch 01".** The two readings come apart as soon as the
+first reader is the third batch: a rule dropped into batch 01 because it is shared sits there
+for two batches with nobody to call it, while the wording used here still places it correctly.
+Where a rule has no home yet, the index says it is to be created **once**, and in which batch —
+the first one that uses it, never the second.
+
+**Then check the cut against itself.** If two batches need the same thing and that thing is not
+in the first of them, what is wrong is the cut, not the index. Move the boundary rather than
+writing the rule into the index twice.
 
 **Applying the split is part of the work**, not a suggestion: write the files, with the index
 filled in and the batches numbered. Advice to split left as words is advice nobody carries out.
@@ -119,7 +131,9 @@ line and works from the spec and the index, without going to look for a source d
 does not exist.
 
 **`## Progress` is the place execution writes, and it is the only one.** One line per step of
-the batch procedure, appended in order and never rewritten. The content of those lines — which
+the batch procedure — the executor's work, then the tests, then the code review, then the check
+of the closing criteria, then the wrap-up — appended in order and never rewritten. The content
+of those lines — which
 steps leave one, what each says, what makes a line count as done and what cancels it — belongs
 to the batch procedure, not to this template; the template owns the place, so that every batch
 file has it in the same spot and no run has to invent one.

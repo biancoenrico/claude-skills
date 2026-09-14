@@ -23,7 +23,8 @@ more effort. Before every question, decide who it belongs to:
 
 A number without a stated provenance is not a question either: every threshold, window or
 limit has to be a measurement, a cited standard, or a choice declared as such — and when it
-is none of those, it is a finding to raise, not a question to ask.
+is none of those, **it is a finding, not a requirement** — something to raise, not to ask, and
+not something the work is bound by.
 
 ## Who may ask, and how a question travels
 
@@ -40,8 +41,9 @@ is none of those, it is a finding to raise, not a question to ask.
   its state passed in the arguments.
 - **Before stopping for a question, finish the work that does not depend on the answer.** A
   stop that also blocks independent work costs twice. The one exception: inside a batch, the
-  steps of the batch procedure do not advance while a question is open — an answer can undo
-  the step that would have run next.
+  steps of the batch procedure — the executor's work, then the tests, then the code review,
+  then the check of the closing criteria, then the wrap-up — do not advance while a question is
+  open, because an answer can undo the step that would have run next.
 
 ## The four lines of a question
 
