@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "_comment": "The matcher leaves out 'fork' on purpose, not by oversight: a forked skill receives its scope in full from its caller, so it classifies nothing and picks no path: the map is context it has no use for.",
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/session-map.sh\" \"${CLAUDE_PLUGIN_ROOT}/references/loop.md\""
+          }
+        ]
+      }
+    ]
+  }
+}
