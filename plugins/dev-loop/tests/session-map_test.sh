@@ -62,8 +62,11 @@ test_without_an_argument_it_falls_back_to_the_plugin_root() {
 }
 
 test_the_shipped_session_map_fits_the_budget() {
-    size=$(sh "$SESSION_MAP" "$REAL_LOOP" | wc -m | tr -d ' ')
-    assertTrue "the session map must stay under 1200 characters (C10), measured $size" "[ $size -lt 1200 ]"
+    # LC_ALL=C wc -c, not wc -m: characters depend on the locale of whoever runs the
+    # suite, and the same shipped map measures 1106 under UTF-8 and 1130 under C. The
+    # budget must mean the same thing everywhere, so it is measured in bytes.
+    size=$(sh "$SESSION_MAP" "$REAL_LOOP" | LC_ALL=C wc -c | tr -d ' ')
+    assertTrue "the session map must stay under 1200 bytes (C10), measured $size" "[ $size -lt 1200 ]"
     assertTrue "the shipped loop.md must actually yield a map, measured $size" "[ $size -gt 0 ]"
 }
 
@@ -121,4 +124,43 @@ test_an_empty_map_between_the_markers_is_silent() {
     err=$(sessionMapStderr "$dir/loop.md")
     assertEquals "stdout stays empty" "" "$out"
     assertEquals "a closed pair is a map, even an empty one: nothing to report" "" "$err"
+}
+
+test_an_unreadable_file_is_reported_like_a_missing_one() {
+    dir=$(newTestDir unreadable)
+    writeMarkedFile "$dir/loop.md" "a map nobody can open"
+    chmod 000 "$dir/loop.md"
+    out=$(sh "$SESSION_MAP" "$dir/loop.md" 2>/dev/null)
+    err=$(sessionMapStderr "$dir/loop.md")
+    chmod 644 "$dir/loop.md"
+    assertEquals "stdout stays empty" "" "$out"
+    assertEquals "one line, and it says the file could not be read" "1" "$(countLines "$err")"
+    assertTrue "the cause is the file, not the markers" "case \"\$err\" in *'cannot read'*) true ;; *) false ;; esac"
+}
+
+test_a_marker_quoted_in_prose_does_not_open_the_map() {
+    dir=$(newTestDir quoted)
+    {
+        echo "The map lives between <!-- session-map:start --> and its closing twin."
+        echo "prose that belongs to the document, not to the map"
+        echo "<!-- session-map:start -->"
+        echo "the real map"
+        echo "<!-- session-map:end -->"
+    } > "$dir/loop.md"
+    out=$(sh "$SESSION_MAP" "$dir/loop.md" 2>/dev/null)
+    assertEquals "only a marker on a line of its own counts" "the real map" "$out"
+}
+
+test_only_the_first_closed_pair_is_printed() {
+    dir=$(newTestDir twopairs)
+    {
+        echo "<!-- session-map:start -->"
+        echo "the map"
+        echo "<!-- session-map:end -->"
+        echo "<!-- session-map:start -->"
+        echo "a second pair nobody asked for"
+        echo "<!-- session-map:end -->"
+    } > "$dir/loop.md"
+    out=$(sh "$SESSION_MAP" "$dir/loop.md" 2>/dev/null)
+    assertEquals "a second pair does not extend the map" "the map" "$out"
 }

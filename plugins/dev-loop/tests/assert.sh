@@ -61,6 +61,12 @@ testWorkRoot() {
 
 # newTestDir <name> -> prints the path of a fresh, empty directory.
 newTestDir() {
+    # Without a name the directory would be the run root itself, and the caller would
+    # wipe the other tests' directories on cleanup. Fail loudly instead.
+    if [ -z "${1:-}" ]; then
+        echo "      newTestDir needs a name" >&2
+        return 1
+    fi
     _test_dir="$(testWorkRoot)/$1"
     rm -rf "$_test_dir"
     mkdir -p "$_test_dir"
