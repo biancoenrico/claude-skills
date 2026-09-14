@@ -99,15 +99,10 @@ The plan becomes a folder with the same name the file would have had. The folder
 the template of a batch file and the template of a plan that stays a single file are held in
 `${CLAUDE_PLUGIN_ROOT}/references/plan-folder.md`; use them as they are written there.
 
-**The index holds three things, and nothing else.** Every extra line is material that will
-drift from the batches, and once it has, nobody can tell which of the two versions counts:
-
-1. **The order of the batches and the dependencies between them** — who cannot start before
-   whom, and why.
-2. **The shared vocabulary and its owners** — the list from Step 1, with where each one lives.
-   It is the part that makes all the rest work.
-3. **What counts as the end of a batch** — the project's verification, passed by that batch on
-   its own.
+**The index holds three things, and nothing else**, and that same file lists them. Every extra
+line is material that will drift from the batches, and once it has, nobody can tell which of
+the two versions counts. The second of the three is the shared vocabulary with its owners: that
+is the list you built in Step 1, with the home of each entry written beside it.
 
 **The batch files are born headed and empty**: title, what the batch delivers, what it
 inherits from the earlier ones (naming the entries of the index), what it leaves to the later
