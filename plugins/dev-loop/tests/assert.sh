@@ -61,8 +61,8 @@ testWorkRoot() {
 
 # newTestDir <name> -> prints the path of a fresh, empty directory.
 newTestDir() {
-    # Without a name the directory would be the run root itself, and the caller would
-    # wipe the other tests' directories on cleanup. Fail loudly instead.
+    # The name is what separates one test's directory from the run root: without it the
+    # caller gets the root, and cleanup takes every other test with it.
     if [ -z "${1:-}" ]; then
         echo "      newTestDir needs a name" >&2
         return 1

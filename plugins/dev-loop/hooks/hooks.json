@@ -2,7 +2,7 @@
   "hooks": {
     "SessionStart": [
       {
-        "_comment": "The matcher leaves out 'fork' on purpose, not by oversight: a forked skill receives its scope in full from its caller, so it never classifies work nor picks a path, and the map would cost context without changing anything it does.",
+        "_comment": "The matcher leaves out 'fork' on purpose, not by oversight: a forked skill receives its scope in full from its caller, so it classifies nothing and picks no path: the map is context it has no use for.",
         "matcher": "startup|resume|clear|compact",
         "hooks": [
           {

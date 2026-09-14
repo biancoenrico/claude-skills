@@ -75,9 +75,9 @@ sessionMapStderr() {
     sh "$SESSION_MAP" "$1" 2>&1 >/dev/null
 }
 
-# Echoes how many lines $1 holds. An empty string is zero lines, which `wc -l` on a
-# `printf '%s\n'` would report as one - and a test that cannot tell empty from one line
-# cannot fail when the diagnostic disappears.
+# Echoes how many lines $1 holds. An empty string is zero lines; piping it through
+# `printf '%s\n' | wc -l` counts it as one, which makes "exactly one line on stderr"
+# hold just as well when there is no stderr at all.
 countLines() {
     if [ -z "$1" ]; then
         echo 0

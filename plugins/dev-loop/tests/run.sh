@@ -2,14 +2,16 @@
 #
 #     sh plugins/dev-loop/tests/run.sh
 #
-# It relaunches itself under dash and under bash, because half of criterion C7 is proving
-# the scripts survive both. A shell that is not installed is reported and skipped: a
-# missing environment is not a red test, and this plugin is public and cannot demand dash.
+# It relaunches itself under dash and under bash: the scripts must hold up in both, and
+# a bashism stays invisible until a dash runs it. A shell that is not installed is
+# reported and skipped - the plugin is public and cannot demand either of them.
 #
 # ---------------------------------------------------------------------------
 # How to write a test file
 #
 #   * One file per script under test, named <script>_test.sh, in this directory.
+#     Every file is sourced into the same shell, so two files that define a helper
+#     under the same name silently overwrite each other: prefix helpers per file.
 #     run.sh discovers it; nothing here needs editing.
 #   * Inside it, every function whose name starts with test_ is a test. The name must
 #     be at the start of a line, in the form:  test_something() {
