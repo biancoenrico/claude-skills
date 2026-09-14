@@ -66,3 +66,59 @@ test_the_shipped_session_map_fits_the_budget() {
     assertTrue "the session map must stay under 1200 characters (C10), measured $size" "[ $size -lt 1200 ]"
     assertTrue "the shipped loop.md must actually yield a map, measured $size" "[ $size -gt 0 ]"
 }
+
+# Captures the standard error of the script for the file $1, discarding standard output.
+sessionMapStderr() {
+    sh "$SESSION_MAP" "$1" 2>&1 >/dev/null
+}
+
+# Echoes how many lines $1 holds. An empty string is zero lines, which `wc -l` on a
+# `printf '%s\n'` would report as one - and a test that cannot tell empty from one line
+# cannot fail when the diagnostic disappears.
+countLines() {
+    if [ -z "$1" ]; then
+        echo 0
+    else
+        printf '%s\n' "$1" | wc -l | tr -d ' '
+    fi
+}
+
+test_a_missing_file_is_reported_on_stderr() {
+    dir=$(newTestDir missingreport)
+    err=$(sessionMapStderr "$dir/absent.md")
+    lines=$(countLines "$err")
+    assertEquals "the caller learns which file could not be read" "1" "$lines"
+    assertTrue "the line names the file" "case \"\$err\" in *absent.md*) true ;; *) false ;; esac"
+}
+
+test_missing_markers_are_reported_on_stderr() {
+    dir=$(newTestDir nomarkersreport)
+    printf 'a file with no markers at all\n' > "$dir/loop.md"
+    err=$(sessionMapStderr "$dir/loop.md")
+    lines=$(countLines "$err")
+    assertEquals "a silent empty map would look like a map with nothing in it" "1" "$lines"
+}
+
+test_a_closing_marker_on_its_own_is_not_a_map() {
+    dir=$(newTestDir loneclose)
+    {
+        echo "text that was never opened"
+        echo "<!-- session-map:end -->"
+    } > "$dir/loop.md"
+    out=$(sh "$SESSION_MAP" "$dir/loop.md" 2>/dev/null)
+    err=$(sessionMapStderr "$dir/loop.md")
+    assertEquals "stdout stays empty" "" "$out"
+    assertTrue "a lone closing marker is reported, not swallowed" "[ -n \"\$err\" ]"
+}
+
+test_an_empty_map_between_the_markers_is_silent() {
+    dir=$(newTestDir emptymap)
+    {
+        echo "<!-- session-map:start -->"
+        echo "<!-- session-map:end -->"
+    } > "$dir/loop.md"
+    out=$(sh "$SESSION_MAP" "$dir/loop.md" 2>/dev/null)
+    err=$(sessionMapStderr "$dir/loop.md")
+    assertEquals "stdout stays empty" "" "$out"
+    assertEquals "a closed pair is a map, even an empty one: nothing to report" "" "$err"
+}
