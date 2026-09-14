@@ -1,0 +1,401 @@
+#!/bin/sh
+# devloop-mutate - apply one literal mutation to a tracked file, run a command against
+# the mutated tree, then put the file back exactly as it was.
+#
+#     sh devloop-mutate <file> <find> <replace> -- <command> [arguments...]
+#
+# <find> and <replace> are literal strings, never regular expressions. <find> must sit
+# on a single line and must appear exactly once in <file>; occurrences are counted, not
+# lines, so twice on the same line is twice. One mutation per invocation.
+#
+# Exit codes:
+#
+#   10  the command failed (1-125). The caller confirms from the output tail that what
+#       failed is the assertion of the target test, and not compilation, test
+#       collection or configuration
+#   11  the command passed: the mutation survived
+#   12  the command gave no verdict: not found, not executable (126, 127), killed by a
+#       signal (>= 128), or this script was interrupted
+#    2  wrong arguments, <find> equal to <replace> included
+#    3  refused: lock held by a live process, no git repository here, file not tracked
+#       or different from HEAD, <find> missing or repeated
+#    4  restore impossible or failed: prints the file and the two copies, which it does
+#       not delete
+#    5  an orphan marker was found and restored; the requested mutation never started
+#    1  internal error of the script
+#
+# Exit 1 is not built on the ERR pseudo-signal, which is not POSIX: dash answers
+# `bad trap` and carries on with rc=0, so the mechanism would exist in only half of the
+# shells this has to run under. It is built on `set -e` plus the EXIT trap:
+# DM_EXIT_CODE is set immediately before every deliberate exit, so the trap can tell a
+# decision from a fall.
+#
+# The working files live under <git-dir>/devloop-mutate/ and therefore never show up in
+# `git status`.
+
+set -eu
+
+# How many lines of the command output are echoed back to the caller.
+DM_TAIL_LINES=40
+
+# State read by the EXIT trap. All of it is set before anything can fail: under `set -u`
+# an unset variable there would turn one failure into two.
+DM_EXIT_CODE=''       # empty means nobody decided to exit: internal error
+DM_DIR=''             # <git-dir>/devloop-mutate
+DM_FILE=''            # <file> as the caller spelled it, for git
+DM_FILE_ABS=''        # the same file, absolute, for cmp and cp
+DM_ORIG=''            # copy of the file as it was
+DM_MUT=''             # copy of the file as we mutated it
+DM_LOCK_TAKEN=''      # set once the lock is ours, and only then
+DM_MUTATION_DONE=''   # set once the working file carries the mutation
+DM_MARKER_CLEAR=''    # set when the marker and the copies are ours to remove
+DM_STATUS_TAKEN=''    # set once the pre-mutation `git status` snapshot exists
+
+# ---------------------------------------------------------------------------
+# Exits
+# ---------------------------------------------------------------------------
+
+# dm_quit <code> [message...] - the only deliberate way out.
+dm_quit() {
+    dm_quit_code=$1
+    shift
+    if [ $# -gt 0 ]; then
+        printf 'devloop-mutate: %s\n' "$*" >&2
+    fi
+    DM_EXIT_CODE=$dm_quit_code
+    exit "$dm_quit_code"
+}
+
+dm_usage() {
+    printf '%s\n' "usage: devloop-mutate <file> <find> <replace> -- <command> [arguments...]" >&2
+    printf '%s\n' "       <find> and <replace> are literal and differ; <find> sits on one line" >&2
+}
+
+dm_quit_usage() {
+    dm_usage
+    dm_quit 2 "$*"
+}
+
+# ---------------------------------------------------------------------------
+# Restore, release, report
+# ---------------------------------------------------------------------------
+
+dm_print_paths() {
+    printf '  file:     %s\n' "$DM_FILE_ABS" >&2
+    printf '  original: %s\n' "$DM_ORIG" >&2
+    printf '  mutated:  %s\n' "$DM_MUT" >&2
+}
+
+# Puts the file back from the original copy. Returns non-zero when it cannot, having
+# said why and marked the marker and the copies to be kept for whoever sorts it out.
+# The first comparison is the careful one: if the file on disk is no longer the mutated
+# copy, somebody else wrote it (a formatter, a --fix, a refreshed snapshot) and
+# overwriting it in silence would destroy their work.
+dm_restore() {
+    if ! cmp -s "$DM_FILE_ABS" "$DM_MUT"; then
+        printf 'devloop-mutate: the file is not the mutated copy any more: it was rewritten\n' >&2
+        dm_print_paths
+        DM_MARKER_CLEAR=''
+        return 1
+    fi
+    if ! cp "$DM_ORIG" "$DM_FILE_ABS"; then
+        printf 'devloop-mutate: the original copy could not be put back\n' >&2
+        dm_print_paths
+        DM_MARKER_CLEAR=''
+        return 1
+    fi
+    if ! cmp -s "$DM_FILE_ABS" "$DM_ORIG"; then
+        printf 'devloop-mutate: the restored file does not match the original copy\n' >&2
+        dm_print_paths
+        DM_MARKER_CLEAR=''
+        return 1
+    fi
+    return 0
+}
+
+# What the command left behind in the working tree. Read after the restore: taken while
+# the file was still mutated, it would blame the command for our own mutation. The lines
+# are printed and nothing else - we did not make them, so we do not touch them.
+dm_report_status_changes() {
+    git status --porcelain > "$DM_DIR/status-after" 2>/dev/null || return 0
+    LC_ALL=C awk '
+        NR == FNR { before[$0] = 1; next }
+        !($0 in before) { print }
+    ' "$DM_DIR/status-before" "$DM_DIR/status-after" > "$DM_DIR/status-diff" 2>/dev/null || return 0
+    if [ -s "$DM_DIR/status-diff" ]; then
+        printf '%s\n' "devloop-mutate: the command left these changes behind, untouched:"
+        cat "$DM_DIR/status-diff"
+    fi
+    return 0
+}
+
+# Nothing under the directory is ours until the lock is: a run refused because somebody
+# else holds it must leave that somebody's marker, copies and output exactly where they
+# are. The marker goes only when this run is the one answering for it.
+dm_release() {
+    [ -n "$DM_LOCK_TAKEN" ] || return 0
+    [ -d "$DM_DIR" ] || return 0
+    rm -f "$DM_DIR/output" "$DM_DIR/status-before" "$DM_DIR/status-after" "$DM_DIR/status-diff"
+    if [ -n "$DM_MARKER_CLEAR" ]; then
+        rm -f "$DM_DIR/marker"
+        [ -z "$DM_ORIG" ] || rm -f "$DM_ORIG"
+        [ -z "$DM_MUT" ] || rm -f "$DM_MUT"
+    fi
+    rm -rf "$DM_DIR/lock"
+    return 0
+}
+
+dm_on_exit() {
+    # Never re-enter: from here on every step is best effort, and a second failure
+    # must not start the whole sequence again.
+    trap - EXIT HUP INT TERM
+    set +e
+    dm_final=${DM_EXIT_CODE:-1}
+    if [ -n "$DM_MUTATION_DONE" ]; then
+        if ! dm_restore; then
+            dm_final=4
+        fi
+    fi
+    if [ -n "$DM_STATUS_TAKEN" ]; then
+        dm_report_status_changes
+    fi
+    dm_release
+    exit "$dm_final"
+}
+
+dm_on_signal() {
+    DM_EXIT_CODE=12
+    exit 12
+}
+
+trap dm_on_exit EXIT
+
+# ---------------------------------------------------------------------------
+# Arguments
+# ---------------------------------------------------------------------------
+
+# At least <file> <find> <replace> -- <command>.
+[ $# -ge 5 ] || dm_quit_usage "not enough arguments"
+[ "$4" = "--" ] || dm_quit_usage "the -- separator must be the fourth argument"
+
+DM_FILE=$1
+DEVLOOP_MUTATE_FIND=$2
+DEVLOOP_MUTATE_REPLACE=$3
+export DEVLOOP_MUTATE_FIND DEVLOOP_MUTATE_REPLACE
+shift 4
+
+[ -n "$1" ] || dm_quit_usage "the command is empty"
+[ -n "$DM_FILE" ] || dm_quit_usage "the file is empty"
+# An empty <find> has no single occurrence to count and nothing to replace.
+[ -n "$DEVLOOP_MUTATE_FIND" ] || dm_quit_usage "<find> is empty"
+[ "$DEVLOOP_MUTATE_FIND" != "$DEVLOOP_MUTATE_REPLACE" ] || dm_quit_usage "<find> and <replace> are the same string"
+
+# A <find> that crosses a line end is a wrong argument, not a search that fails: the
+# substitution works one line at a time and could never match it.
+DM_NEWLINE='
+'
+case "$DEVLOOP_MUTATE_FIND" in
+    *"$DM_NEWLINE"*) dm_quit_usage "<find> crosses a line end" ;;
+esac
+
+case "$DM_FILE" in
+    /*) DM_FILE_ABS=$DM_FILE ;;
+    *)  DM_FILE_ABS="${PWD:-.}/$DM_FILE" ;;
+esac
+
+# ---------------------------------------------------------------------------
+# Check 1: the lock
+# ---------------------------------------------------------------------------
+
+DM_GIT_DIR=$(git rev-parse --git-dir 2>/dev/null) || dm_quit 3 "not inside a git repository"
+# git answers relative to the current directory, and the marker outlives the run that
+# wrote it: a later invocation from another directory must still find the copies.
+case "$DM_GIT_DIR" in
+    /*) ;;
+    *)  DM_GIT_DIR="${PWD:-.}/$DM_GIT_DIR" ;;
+esac
+DM_DIR="$DM_GIT_DIR/devloop-mutate"
+DM_ORIG="$DM_DIR/original"
+DM_MUT="$DM_DIR/mutated"
+mkdir -p "$DM_DIR"
+
+# mkdir is the atomic part: its failure is the proof that the lock was already there.
+if ! mkdir "$DM_DIR/lock" 2>/dev/null; then
+    dm_lock_pid=''
+    if [ -f "$DM_DIR/lock/pid" ]; then
+        read -r dm_lock_pid < "$DM_DIR/lock/pid" || dm_lock_pid=''
+    fi
+    if [ -n "$dm_lock_pid" ] && kill -s 0 "$dm_lock_pid" 2>/dev/null; then
+        dm_quit 3 "the lock at $DM_DIR/lock is held by the live process $dm_lock_pid"
+    fi
+    # The owner is gone: the lock is stale and we take it over.
+    rm -rf "$DM_DIR/lock"
+    mkdir "$DM_DIR/lock"
+fi
+# Only now, with the lock ours, may anything be allowed to remove it: an exit 3 on a
+# live lock must leave somebody else's lock alone.
+DM_LOCK_TAKEN=1
+trap dm_on_signal HUP INT TERM
+printf '%s\n' "$$" > "$DM_DIR/lock/pid"
+
+# ---------------------------------------------------------------------------
+# Check 2: an orphan marker left by a process that died without its trap
+# ---------------------------------------------------------------------------
+
+if [ -f "$DM_DIR/marker" ]; then
+    dm_m_file=''
+    dm_m_orig=''
+    dm_m_mut=''
+    if { read -r dm_m_file && read -r dm_m_orig && read -r dm_m_mut; } < "$DM_DIR/marker"; then
+        dm_marker_read=1
+    else
+        dm_marker_read=''
+    fi
+    # The comparison is about the file the marker records, not the one asked for now.
+    DM_FILE_ABS=$dm_m_file
+    DM_ORIG=$dm_m_orig
+    DM_MUT=$dm_m_mut
+    if [ -z "$dm_marker_read" ] || [ -z "$dm_m_file" ] || [ -z "$dm_m_orig" ] || [ -z "$dm_m_mut" ]; then
+        dm_quit 4 "the marker at $DM_DIR/marker is incomplete and says nothing that can be restored"
+    fi
+    # Ours to remove from here on, unless the restore turns out to be impossible: it is
+    # this run that answers for the orphan.
+    DM_MARKER_CLEAR=1
+    if dm_restore; then
+        dm_quit 5 "an orphan mutation of $DM_FILE_ABS was restored; the requested mutation did not start"
+    fi
+    dm_quit 4 "an orphan mutation of $DM_FILE_ABS could not be restored; marker and copies are kept"
+fi
+# Every branch above leaves for good: an orphan marker decides the run on its own, and
+# the mutation that was asked for never starts.
+
+# ---------------------------------------------------------------------------
+# Check 3: the file is tracked and identical to HEAD
+# ---------------------------------------------------------------------------
+
+git ls-files --error-unmatch -- "$DM_FILE" >/dev/null 2>&1 ||
+    dm_quit 3 "$DM_FILE is not tracked by git"
+git diff --quiet HEAD -- "$DM_FILE" 2>/dev/null ||
+    dm_quit 3 "$DM_FILE differs from HEAD"
+
+# ---------------------------------------------------------------------------
+# Check 4: <find> appears exactly once
+# ---------------------------------------------------------------------------
+
+# Occurrences, not lines: index() and substr() walk each line to its end.
+DM_COUNT=$(LC_ALL=C awk '
+    BEGIN { f = ENVIRON["DEVLOOP_MUTATE_FIND"]; n = length(f); c = 0 }
+    {
+        s = $0
+        p = index(s, f)
+        while (p > 0) {
+            c = c + 1
+            s = substr(s, p + n)
+            p = index(s, f)
+        }
+    }
+    END { print c + 0 }
+' "$DM_FILE")
+
+[ "$DM_COUNT" -eq 1 ] || dm_quit 3 "<find> appears $DM_COUNT times in $DM_FILE, and it must appear once"
+
+# Byte size, for the one thing awk cannot see by itself: whether the last line of the
+# file ends with a newline.
+DM_SIZE=$(LC_ALL=C wc -c < "$DM_FILE")
+
+# ---------------------------------------------------------------------------
+# The mutation, in the order that a SIGKILL in the middle has to survive
+#
+#   1. the original copy
+#   2. the complete marker
+#   3. the trap
+#   4. the substitution on the working file
+#
+# Were the substitution to come first, a SIGKILL between it and the marker would leave a
+# mutated file that nobody could attribute to us: the next run would refuse it with a 3
+# ("different from HEAD") and say nothing about where the change came from.
+#
+# Nothing from here to the restore lives inside ( ) or $( ): POSIX resets non-ignored
+# traps in a subshell, and the restore would never fire there.
+# ---------------------------------------------------------------------------
+
+git status --porcelain > "$DM_DIR/status-before"
+DM_STATUS_TAKEN=1
+
+cp "$DM_FILE" "$DM_ORIG"
+
+# The mutated copy is generated from the substitution, not read back from the file,
+# because the file has not changed yet. Literal work only: index() and substr(), never
+# sub() or gsub(), which take an ERE and give & a meaning of its own in the replacement.
+LC_ALL=C awk -v size="$DM_SIZE" '
+    BEGIN {
+        f = ENVIRON["DEVLOOP_MUTATE_FIND"]
+        r = ENVIRON["DEVLOOP_MUTATE_REPLACE"]
+        n = length(f)
+        done = 0
+    }
+    {
+        total = total + length($0) + 1
+        line[NR] = $0
+    }
+    END {
+        # A file whose last line was not terminated must not gain a newline here: the
+        # restored file would still be right, but the mutated one would differ from the
+        # original in a second place, and a style test tripping over that would report a
+        # killed mutant that nobody wrote.
+        ends_with_newline = (total == size + 0)
+        for (i = 1; i <= NR; i++) {
+            s = line[i]
+            if (done == 0) {
+                p = index(s, f)
+                if (p > 0) {
+                    s = substr(s, 1, p - 1) r substr(s, p + n)
+                    done = 1
+                }
+            }
+            if (i < NR || ends_with_newline) {
+                printf "%s\n", s
+            } else {
+                printf "%s", s
+            }
+        }
+    }
+' "$DM_FILE" > "$DM_MUT"
+
+printf '%s\n%s\n%s\n' "$DM_FILE_ABS" "$DM_ORIG" "$DM_MUT" > "$DM_DIR/marker"
+DM_MARKER_CLEAR=1
+
+DM_MUTATION_DONE=1
+cp "$DM_MUT" "$DM_FILE_ABS"
+
+# ---------------------------------------------------------------------------
+# The command
+# ---------------------------------------------------------------------------
+
+# A child process, "$@" as it stands: no intermediate shell to re-parse the arguments,
+# and nothing replaces this process, or there would be nobody left to put the file back.
+# The || keeps errexit from ending the run before the status can be read.
+DM_CHILD_STATUS=0
+"$@" > "$DM_DIR/output" 2>&1 || DM_CHILD_STATUS=$?
+
+# The tail of the output, so the caller can tell the assertion of the target test from a
+# compilation, collection or configuration error.
+if [ -s "$DM_DIR/output" ]; then
+    printf '%s\n' "devloop-mutate: last $DM_TAIL_LINES lines of the command output:"
+    LC_ALL=C awk -v n="$DM_TAIL_LINES" '
+        { buf[NR % n] = $0 }
+        END {
+            start = NR - n + 1
+            if (start < 1) { start = 1 }
+            for (i = start; i <= NR; i++) { print buf[i % n] }
+        }
+    ' "$DM_DIR/output"
+fi
+
+if [ "$DM_CHILD_STATUS" -eq 0 ]; then
+    dm_quit 11
+elif [ "$DM_CHILD_STATUS" -le 125 ]; then
+    dm_quit 10
+else
+    dm_quit 12
+fi
