@@ -573,7 +573,15 @@ while IFS= read -r gates_file; do
     fi
     [ -f "$gates_file" ] || continue
 
-    awk -v style="$gates_style" -f "$GATES_TMP/blocks.awk" "$gates_file" > "$GATES_TMP/cur"
+    # awk reads an argument that starts with a dash as one of its own options, so a file
+    # called -odd.js comes back as "not an option" with exit 0 and no findings: a clean
+    # bill of health for a file that was never opened. A relative path gets ./ in front;
+    # an absolute one already cannot be mistaken for an option.
+    case "$gates_file" in
+        /*) gates_file_arg=$gates_file ;;
+        *)  gates_file_arg="./$gates_file" ;;
+    esac
+    awk -v style="$gates_style" -f "$GATES_TMP/blocks.awk" "$gates_file_arg" > "$GATES_TMP/cur"
 
     if [ "$gates_has_base" = 1 ]; then
         if git show "$gates_base:./$gates_file" > "$GATES_TMP/basecontent" 2>/dev/null; then

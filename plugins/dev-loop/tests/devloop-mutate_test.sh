@@ -461,3 +461,49 @@ test_the_orphan_marker_wins_over_a_missing_find() {
     assertEquals "the marker is checked before the file and the find" "5" "$DMT_STATUS"
     assertEquals "the working tree is back on HEAD" "yes" "$(dmtIsClean "$repo")"
 }
+
+# ---------------------------------------------------------------------------
+# Where the file and the working files are looked for
+# ---------------------------------------------------------------------------
+
+test_an_incomplete_marker_is_refused_and_kept() {
+    repo=$(dmtNewRepo mutate-marker-short)
+    mkdir -p "$repo/.git/devloop-mutate"
+    # One line where three are needed: the file is named and the copies are not, so
+    # there is nothing to put the file back from.
+    printf '%s\n' "$repo/sample.txt" > "$repo/.git/devloop-mutate/marker"
+    dmtWriteScript "$repo/cmd.sh" 'exit 0'
+    dmtRun "$repo" sample.txt alpha ALPHA -- sh ./cmd.sh
+    assertEquals "a marker that names no copy restores nothing" "4" "$DMT_STATUS"
+    assertTrue "and it is kept for whoever sorts it out" \
+        "[ -f \"\$repo/.git/devloop-mutate/marker\" ]"
+    assertEquals "the mutation that was asked for never started" "yes" "$(dmtIsClean "$repo")"
+}
+
+test_an_absolute_file_path_is_accepted() {
+    repo=$(dmtNewRepo mutate-abspath)
+    dmtWriteScript "$repo/cmd.sh" 'cat "$1" > "$2"'
+    dmtRun "$repo" "$repo/sample.txt" alpha ALPHA -- sh ./cmd.sh "$repo/sample.txt" "$repo/seen.txt"
+    assertEquals "an absolute path is a path like any other" "11" "$DMT_STATUS"
+    seen=$(cat "$repo/seen.txt")
+    assertEquals "and it is that file the command saw mutated" "ALPHA
+beta
+gamma" "$seen"
+    assertEquals "the working tree is back on HEAD" "yes" "$(dmtIsClean "$repo")"
+}
+
+test_an_orphan_marker_is_found_again_from_a_subdirectory() {
+    repo=$(dmtNewRepo mutate-orphan-subdir)
+    mkdir -p "$repo/sub"
+    printf 'deep\n' > "$repo/sub/deep.txt"
+    dmtGit "$repo" add sub/deep.txt
+    dmtGit "$repo" commit -q -m "a file in a subdirectory"
+    # The orphan is made from the root, where git answers `.git` and not an absolute
+    # path. The copies the marker names must be findable from anywhere else as well,
+    # or the next run reads them against the wrong directory and refuses to restore.
+    dmtOrphan "$repo" sample.txt
+    dmtRun "$repo/sub" deep.txt deep DEEP -- true
+    assertEquals "the orphan is restored from another directory too" "5" "$DMT_STATUS"
+    assertEquals "the working tree is back on HEAD" "yes" "$(dmtIsClean "$repo")"
+    assertEquals "the marker and the stale lock are gone" "" "$(dmtLeftovers "$repo")"
+}

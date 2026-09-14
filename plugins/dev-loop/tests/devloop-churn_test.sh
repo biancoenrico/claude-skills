@@ -221,3 +221,21 @@ test_a_truncated_history_is_warned_about_on_stderr() {
         "case \"\$churn_err\" in *shallow*) true ;; *) false ;; esac"
     assertEquals "and it stays out of the listing" "1${CHURN_TAB}src/a.txt" "$churn_out"
 }
+
+test_a_second_zone_is_a_bad_argument() {
+    # Silence here would be the worst answer: the second zone would be dropped and the
+    # listing would describe a zone nobody asked about.
+    assertEquals "two zones, and no way to tell which one was meant" \
+        "2" "$(churnStatusIn "$CHURN_REPO" src docs)"
+    assertEquals "nothing reaches stdout" "" "$(churnRun src docs)"
+}
+
+test_a_repository_without_a_commit_says_nothing_at_all() {
+    churn_empty=$(newTestRepo churnempty)
+    assertEquals "an empty history is an empty listing, not a failure" \
+        "0" "$(churnStatusIn "$churn_empty" src)"
+    assertEquals "stdout stays empty" \
+        "" "$( cd "$churn_empty" && sh "$DEVLOOP_CHURN_BIN" src 2>/dev/null )"
+    assertEquals "and git never gets to complain about the missing HEAD" \
+        "" "$( cd "$churn_empty" && sh "$DEVLOOP_CHURN_BIN" src 2>&1 >/dev/null )"
+}

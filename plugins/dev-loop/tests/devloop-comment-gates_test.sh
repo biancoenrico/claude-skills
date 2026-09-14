@@ -255,3 +255,136 @@ test_without_a_path_it_is_a_bad_argument() {
     assertEquals "there is nothing to read" "2" "$status"
     assertEquals "stdout stays empty" "" "$out"
 }
+
+# ---------------------------------------------------------------------------
+# Arguments that decide whether a file is read at all. A path read as an option, or a
+# path that is not there, would leave an empty stdout - and an empty stdout is what a
+# clean file looks like, so only the exit code can tell the two apart.
+# ---------------------------------------------------------------------------
+
+test_the_double_dash_closes_the_options_and_the_rest_are_paths() {
+    dir=$(newTestDir gatesdashdash)
+    gatesWrite "$dir/a.js" "// batch 3 owns this"
+    gatesWrite "$dir/b.js" "// batch 4 owns that"
+    out=$(cd "$dir" && sh "$DEVLOOP_GATES_BIN" -- a.js b.js 2>/dev/null)
+    assertEquals "everything after the separator is read" "2" "$(gatesCountLines "$out")"
+    assertEquals "the separator itself is no path of its own" "a.js" "$(gatesField1 "$out")"
+}
+
+test_an_unknown_option_is_a_bad_argument() {
+    dir=$(newTestDir gatesbadopt)
+    gatesWrite "$dir/a.js" "// batch 3 owns this"
+    out=$(cd "$dir" && sh "$DEVLOOP_GATES_BIN" --bogus a.js 2>/dev/null)
+    status=$?
+    assertEquals "an option nobody wrote is not something to walk past" "2" "$status"
+    assertEquals "stdout stays empty" "" "$out"
+}
+
+test_a_path_that_cannot_be_read_is_a_bad_argument() {
+    dir=$(newTestDir gatesunreadable)
+    out=$(cd "$dir" && sh "$DEVLOOP_GATES_BIN" absent.js 2>/dev/null)
+    status=$?
+    assertEquals "a file that is not there is not a file with no findings" "2" "$status"
+    assertEquals "stdout stays empty" "" "$out"
+}
+
+# ---------------------------------------------------------------------------
+# Comment syntaxes other than // and #
+# ---------------------------------------------------------------------------
+
+test_python_comments_are_read_as_hash_lines_and_as_docstrings() {
+    dir=$(newTestDir gatespython)
+    gatesWrite "$dir/a.py" \
+        "# batch 3 owns this" \
+        "x = 1" \
+        '"""' \
+        "after the review this one stays" \
+        '"""'
+    out=$(cd "$dir" && sh "$DEVLOOP_GATES_BIN" a.py 2>/dev/null)
+    assertEquals "both forms are read" "2" "$(gatesCountLines "$out")"
+    assertTrue "the hash line is one of them" \
+        "case \"\$out\" in *'a.py:1:process-ref:batch 3 owns this'*) true ;; *) false ;; esac"
+    assertTrue "and the docstring is the other, against the line it opens on" \
+        "case \"\$out\" in *'a.py:3:process-ref:after the review this one stays'*) true ;; *) false ;; esac"
+}
+
+test_sql_comments_are_read_with_the_double_dash_marker() {
+    dir=$(newTestDir gatessql)
+    gatesWrite "$dir/a.sql" "-- batch 3 owns this"
+    out=$(cd "$dir" && sh "$DEVLOOP_GATES_BIN" a.sql 2>/dev/null)
+    assertEquals "one comment, one finding" "1" "$(gatesCountLines "$out")"
+    assertEquals "the double dash opens a comment in sql" "process-ref" "$(gatesField3 "$out")"
+}
+
+# ---------------------------------------------------------------------------
+# A directory as a path
+# ---------------------------------------------------------------------------
+
+test_a_directory_is_read_as_the_tracked_files_under_it() {
+    repo=$(newTestRepo gatesdir)
+    mkdir -p "$repo/sub"
+    gatesWrite "$repo/sub/tracked.js" "// batch 3 owns this"
+    (cd "$repo" && git add sub/tracked.js && git commit -qm one) >/dev/null 2>&1
+    # Untracked on purpose: git ls-files is the listing, so this one is never read.
+    gatesWrite "$repo/sub/loose.js" "// batch 4 owns this"
+    out=$(cd "$repo" && sh "$DEVLOOP_GATES_BIN" sub 2>/dev/null)
+    assertEquals "only the tracked file of the directory is read" "1" "$(gatesCountLines "$out")"
+    assertEquals "and it is named by its path under the directory" "sub/tracked.js" "$(gatesField1 "$out")"
+}
+
+test_a_directory_outside_a_repository_is_skipped_and_said_so() {
+    dir=$(newTestDir gatesdirnorepo)
+    mkdir -p "$dir/sub"
+    gatesWrite "$dir/sub/a.js" "// batch 3 owns this"
+    out=$(cd "$dir" && sh "$DEVLOOP_GATES_BIN" sub 2>/dev/null)
+    status=$?
+    err=$(cd "$dir" && sh "$DEVLOOP_GATES_BIN" sub 2>&1 >/dev/null)
+    assertEquals "there is no listing to be had" "" "$out"
+    assertEquals "skipping a directory is not a failure" "0" "$status"
+    assertTrue "the skipped directory is named on stderr" \
+        "case \"\$err\" in *'skipped: sub'*) true ;; *) false ;; esac"
+}
+
+# ---------------------------------------------------------------------------
+# What the extraction must not mistake for a comment, and where it must stop
+# ---------------------------------------------------------------------------
+
+test_a_url_does_not_open_a_comment() {
+    dir=$(newTestDir gatesurl)
+    gatesWrite "$dir/a.js" 'var u = "http://example.com/batch 3";'
+    out=$(cd "$dir" && sh "$DEVLOOP_GATES_BIN" a.js 2>/dev/null)
+    assertEquals "the // of a scheme is not a comment marker" "" "$out"
+}
+
+test_a_shebang_is_not_a_comment() {
+    dir=$(newTestDir gatesshebang)
+    gatesWrite "$dir/s.sh" \
+        "#!/bin/sh" \
+        "# after the review this one stays" \
+        "echo hi"
+    out=$(cd "$dir" && sh "$DEVLOOP_GATES_BIN" s.sh 2>/dev/null)
+    assertEquals "one comment, one finding" "1" "$(gatesCountLines "$out")"
+    assertEquals "the finding is the comment, not the line above it" "2" "$(gatesField2 "$out")"
+    assertEquals "and the kernel line is no part of its text" \
+        "after the review this one stays" "$(gatesText "$out")"
+}
+
+test_a_comment_longer_than_240_characters_is_truncated() {
+    dir=$(newTestDir gateslong)
+    gates_filler=$(awk 'BEGIN { s = ""; while (length(s) < 300) s = s "a"; print s }')
+    gatesWrite "$dir/a.js" "// batch 3 $gates_filler"
+    out=$(cd "$dir" && sh "$DEVLOOP_GATES_BIN" a.js 2>/dev/null)
+    gates_long_text=$(gatesText "$out")
+    assertEquals "the text of a finding stops at 240 characters" \
+        "240" "$(printf '%s' "$gates_long_text" | awk '{ print length($0) }')"
+    assertTrue "and the cut is marked" \
+        "case \"\$gates_long_text\" in *...) true ;; *) false ;; esac"
+}
+
+test_a_path_starting_with_a_dash_is_read_and_not_taken_for_an_option() {
+    repo=$(newTestRepo dashedpath)
+    printf '// batch 3 note\nvar a = 1;\n' > "$repo/-odd.js"
+    out=$(cd "$repo" && sh "$DEVLOOP_GATES_BIN" -- -odd.js 2>&1)
+    assertTrue "the file is opened, not read as an awk option" \
+        "case \"\$out\" in *process-ref*) true ;; *) false ;; esac"
+}
