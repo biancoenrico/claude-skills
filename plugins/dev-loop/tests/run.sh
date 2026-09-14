@@ -29,6 +29,11 @@
 #     that asserts nothing passes.
 #
 # Environment: POSIX shell only. DEVLOOP_TESTS_DIR holds this directory.
+#
+# Filtering:  sh run.sh <substring>
+#   Runs only what the substring matches: a file name, or a test name when the
+#   substring starts with test_. Mutation testing needs it - running the whole suite to
+#   watch one test go red says nothing about which line the others cover.
 # ---------------------------------------------------------------------------
 
 set -u
@@ -36,6 +41,11 @@ set -u
 tests_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 DEVLOOP_TESTS_DIR=$tests_dir
 export DEVLOOP_TESTS_DIR
+
+# The filter travels in the environment, so the driver hands it to both shells without
+# a second argument to keep in step. An empty one matches everything.
+DEVLOOP_TEST_FILTER=${1:-${DEVLOOP_TEST_FILTER:-}}
+export DEVLOOP_TEST_FILTER
 
 # ---------------------------------------------------------------------------
 # Driver pass: pick the shells and relaunch this same file under each of them.
@@ -75,6 +85,17 @@ files_seen=0
 
 for test_file in "$tests_dir"/*_test.sh; do
     [ -f "$test_file" ] || continue
+    # A filter that names the file selects all of its tests; otherwise it is matched
+    # against the test names, and a file with no match is skipped whole.
+    file_matches=no
+    case "$(basename "$test_file")" in *"$DEVLOOP_TEST_FILTER"*) file_matches=yes ;; esac
+    if [ "$file_matches" = no ]; then
+        file_has_match=no
+        for candidate_name in $(sed -n 's/^\(test_[A-Za-z0-9_]*\)[ 	]*()[ 	]*{.*/\1/p' "$test_file"); do
+            case "$candidate_name" in *"$DEVLOOP_TEST_FILTER"*) file_has_match=yes ;; esac
+        done
+        [ "$file_has_match" = yes ] || continue
+    fi
     files_seen=$((files_seen + 1))
     echo "  $(basename "$test_file")"
 
@@ -87,6 +108,9 @@ for test_file in "$tests_dir"/*_test.sh; do
 
     test_names=$(sed -n 's/^\(test_[A-Za-z0-9_]*\)[ 	]*()[ 	]*{.*/\1/p' "$test_file")
     for test_name in $test_names; do
+        if [ "$file_matches" = no ]; then
+            case "$test_name" in *"$DEVLOOP_TEST_FILTER"*) ;; *) continue ;; esac
+        fi
         tests_total=$((tests_total + 1))
         failures_before=$ASSERT_FAILURES
         setUp
@@ -102,12 +126,22 @@ for test_file in "$tests_dir"/*_test.sh; do
 done
 
 if [ "$files_seen" -eq 0 ]; then
-    echo "  no *_test.sh file found in $tests_dir"
+    if [ -n "$DEVLOOP_TEST_FILTER" ]; then
+        echo "  no test file or test name matches '$DEVLOOP_TEST_FILTER'"
+    else
+        echo "  no *_test.sh file found in $tests_dir"
+    fi
 fi
 
 echo "  $DEVLOOP_TEST_SHELL: $tests_total run, $tests_failed failed"
 if [ "$tests_failed" -gt 0 ]; then
     echo "  FAILED under $DEVLOOP_TEST_SHELL"
+    exit 1
+fi
+# Zero tests is a failure, not a pass: a mistyped filter would otherwise report success
+# for a run that asserted nothing, which is the one lie a test runner must never tell.
+if [ "$tests_total" -eq 0 ]; then
+    echo "  NOTHING RAN under $DEVLOOP_TEST_SHELL"
     exit 1
 fi
 exit 0
