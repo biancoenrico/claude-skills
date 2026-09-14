@@ -294,6 +294,35 @@ test_a_command_that_rewrites_the_mutated_file_stops_the_restore() {
 }
 
 # ---------------------------------------------------------------------------
+test_a_file_already_back_to_the_original_needs_no_restoring() {
+    repo=$(dmtNewRepo mutate-already-back)
+    dmtOrphan "$repo" sample.txt
+    # What a SIGKILL during the restoring cp leaves behind: the cp is a child of the run
+    # and finishes on its own, so the file is right again and only the marker survives.
+    # Calling that "rewritten" would keep the marker and hand out a 4 that every later
+    # run would repeat, with nothing left in the repository to put back.
+    (cd "$repo" && git show "HEAD:./sample.txt" > "$repo/sample.txt") >/dev/null 2>&1
+    dmtWriteScript "$repo/cmd.sh" 'exit 0'
+    dmtRun "$repo" sample.txt beta BETA -- sh ./cmd.sh
+    assertEquals "a file that is already the original is restored, not refused" "5" "$DMT_STATUS"
+    assertEquals "the marker and the stale lock are gone" "" "$(dmtLeftovers "$repo")"
+
+    # And the repository is usable again: the run after it mutates as usual.
+    dmtRun "$repo" sample.txt beta BETA -- sh ./cmd.sh
+    assertEquals "the next run is not stuck on the marker of the first" "11" "$DMT_STATUS"
+}
+
+test_a_command_that_deletes_the_file_gets_it_back() {
+    repo=$(dmtNewRepo mutate-deleted)
+    dmtWriteScript "$repo/cmd.sh" 'rm -f "$1"
+exit 1'
+    dmtRun "$repo" sample.txt alpha ALPHA -- sh ./cmd.sh "$repo/sample.txt"
+    assertEquals "a deleted file takes nothing away from the verdict" "10" "$DMT_STATUS"
+    assertEquals "the original copy is all that is left of it, and it is enough" \
+        "yes" "$(dmtIsClean "$repo")"
+    assertEquals "nothing of ours survives" "" "$(dmtLeftovers "$repo")"
+}
+
 # Interruption
 # ---------------------------------------------------------------------------
 
@@ -404,6 +433,44 @@ test_a_stale_lock_is_taken_over() {
     assertEquals "and it is released like any other" "" "$(dmtLeftovers "$repo")"
 }
 
+test_a_lock_that_names_no_owner_is_refused() {
+    repo=$(dmtNewRepo mutate-lock-noowner)
+    # The instant between the mkdir that takes the lock and the pid written into it.
+    # Read as stale, it lets a second run mutate the same tree as the first and restore
+    # that first mutation as an orphan while its command is still running.
+    mkdir -p "$repo/.git/devloop-mutate/lock"
+    dmtWriteScript "$repo/cmd.sh" 'exit 0'
+    dmtRun "$repo" sample.txt alpha ALPHA -- sh ./cmd.sh
+    assertEquals "a lock with no owner is held, not stale" "3" "$DMT_STATUS"
+    assertTrue "and it is left where it is" "[ -d \"\$repo/.git/devloop-mutate/lock\" ]"
+}
+
+test_a_lock_pid_without_a_final_newline_is_still_an_owner() {
+    repo=$(dmtNewRepo mutate-lock-partial)
+    # What an owner killed halfway through writing its pid leaves: a line with no
+    # newline of its own, which read reports as a failure while assigning it all the
+    # same. Dropping the value there turns a live lock into a free one.
+    mkdir -p "$repo/.git/devloop-mutate/lock"
+    printf '%s' "$$" > "$repo/.git/devloop-mutate/lock/pid"
+    dmtWriteScript "$repo/cmd.sh" 'exit 0'
+    dmtRun "$repo" sample.txt alpha ALPHA -- sh ./cmd.sh
+    assertEquals "the pid is read, newline or no newline" "3" "$DMT_STATUS"
+    # The code alone would not tell this apart from a lock read as nameless:
+    # both refuse with a 3, and only one of them knows who is holding it.
+    assertEquals "and the refusal names the owner it found" \
+        "yes" "$(dmtContains "$DMT_OUT" "live process $$")"
+}
+
+test_a_lock_held_under_another_user_is_not_stale() {
+    repo=$(dmtNewRepo mutate-lock-foreign)
+    # pid 1 exists and, unless these tests run as root, will not take a signal from us:
+    # `kill -s 0` fails for it exactly as it fails for a process that never existed.
+    dmtPlantLock "$repo" 1
+    dmtWriteScript "$repo/cmd.sh" 'exit 0'
+    dmtRun "$repo" sample.txt alpha ALPHA -- sh ./cmd.sh
+    assertEquals "permission denied is not proof that the owner is gone" "3" "$DMT_STATUS"
+}
+
 test_an_untracked_file_is_refused() {
     repo=$(dmtNewRepo mutate-untracked)
     printf 'alpha\n' > "$repo/fresh.txt"
@@ -416,6 +483,21 @@ test_a_file_that_differs_from_head_is_refused() {
     printf 'alpha\nbeta\ngamma\ndelta\n' > "$repo/sample.txt"
     dmtRun "$repo" sample.txt alpha ALPHA -- true
     assertEquals "a dirty file has changes of somebody else's to lose" "3" "$DMT_STATUS"
+}
+
+test_a_tracked_symlink_is_refused() {
+    repo=$(dmtNewRepo mutate-symlink)
+    mkdir -p "$repo/sub"
+    printf 'alpha\nbeta\n' > "$repo/sub/target.txt"
+    (cd "$repo" && ln -s sub/target.txt link.txt) >/dev/null 2>&1
+    dmtGit "$repo" add link.txt sub/target.txt
+    dmtGit "$repo" commit -q -m "a tracked symbolic link"
+    dmtRun "$repo" link.txt alpha ALPHA -- true
+    assertEquals "git tracks the link, the write reaches the target" "3" "$DMT_STATUS"
+    target=$(cat "$repo/sub/target.txt")
+    assertEquals "and the target is left exactly as it was" "alpha
+beta" "$target"
+    assertEquals "the refusal says what it is about" "yes" "$(dmtContains "$DMT_OUT" "symbolic link")"
 }
 
 test_a_find_that_is_absent_is_refused() {
@@ -506,4 +588,55 @@ test_an_orphan_marker_is_found_again_from_a_subdirectory() {
     assertEquals "the orphan is restored from another directory too" "5" "$DMT_STATUS"
     assertEquals "the working tree is back on HEAD" "yes" "$(dmtIsClean "$repo")"
     assertEquals "the marker and the stale lock are gone" "" "$(dmtLeftovers "$repo")"
+}
+
+# ---------------------------------------------------------------------------
+# What the caller's own environment must not be able to change
+# ---------------------------------------------------------------------------
+
+test_a_stdout_that_closes_early_does_not_lose_the_verdict() {
+    repo=$(dmtNewRepo mutate-pipe)
+    # Long lines, enough of them to fill the pipe buffer before head has gone: a tail
+    # that fits in the buffer would never see the write fail. The caller reads one line
+    # and leaves, which is what `devloop-mutate ... | head` does.
+    dmtWriteScript "$repo/cmd.sh" 'i=0
+pad=$(awk "BEGIN { s = \"\"; while (length(s) < 3000) { s = s \"x\" }; print s }")
+while [ "$i" -lt 200 ]; do
+    printf "%s\n" "$pad"
+    i=$((i + 1))
+done
+exit 1'
+    { cd "$repo" && sh "$DEVLOOP_MUTATE_BIN" sample.txt alpha ALPHA -- sh ./cmd.sh
+      printf '%s\n' "$?" > "$repo/verdict"
+    } 2>/dev/null | head -1 >/dev/null
+    status=''
+    read -r status < "$repo/verdict" || status=''
+    assertEquals "the verdict is decided before the tail is printed" "10" "$status"
+    assertEquals "and the file still came back" "yes" "$(dmtIsClean "$repo")"
+}
+
+test_a_file_name_that_starts_with_a_dash_is_a_name_like_any_other() {
+    repo=$(dmtNewRepo mutate-dashname)
+    printf 'alpha\nbeta\n' > "$repo/-dash.txt"
+    dmtGit "$repo" add ./-dash.txt
+    dmtGit "$repo" commit -q -m "a file whose name starts with a dash"
+    dmtWriteScript "$repo/cmd.sh" 'cat "$1" > "$2"'
+    dmtRun "$repo" -dash.txt alpha ALPHA -- sh ./cmd.sh "$repo/-dash.txt" "$repo/seen.txt"
+    assertEquals "no tool of ours may read the name as an option" "11" "$DMT_STATUS"
+    seen=$(cat "$repo/seen.txt")
+    assertEquals "and the command saw it mutated" "ALPHA
+beta" "$seen"
+    assertEquals "the working tree is back on HEAD" "yes" "$(dmtIsClean "$repo")"
+}
+
+test_the_two_strings_do_not_reach_the_environment_of_the_command() {
+    repo=$(dmtNewRepo mutate-env)
+    # They are plumbing between this script and its awk. A suite that reads its own
+    # environment - and mutation testing is run against suites that do odd things -
+    # would see two variables that the same command run by hand does not have.
+    dmtWriteScript "$repo/cmd.sh" 'env > "$1"
+exit 0'
+    dmtRun "$repo" sample.txt alpha ALPHA -- sh ./cmd.sh "$repo/env.txt"
+    seen=$(grep -c '^DEVLOOP_MUTATE_' "$repo/env.txt" || true)
+    assertEquals "the command sees the environment it would see on its own" "0" "$seen"
 }
