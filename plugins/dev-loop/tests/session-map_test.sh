@@ -63,8 +63,8 @@ test_without_an_argument_it_falls_back_to_the_plugin_root() {
 
 test_the_shipped_session_map_fits_the_budget() {
     # LC_ALL=C wc -c, not wc -m: characters depend on the locale of whoever runs the
-    # suite, and the same shipped map measures 1106 under UTF-8 and 1130 under C. The
-    # budget must mean the same thing everywhere, so it is measured in bytes.
+    # suite, and a map with any non-ASCII character counts less under UTF-8 than under C.
+    # The budget must mean the same thing everywhere, so it is measured in bytes.
     size=$(sh "$SESSION_MAP" "$REAL_LOOP" | LC_ALL=C wc -c | tr -d ' ')
     assertTrue "the session map must stay under 1200 bytes (C10), measured $size" "[ $size -lt 1200 ]"
     assertTrue "the shipped loop.md must actually yield a map, measured $size" "[ $size -gt 0 ]"

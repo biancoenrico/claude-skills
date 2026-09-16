@@ -1,9 +1,9 @@
 ---
 name: code-revision
-description: Reviews the code of one batch until it is at once correct and clean, by iterating /code-review for correctness bugs, then /simplify for reuse, simplification, efficiency and altitude, and finally handing the comments to /dev-loop:comment-writing. It verifies code already written; it does not review a spec or a plan.
+description: Reviews the code of one batch until it is at once correct and clean, with /code-review for correctness bugs, then one /simplify pass for reuse, simplification, efficiency and altitude, and finally handing the comments to /dev-loop:comment-writing. It verifies code already written; it does not review a spec or a plan.
 when_to_use: A batch has just been implemented and its diff needs checking before the next one starts. Triggers - "review what was written", "check and clean up the changes", "run code-review and simplify", "clear out the useless comments", "I have finished implementing, go over it".
 argument-hint: <scope - paths, base..HEAD, a branch or a range; plus the batch file of the plan and any state from an earlier run>
-effort: xhigh
+effort: high
 context: fork
 agent: general-purpose
 background: false
@@ -41,6 +41,11 @@ Fix the diff under review and declare it in one line: which files, how many line
 from. Note also whether the changes are **committed or in the working tree**: it changes how the
 diffs for the later phases are generated (a range of commits versus `git diff HEAD`).
 
+Declare its size in that same line, against the small batch threshold in
+`${CLAUDE_PLUGIN_ROOT}/references/limits.md`. Below it, Phases A and B become **one** `/code-review`
+pass at the level Phase A picks: apply what it returns under the rules of both phases, the Phase A
+re-run included, and check lint and build once for both.
+
 ## The order of the phases: correct first, then clean, comments last
 
 The order is not arbitrary. You hunt the **bug first** and clean up **afterwards** because there is
@@ -51,8 +56,8 @@ piece of code, so for as long as that code can still change — for a fix or for
 on the comments is provisional. Worse, a cleanup that moves or extracts code leaves behind comments
 describing a version that no longer exists.
 
-1. **Phase A — Correctness:** iterate `/code-review` until no blocking bugs remain.
-2. **Phase B — Cleaning:** iterate `/simplify` until a round produces no more changes.
+1. **Phase A — Correctness:** `/code-review`, re-run only while its fixes need checking.
+2. **Phase B — Cleaning:** one `/simplify` pass.
 3. **Phase C — Comments:** one final pass, delegated to `/dev-loop:comment-writing`.
 
 Cleaning touches code already verified correct: if a cleanup changes behaviour in a non-trivial
@@ -60,9 +65,9 @@ way, go briefly back to Phase A on that point.
 
 ## Phase A — Correctness
 
-Run `/code-review` over the scope. Choose the effort level from the risk of the diff: `medium` for
-small linear changes, `high`/`max` for delicate logic, concurrency, security, or wide diffs
-touching several subsystems. Declare the level chosen and why.
+Run `/code-review` over the scope at `medium`. Raise it to `high` only for concurrency, security,
+money or data-loss paths, or a diff spanning several subsystems; `max` only when the arguments ask for it.
+Declare the level chosen and why.
 
 Classify the findings that come back by severity:
 
@@ -85,19 +90,24 @@ semantics of a method do not deserve the same level of confirmation:
 After the fixes, check the code is still valid with the project's tools (`php -l`, `node --check`, a
 linter, the build) before going on.
 
-Re-run `/code-review` over the corrected code: a fix can uncover or introduce a problem that was
-hidden before. Continue until no Critical or Important findings remain. Residual Minors the user
-chooses to accept do not block Phase B; record them.
+Re-run `/code-review` **only if this round applied a Critical or Important fix**, and **only over
+what the fixes changed** rather than the whole scope: a fix can introduce a problem, but the lines
+it did not touch were already reviewed. A round that applied only Minors, or nothing, closes Phase
+A. The rounds are capped by the correctness round cap in
+`${CLAUDE_PLUGIN_ROOT}/references/limits.md`. Residual Minors the user chooses to accept do not
+block Phase B; record them.
 
 ## Phase B — Cleaning
 
-Only once correctness is closed, run `/simplify` over the scope. Apply the quality fixes it returns
+Unless Step 1 folded this phase into Phase A, and only once correctness is closed, run `/simplify`
+over the scope. Apply the quality fixes it returns
 (reuse, simplification, efficiency, altitude), skipping the ones that would change behaviour or that
 fall outside the diff under review — note the skips instead of forcing them.
 
 Safety rule: if a cleanup touches a point non-trivially (it changes behaviour, not only form),
-**revalidate it with a mini round of Phase A** on that point before accepting it. Cleaning must not
-reintroduce bugs.
+**revalidate it with a mini round of Phase A** on that point before accepting it. That round counts
+against the correctness round cap; with the cap spent, skip the cleanup and note it. Cleaning must
+not reintroduce bugs.
 
 **The boundary with `/dev-loop:design-revision`:** Phase B files **inside the diff**. A duplication
 that runs outside the diff, a switch that has been growing for three sprints, a class that knows too
@@ -105,13 +115,18 @@ much — those are structure, not filing: they are **noted** in the report and l
 `/dev-loop:design-revision`, which runs once before the branch is closed. Chasing them here inflates
 the batch and settles them on a sample too small to decide from.
 
-Re-run `/simplify`: a cleanup can open another one (extracting a function makes a second duplication
-obvious). Continue until a round produces no more changes. Re-check lint and build.
+**One pass, not a loop.** `/simplify` nearly always finds something more, so "until it runs empty"
+does not converge; a cleanup that the first pass opened is structure and belongs to
+`/dev-loop:design-revision`. Re-check lint and build.
 
 ## Phase C — Comments
 
 Once correctness and cleaning are closed, the code has its final shape: only now does looking at its
 comments make sense. **Run `/dev-loop:comment-writing` in review mode** over the same scope.
+
+**Skip it when the diff, as Phases A and B left it, adds, modifies or makes false no comment**, and
+declare the reason in the report: a skipped Phase C is closed. Before declaring none, look at the
+comments next to the changed hunks — a comment the diff has made false still counts.
 
 The criteria — what is kept, what is rewritten, what is deleted, the cutting proof — live there and
 **are not copied here**: two copies would diverge the first time somebody touched one. This phase
@@ -135,17 +150,15 @@ or a broken delimiter breaks the file all the same.
 
 Exit when one of these fires:
 
-- **Approved** — `/code-review` finds no more Critical or Important, `/simplify` runs empty **and**
-  the pass over the comments is closed.
+- **Approved** — Phase A is closed with no Critical or Important left, Phase B is closed — folded
+  into Phase A below the small batch threshold counts — **and** Phase C is closed.
 - **Accepted with reservations** — only Minors remain, and the user chooses to accept them.
 - **External block** — a problem emerges that needs a decision which is not yours (a contradiction
   with the plan, a design choice, missing external information): stop and hand the question back.
 
-Phases A and B together are capped by **the revision iteration cap** named in
-`${CLAUDE_PLUGIN_ROOT}/references/limits.md`. Phase C is a single pass and does not consume that
-budget, but it still has to run before approval is declared — if the budget runs out first, say so
-explicitly instead of skipping it in silence. At the cap, consolidate the state and hand the
-question back: what has not closed by then usually needs a human decision, not more filing.
+At the cap on Phase A rounds (see Phase A), a clean last round closes Phase A like any other. Only
+when the last allowed round leaves a Critical or Important fix open or unchecked, consolidate the
+state and hand the question back. Never drop Phase C in silence because the cap was reached.
 
 ## When it is time to ask, and the state that goes with it
 
@@ -160,10 +173,12 @@ decision away from the user **and** the awareness of having taken it. The form o
 held by `${CLAUDE_PLUGIN_ROOT}/references/asking.md`.
 
 A forked skill cannot ask the user: it returns `status: question`. When it does, the `state` field
-carries **the current phase (A, B or C), the current iteration, the findings already applied with
-their sha, and the findings already discarded with the reason**. The phase is not a detail: without
-it, a stop halfway through Phase B of the second iteration makes the resume redo the whole of Phase
-A; and without the shas of what was applied, the resume does not know what is already in the branch.
+carries **the current phase (A, B or C), the current iteration and the last code used, the
+correctness rounds already spent, the findings already applied with their sha, and the findings
+already discarded with the reason**. The phase is not a
+detail: without it, a stop halfway through Phase B makes the resume redo the whole of Phase A;
+without the rounds spent, the resume starts the cap afresh; and without the shas of what was
+applied, the resume does not know what is already in the branch.
 The shape of the return is held by `${CLAUDE_PLUGIN_ROOT}/references/agent-return.md`.
 
 If `Skill` or `Agent` are not available, this skill runs in the main thread with no other
@@ -171,7 +186,8 @@ difference.
 
 ## The report
 
-One per iteration, so the rounds can be compared at a glance. Include only the sections with at
+One per iteration — a `/code-review` round, the `/simplify` pass or the comment pass — so the rounds
+can be compared at a glance. Include only the sections with at
 least one item.
 
 ```
@@ -215,8 +231,9 @@ These exist because the main risk of an automated review is making the code wors
 sound when it is not, or filing it until it loses its shape.
 
 - **Do not skip Phase A.** Cleaning code not yet verified correct is work at risk.
-- **Do not declare it sound without proof.** An iteration closes only after re-running the tool and
-  checking lint and build. No success claim without the evidence of the command run.
+- **Do not declare it sound without proof.** A phase closes only after any re-run the procedure calls
+  for and after checking lint and build. No success claim without the evidence of
+  the command run.
 - **Do not change the intent of the code.** Fixes correct bugs and tidy form; they do not redesign
   the feature. If you think the design is wrong, say so as an open point.
 - **Do not hide a finding under a cleanup.** A bug masked by a simplification is worse than a

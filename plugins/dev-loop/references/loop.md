@@ -16,7 +16,7 @@ markers below has to buy its room from something already there.
 
 <!-- session-map:start -->
 **Classify the work first.** With superpowers installed, brainstorming classifies. Without it,
-classify with these three lines and say out loud which one you picked:
+classify with these three lines and say which one you picked:
 
 - **spike** — a feasibility question; the answer is a direction, the code is throwaway;
 - **bounded** — a contained change to a flow that already exists in the repository;
@@ -28,12 +28,12 @@ When in doubt, take the heavier path.
 `/dev-loop:plan-drafting` → `/dev-loop:plan-revision` → `/dev-loop:plan-execution` →
 `/dev-loop:design-revision` → close the branch.
 **Bounded:** note the base, implement, commit → `/dev-loop:test-writing` on `base..HEAD` →
-`/dev-loop:code-revision` on `base..HEAD`.
+`/dev-loop:code-revision` on `base..HEAD`. Prose-only diff: one `dev-loop:reviewer` on `code-revision/prose.md`.
 **Spike:** no loop at all.
 
 Where superpowers would reach for writing-plans, executing-plans, subagent-driven-development,
 test-driven-development, requesting-code-review or finishing-a-development-branch, the matching
-dev-loop step takes its place (table further down in this file).
+dev-loop step takes its place (table below).
 <!-- session-map:end -->
 
 ## The three paths, in full
@@ -79,6 +79,15 @@ For a contained change to a flow that already exists.
    and commits.
 2. `/dev-loop:test-writing` on `base..HEAD`.
 3. `/dev-loop:code-revision` on `base..HEAD`.
+
+**When the diff is prose only** — markdown, instructions, descriptive text in manifests — steps 2
+and 3 have nothing to hold on to: no test can go red and there is no code to review. Launch one
+`dev-loop:reviewer` on `base..HEAD` instead, with
+`${CLAUDE_PLUGIN_ROOT}/skills/code-revision/prose.md` as its criteria, and apply what it returns
+in the main thread. A diff that also touches code, or configuration a program executes (a hook
+command, a script path, a build setting), takes the full path. A reviewer that returns a question
+stops the run like a fork does: its question and what it had checked go into the worklog as a
+partial line.
 
 No spec, no plan, no batch files, no executor. The main thread owns the production changes that
 turn out to be needed along the way, and keeps the base, the progress lines, and the state of a
@@ -126,7 +135,7 @@ instead of merging quietly.
 - the **base**, the SHA of `HEAD` noted before the first commit of the work, written once and
   never overwritten on resume;
 - a **progress line per step** of the bounded path — the implementation and its commit, the
-  test-writing pass, the code-revision pass — each with the SHA it ended on. A step that stopped
+  test-writing pass, the code-revision pass, or the single reviewer pass of a prose-only diff — each with the SHA it ended on. A step that stopped
   halfway is marked as partial, and partial does not count as done;
 - the **state of a fork that stopped**: when test-writing or code-revision returns with a
   question, its `state` field is written here before the question goes to the user, and it is

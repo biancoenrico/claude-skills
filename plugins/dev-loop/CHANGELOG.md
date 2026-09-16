@@ -3,6 +3,24 @@
 Kept in the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) shape, one section per
 release, newest first; the plugin follows [semantic versioning](https://semver.org/).
 
+## 1.1.0 — 2026-09-16
+
+A batch now goes through the loop faster.
+
+### Changed
+
+- **`code-revision` does fewer rounds.** `/code-review` starts at `medium` and runs again
+  only after a Critical or Important fix, and then only over that fix. `/simplify` runs once.
+- **Small batches get a single pass.** Below the small batch threshold, one `/code-review`
+  covers both correctness and cleanup.
+- **The comment pass is skipped** when the diff adds or changes no comment.
+- **`executor` and `drafter` run on Sonnet**, and `reviewer`, `test-writing` and
+  `code-revision` run at `high` effort instead of `xhigh`.
+- **Mutations in `test-writing` run only the target test file**, and the whole suite only
+  for a mutation that survives.
+- **A prose-only change skips tests and code revision** on the bounded path: one
+  `dev-loop:reviewer` checks it against the new `code-revision/prose.md` criteria instead.
+
 ## 1.0.0 — 2026-09-14
 
 First release. Installing the plugin gives you:
