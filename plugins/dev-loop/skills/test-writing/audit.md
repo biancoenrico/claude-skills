@@ -49,7 +49,7 @@ has a behaviour, and none is excluded.
 | exit | what the skill does |
 |---|---|
 | 10 | mutation caught: confirm from the output tail that what fails is the assertion of the target test, then move to the next mutation |
-| 11 | mutation survived: relaunch the same mutation with the unfiltered suite — something else goes red ⇒ `SURVIVES-MUTATION`, nothing does ⇒ `UNCOVERED` — then the test gets rewritten calling the code instead of repeating it |
+| 11 | mutation survived: relaunch the same mutation with the unfiltered suite — something else goes red ⇒ `SURVIVES-MUTATION`, nothing does ⇒ `UNCOVERED` — the relaunch's own exit is read by these two outcomes, not by this table. In write mode the test then gets rewritten calling the code instead of repeating it; here that is the finding |
 | 12 | no verdict: **one** relaunch of the same mutation; if it repeats, the mutation is declared not run in the report |
 | 3 | refused (live lock, file untracked or different from `HEAD`, `<find>` missing or repeated): nothing was mutated — a finding in the report, mutation declared not run |
 | 4 | **restore impossible or failed** — see below |

@@ -46,7 +46,7 @@ Each entry carries five fields:
   iteration is, what does not consume the budget, and what happens at the cap** live with the
   counter, in `${CLAUDE_PLUGIN_ROOT}/references/ledger.md`.
 - **Where it comes from:** the specification, where it is the ceiling on review iterations and
-  one of the points at which a fork skill stops and hands the question back.
+  one of the points at which a revision stops and hands the question back.
 
 ## The correctness round cap
 

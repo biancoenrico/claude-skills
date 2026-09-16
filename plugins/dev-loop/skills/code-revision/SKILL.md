@@ -66,7 +66,7 @@ way, go briefly back to Phase A on that point.
 ## Phase A — Correctness
 
 Run `/code-review` over the scope at `medium`. Raise it to `high` only for concurrency, security,
-money or data-loss paths, or a diff spanning several subsystems; `max` only when the user asks.
+money or data-loss paths, or a diff spanning several subsystems; `max` only when the arguments ask for it.
 Declare the level chosen and why.
 
 Classify the findings that come back by severity:
@@ -150,17 +150,15 @@ or a broken delimiter breaks the file all the same.
 
 Exit when one of these fires:
 
-- **Approved** — Phase A is closed with no Critical or Important left, Phase B is closed **and**
-  Phase C is closed.
+- **Approved** — Phase A is closed with no Critical or Important left, Phase B is closed — folded
+  into Phase A below the small batch threshold counts — **and** Phase C is closed.
 - **Accepted with reservations** — only Minors remain, and the user chooses to accept them.
 - **External block** — a problem emerges that needs a decision which is not yours (a contradiction
   with the plan, a design choice, missing external information): stop and hand the question back.
 
-Phase A is capped by **the correctness round cap** named in
-`${CLAUDE_PLUGIN_ROOT}/references/limits.md`. A clean last round closes Phase A like any other. Only
+At the cap on Phase A rounds (see Phase A), a clean last round closes Phase A like any other. Only
 when the last allowed round leaves a Critical or Important fix open or unchecked, consolidate the
-state and hand the question back. Phase C still has to run before approval is declared — never
-drop it in silence because the cap was reached.
+state and hand the question back. Never drop Phase C in silence because the cap was reached.
 
 ## When it is time to ask, and the state that goes with it
 
@@ -188,7 +186,8 @@ difference.
 
 ## The report
 
-One per iteration, so the rounds can be compared at a glance. Include only the sections with at
+One per iteration — a `/code-review` round, the `/simplify` pass or the comment pass — so the rounds
+can be compared at a glance. Include only the sections with at
 least one item.
 
 ```
@@ -232,8 +231,8 @@ These exist because the main risk of an automated review is making the code wors
 sound when it is not, or filing it until it loses its shape.
 
 - **Do not skip Phase A.** Cleaning code not yet verified correct is work at risk.
-- **Do not declare it sound without proof.** An iteration closes only after any re-run the procedure
-  calls for and after checking lint and build. No success claim without the evidence of
+- **Do not declare it sound without proof.** A phase closes only after any re-run the procedure calls
+  for and after checking lint and build. No success claim without the evidence of
   the command run.
 - **Do not change the intent of the code.** Fixes correct bugs and tidy form; they do not redesign
   the feature. If you think the design is wrong, say so as an open point.
