@@ -26,8 +26,9 @@ could raise the floor.
 
 A `SessionStart` hook drops a short map into the session and repeats it after every
 compaction, so Claude knows which path a piece of work belongs to before it starts: a
-**spike** runs no loop, a **bounded** change goes straight to tests and review, an
-**architectural** one earns the full sequence. Each path, and the rule that picks between
+**spike** runs no loop, a **surgical** change that repeats a pattern already beside it is
+made in the main thread with no agents, a **bounded** change goes straight to tests and
+review, an **architectural** one earns the full sequence. Each path, and the rule that picks between
 them, is written out once in
 [`references/loop.md`](references/loop.md) — that file is the loop, and nothing else
 restates it.
