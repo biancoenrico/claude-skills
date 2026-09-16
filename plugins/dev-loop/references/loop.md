@@ -15,8 +15,7 @@ measures the shipped map and turns red as soon as it goes over, so anything adde
 markers below has to buy its room from something already there.
 
 <!-- session-map:start -->
-**Classify the work first** and name the path. A superpowers "bounded" is checked
-against surgical first.
+**Classify the work first** and name the path; in doubt, go heavier.
 
 - **spike**: a feasibility question, throwaway code;
 - **surgical**: mirrors a pattern beside it, one area, no new decision, no shared interface, no
@@ -24,18 +23,20 @@ against surgical first.
 - **bounded**: a contained change to an existing flow, refactors included;
 - **architectural**: the rest: new projects, subsystems, shared interfaces.
 
-In doubt, go heavier. Surgical that breaks a criterion is classified again, never surgical.
+A superpowers "bounded" is checked against surgical first. Surgical that breaks a criterion is
+classified again, never surgical.
 
 **Architectural:** spec → `/dev-loop:spec-revision` → `/dev-loop:plan-batching` →
 `/dev-loop:plan-drafting` → `/dev-loop:plan-revision` → `/dev-loop:plan-execution` →
 `/dev-loop:design-revision` → close the branch.
-**Bounded:** note the base, implement, commit → `/dev-loop:test-writing` on `base..HEAD` →
-`/dev-loop:code-revision` on `base..HEAD`. Prose-only diff: one `dev-loop:reviewer` on `code-revision/prose.md`.
+**Bounded:** note the base, implement, commit → tests (`/dev-loop:test-writing`, or inline for a
+small diff) → `/dev-loop:code-revision`, both on `base..HEAD`. Prose only: one
+`dev-loop:reviewer` on `code-revision/prose.md`.
 **Surgical:** main thread, no agents or skills: implement, run the area's tests, one test for a
 new logic branch, commit.
 **Spike:** no loop at all.
 
-Superpowers' own steps yield to dev-loop's (table below).
+Superpowers' own steps yield to these.
 <!-- session-map:end -->
 
 ## The four paths, in full
@@ -87,7 +88,12 @@ For a contained change to a flow that already exists.
 
 1. The main thread notes the base commit before the first commit of the work, then implements
    and commits.
-2. `/dev-loop:test-writing` on `base..HEAD`.
+2. The tests, on `base..HEAD`. **Below the small batch threshold** in
+   `${CLAUDE_PLUGIN_ROOT}/references/limits.md`, the main thread writes them itself: it reads
+   `${CLAUDE_PLUGIN_ROOT}/skills/test-writing/SKILL.md` and follows it inline, every step
+   included, the list before the code and every test seen red. A fork would rebuild the context
+   this thread already holds. At or above the threshold, invoke `/dev-loop:test-writing` with
+   `base..HEAD` and the calibration from the worklog when there is one.
 3. `/dev-loop:code-revision` on `base..HEAD`.
 
 **When the diff is prose only** — markdown, instructions, descriptive text in manifests — steps 2
@@ -172,13 +178,16 @@ path would then write in two different places. The first line of the file repeat
 exactly as git spells it, so that two branches that flatten to the same file name are visible
 instead of merging quietly.
 
-**What it holds** — the same three things a batch file holds on the architectural path:
+**What it holds** — the three things a batch file holds on the architectural path, plus the
+calibration:
 
 - the **base**, the SHA of `HEAD` noted before the first commit of the work, written once and
   never overwritten on resume;
 - a **progress line per step** of the bounded path — the implementation and its commit, the
   test-writing pass, the code-revision pass, or the single reviewer pass of a prose-only diff — each with the SHA it ended on. A step that stopped
   halfway is marked as partial, and partial does not count as done;
+- the **calibration** of the test suite, written once per branch from the first test-writing
+  report or inline pass, and handed to every later test-writing invocation;
 - the **state of a fork that stopped**: when test-writing or code-revision returns with a
   question, its `state` field is written here before the question goes to the user, and it is
   passed back in the arguments when the skill is re-invoked.

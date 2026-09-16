@@ -2,7 +2,7 @@
 name: test-writing
 description: Decides what deserves a test and writes it, or judges whether the tests already there prove anything. Isolates the unit and its seams, separates the logic written here from the platform's, writes down what gets covered and what does not before writing a line, and closes by proving through mutation that every test can go red.
 when_to_use: Writing, adding or completing tests for a target; in audit mode, judging an inherited suite. Triggers - "write the tests for X", "cover this module", "the tests are missing", "do these tests prove anything", "clean up the tests". Not for hunting bugs in production code.
-argument-hint: <targets - paths, a class, a module; or base..HEAD; plus the batch file of the plan and any state from an earlier run>
+argument-hint: <targets - paths, a class, a module; or base..HEAD; plus the batch file of the plan, the calibration, and any state from an earlier run>
 effort: high
 context: fork
 agent: general-purpose
@@ -22,7 +22,11 @@ finds a file named after X, and stops looking.
 Hence the order: **first decide what to cover and write it down; then write the code; at the end
 prove that every test can fail.**
 
-It is invoked by `/dev-loop:plan-execution`, and the step after it is `/dev-loop:code-revision`.
+It is invoked by `/dev-loop:plan-execution` and by the bounded path, and the step after it is
+`/dev-loop:code-revision`. **On a small bounded diff the main thread reads this file and follows
+it inline** instead of forking: the scope is `base..HEAD`, a question goes straight to the user in
+the form held by `${CLAUDE_PLUGIN_ROOT}/references/asking.md`, what would be `state` goes into the
+branch worklog, and the report shrinks to the calibration and the covered table.
 
 ## Step 0 — The scope, and it comes first
 
@@ -63,7 +67,14 @@ exception. What stops them is recognising the shape, and the shapes are catalogu
 
 ## Step 1 — Calibrate on the project, not on your habits
 
-**Assume nothing.** Establish from the facts of the repository, and state it in two lines:
+**A calibration in the arguments is taken as given.** Check only that its filtered test command
+runs green, read the one neighbouring test file it names for the conventions, and go to Step 2.
+
+**Gather in few calls**: every tool call is a round trip to the model. Read the manifest, the runner configuration, the test tree and a
+neighbouring test in one composed shell command, and do the same when reading the unit in Step 2.
+
+Without a calibration, **assume nothing.** Establish from the facts of the repository, and state
+it in two lines:
 
 1. **Language, version and syntax constraints** — from the manifest (`composer.json`,
    `package.json`, `pyproject.toml`, `go.mod`…). A low minimum version forbids modern syntax:
@@ -278,17 +289,6 @@ Suite: <outcome>. Mutations run, and any declared not run, with their exit.
 <decisions left to the user>
 ```
 
-## Rules of behaviour
-
-- **Do not write a test before writing the list.** Skipping Step 3 is how batteries of tests that
-  prove nothing are born: you start from methods instead of behaviours, and cover the language.
-- **Do not declare finished what you have not seen fail.**
-- **Do not test other people's code.** Frameworks, libraries, the language: assumed working.
-- **Do not double for convenience.** Every double is justified by what would happen with the real
-  collaborator.
-- **Do not touch production code to make a test pass.** A failing test is saying something: read it
-  before silencing it.
-- **Do not chase a coverage percentage.** It measures lines executed, not behaviours pinned down,
-  and rises nicely with tests that assert nothing.
-- **Report the negative results.** "I mutated these six lines and the tests caught them all" is
-  worth as much as a test written, and stops somebody redoing the examination.
+**Report the negative results**: "I mutated these six lines and the tests caught them all" is worth
+as much as a test written, and stops somebody redoing the examination. **Report no coverage
+percentage**: it measures lines executed, not behaviours pinned down.

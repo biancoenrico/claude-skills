@@ -3,6 +3,22 @@
 Kept in the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) shape, one section per
 release, newest first; the plugin follows [semantic versioning](https://semver.org/).
 
+## 1.4.0 — 2026-09-16
+
+Writing tests for a small change takes less time.
+
+### Changed
+
+- **A small bounded diff gets its tests from the main thread.** Below the small batch threshold,
+  the main thread follows `test-writing` inline instead of forking it, with the same steps: the
+  list comes first, and every test is seen red.
+- **The test calibration is worked out once per branch.** The runner, the filtered command and
+  the test layout go into the branch worklog, or into the first batch file of a plan. Every later
+  `test-writing` run receives them and skips its own calibration.
+- **`test-writing` reads in fewer calls.** It gathers the manifest, the runner setup and a
+  neighbouring test in one shell command, because each call is a round trip to the model.
+- **`test-writing` no longer ends with a list of rules** that repeated its own steps.
+
 ## 1.3.0 — 2026-09-16
 
 Specs and plans get through review faster.

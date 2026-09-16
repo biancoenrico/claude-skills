@@ -165,8 +165,11 @@ executor as part of its own `status: question`.
 The targets are the batch's test tasks **plus** the executor's `test_targets` — the existing
 tests a deliberate change has broken.
 
-With targets: invoke `/dev-loop:test-writing` with the targets, `base..HEAD` **and the path of
-the batch file**, then write the line `test-writing @<sha>`. All three arguments matter: a
+With targets: invoke `/dev-loop:test-writing` with the targets, `base..HEAD`, **the path of
+the batch file** and the calibration, then write the line `test-writing @<sha>`. The calibration
+is the `Calibration` section of the first test-writing report of the plan: copy it into that
+batch file under a `## Calibration` heading, and take it from the first batch file that has one
+on every later batch. All three arguments matter: a
 forked skill does not see the conversation, so everything it needs travels as arguments. The
 path is not a nicety — the authorisation to delete a test lives in the batch file, and without
 it test-writing can only come back `status: question`, burning a round on every batch.
