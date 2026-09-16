@@ -3,6 +3,20 @@
 Kept in the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) shape, one section per
 release, newest first; the plugin follows [semantic versioning](https://semver.org/).
 
+## 1.5.0 — 2026-09-16
+
+The main conversation holds less context, so each turn uses fewer tokens.
+
+### Changed
+
+- **`comment-writing` runs in a fork.** Its instructions, and the humanizer it loads, stay out of
+  the caller's context. The scope and any reason known only from the conversation are passed as
+  arguments, and questions go back to the caller.
+- **The session map asks for short command output**: the tail of a test run and `diff --stat`
+  in place of full outputs and full diffs.
+- **Every batch summary suggests `/compact` or a fresh session** before the next batch. The batch
+  files already hold what a resume needs.
+
 ## 1.4.0 — 2026-09-16
 
 Writing tests for a small change takes less time.
