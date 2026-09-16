@@ -6,8 +6,9 @@ before them and the step after them; the whole picture lives here.
 ## The session map extract
 
 Everything between the two markers below is what `hooks/session-map.sh` prints at session
-start and after a compaction. It carries the classification rule, one line per path, and one
-line of precedence — nothing else, so that it stays small enough to be repeated for free.
+start and after a compaction. It carries the classification rule, one line for each path that runs a loop, and a closing
+line with the precedence over superpowers and the short-output rule below — nothing else, so
+that it stays small enough to be repeated for free.
 
 **The extract has a size budget**, and it is not advisory: read it by name — the session map
 budget — from `${CLAUDE_PLUGIN_ROOT}/references/limits.md`. `tests/session-map_test.sh`
@@ -17,26 +18,25 @@ markers below has to buy its room from something already there.
 <!-- session-map:start -->
 **Classify the work first** and name the path; in doubt, go heavier.
 
-- **spike**: a feasibility question, throwaway code;
+- **spike**: a feasibility question, throwaway code, no loop;
 - **surgical**: mirrors a pattern beside it, one area, no new decision, no shared interface, no
   money, security, data or concurrency path;
 - **bounded**: a contained change to an existing flow, refactors included;
 - **architectural**: the rest: new projects, subsystems, shared interfaces.
 
-A superpowers "bounded" is checked against surgical first. Surgical that breaks a criterion is
-classified again, never surgical.
+A superpowers "bounded" is checked against surgical first; surgical that breaks a criterion is
+reclassified for good.
 
 **Architectural:** spec → `/dev-loop:spec-revision` → `/dev-loop:plan-batching` →
 `/dev-loop:plan-drafting` → `/dev-loop:plan-revision` → `/dev-loop:plan-execution` →
 `/dev-loop:design-revision` → close the branch.
-**Bounded:** note the base, implement, commit → tests (`/dev-loop:test-writing`, or inline for a
-small diff) → `/dev-loop:code-revision`, both on `base..HEAD`. Prose only: one
+**Bounded:** note the base, implement, commit → tests (`/dev-loop:test-writing`; inline if the diff is
+small) → `/dev-loop:code-revision`, both on `base..HEAD`. Prose only: a
 `dev-loop:reviewer` on `code-revision/prose.md`.
-**Surgical:** main thread, no agents or skills: implement, run the area's tests, one test for a
+**Surgical:** main thread, no agents or skills: implement, run area tests, one test per
 new logic branch, commit.
-**Spike:** no loop at all.
 
-Superpowers' own steps yield to these.
+Superpowers' steps yield to these. Keep output short: test tails, `diff --stat`.
 <!-- session-map:end -->
 
 ## The four paths, in full
@@ -145,6 +145,12 @@ steps back down.
 
 A feasibility question runs no loop. The answer is a direction; the code that came out of it is
 throwaway and is treated as such.
+
+## Short output in the main thread
+
+Every turn of the main conversation re-reads its whole context, so what a command prints is paid
+again on every turn after it. Show the tail of a test run rather than all of it, `git diff --stat`
+rather than a whole diff, and do not print a file an agent is about to read.
 
 ## When superpowers would suggest a different step
 

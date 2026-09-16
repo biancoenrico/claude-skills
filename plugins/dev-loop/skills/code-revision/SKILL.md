@@ -141,7 +141,9 @@ does three things:
 - carry its balance into the comments section of this iteration's report.
 
 If it returns open points (typically a crutch that ought to be extracted, but not trivially), do not
-force them here: they end up among the open points of the final output.
+force them here: they end up among the open points of the final output. If it returns
+`status: question`, return `status: question` too, with its questions, and carry its `state` inside
+this skill's own under Phase C.
 
 After the changes, re-check lint and build: Phase C touches only comments, but a malformed docblock
 or a broken delimiter breaks the file all the same.
@@ -174,8 +176,8 @@ held by `${CLAUDE_PLUGIN_ROOT}/references/asking.md`.
 
 A forked skill cannot ask the user: it returns `status: question`. When it does, the `state` field
 carries **the current phase (A, B or C), the current iteration and the last code used, the
-correctness rounds already spent, the findings already applied with their sha, and the findings
-already discarded with the reason**. The phase is not a
+correctness rounds already spent, the findings already applied with their sha, the findings
+already discarded with the reason, and on a Phase C stop the `state` comment-writing returned**. The phase is not a
 detail: without it, a stop halfway through Phase B makes the resume redo the whole of Phase A;
 without the rounds spent, the resume starts the cap afresh; and without the shas of what was
 applied, the resume does not know what is already in the branch.

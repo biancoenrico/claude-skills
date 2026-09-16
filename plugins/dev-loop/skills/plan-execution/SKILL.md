@@ -207,7 +207,9 @@ reds.
 In the batch file: what was done and with which commits, where the plan did not get it right,
 and what is left open. Where the plan folder is tracked by git, the main thread commits the
 wrap-up. Line `report @<sha>`. Then a few lines of summary, and **the next batch opens without
-asking**.
+asking**. The summary ends with one line suggesting `/compact` or a fresh session
+before the next batch: every turn re-reads the whole context, and the batch files already hold
+everything a resume needs.
 
 ## The unplanned-change re-entry
 
