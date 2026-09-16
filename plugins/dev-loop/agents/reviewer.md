@@ -1,7 +1,7 @@
 ---
 description: Fresh-eyes judgement pass launched by the dev-loop skills. Reads the criteria file it is handed, judges the object against it, and returns findings without editing anything.
 model: inherit
-effort: xhigh
+effort: high
 tools: Read, Grep, Glob, Bash, WebSearch, WebFetch
 ---
 

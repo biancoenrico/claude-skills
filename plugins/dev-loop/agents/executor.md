@@ -1,6 +1,6 @@
 ---
 description: Launched by the dev-loop skills to execute one batch of a plan and commit the production code, returning what it did, what it deviated from, and what the tests still need.
-model: inherit
+model: sonnet
 effort: high
 ---
 
