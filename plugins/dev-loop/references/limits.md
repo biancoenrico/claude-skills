@@ -39,14 +39,29 @@ Each entry carries five fields:
 ## The revision iteration cap
 
 - **Name:** the revision iteration cap
-- **Value:** 5
-- **Searchable form:** `5 iterations`
+- **Value:** 3
+- **Searchable form:** `3 iterations`
 - **Who reads it:** the spec and plan revision skills, which review a document and can go round
   again, plus the review ledger, which counts iterations per group against this cap. **What an
   iteration is, what does not consume the budget, and what happens at the cap** live with the
   counter, in `${CLAUDE_PLUGIN_ROOT}/references/ledger.md`.
 - **Where it comes from:** the specification, where it is the ceiling on review iterations and
-  one of the points at which a revision stops and hands the question back.
+  one of the points at which a revision stops and hands the question back. **The value is a
+  choice made to speed the loop up**: the specification set it at five, and it was lowered to
+  three once a new round started only after a 🔴 or 🟠 fix. What survives three rounds of
+  those needs a human decision more than a fourth one.
+
+## The small document threshold
+
+- **Name:** the small document threshold
+- **Value:** 150
+- **Searchable form:** `150 lines`
+- **Who reads it:** the spec and plan revision skills, which below the threshold hand the whole
+  review to a single reviewer instead of fanning it out. Lines are counted over the whole object:
+  the document, or every batch file of a plan folder together.
+- **Where it comes from:** **a choice made to speed the loop up, not a line of the
+  specification.** Below this size the criteria pass, the alternatives pass and the seam pass
+  read the same short text three times, and one reviewer holds all of it in mind at once.
 
 ## The correctness round cap
 

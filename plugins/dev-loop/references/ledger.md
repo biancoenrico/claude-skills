@@ -110,7 +110,8 @@ two findings gets a new ID for the second half; it does not renumber the first.
   written down. If new evidence genuinely undercuts that reason, it goes in as a **new finding
   that names the rejected ID and says what changed** — not as the old one re-opened.
 - **The next iteration launches fresh reviewers only on the groups that moved** — those touched
-  by a fix or by an answer. A group nobody changed has already been judged, and re-reading it
+  by a 🔴 or 🟠 fix or by an answer. A fix of lower severity changes the wording, not the
+  substance, and moves nothing. A group nobody changed has already been judged, and re-reading it
   buys a different wording of the same verdict. Fresh reviewers, not the previous ones resumed:
   the point of the ledger is that a new pair of eyes gets the history without inheriting the
   context that produced it.
