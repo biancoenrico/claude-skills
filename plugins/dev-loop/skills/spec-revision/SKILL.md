@@ -84,9 +84,8 @@ The alternatives reviewer receives `${CLAUDE_PLUGIN_ROOT}/references/alternative
 that, and judges the load-bearing decisions of the document rather than a group of it. Under the
 small document threshold there is no separate one: the single reviewer receives both files.
 
-The alternatives reviewer runs **on the first iteration only**. It goes again only when an
-answer from the user moves a load-bearing decision: a fix does not change the road taken, and
-re-judging a road nobody moved buys a different wording of the same verdict.
+When the alternatives pass runs again, and which fixes start a next iteration, are held by
+`${CLAUDE_PLUGIN_ROOT}/references/ledger.md`; the single reviewer follows the same rules.
 
 How many may run at once is the agents-per-wave cap in
 `${CLAUDE_PLUGIN_ROOT}/references/limits.md`: read the value there instead of writing a number
@@ -131,10 +130,9 @@ the user to skip its findings.
 can stop agreeing with its neighbour, and a seam checked earlier is a seam checked on text that
 no longer exists.
 
-On the next iteration, launch fresh reviewers **only on the groups a 🔴 or 🟠 fix, or an answer,
-touched**. A group nobody moved has already been judged, and a 🔵 or ⚪ fix does not move it: it
-changes the wording, not what the document says. When the only fixes of a round were 🔵 or ⚪ and
-no answer arrived, there is no next iteration — go to the exits.
+On the next iteration, launch fresh reviewers **only on the groups that moved**. What moves a
+group, and when a round has no next iteration at all, is held by
+`${CLAUDE_PLUGIN_ROOT}/references/ledger.md`.
 
 Carry on until one of three exits fires:
 

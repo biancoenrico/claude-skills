@@ -10,12 +10,12 @@ Specs and plans get through review faster.
 ### Changed
 
 - **Small documents get one reviewer.** Below the small document threshold, a single reviewer
-  checks the criteria and the alternatives, and on a plan the seams and the coverage as well.
+  checks both the criteria and the alternatives.
 - **The alternatives pass runs on the first iteration.** It runs again only when an answer from
   the user moves a load-bearing decision.
 - **A new round starts only after a 🔴 or 🟠 fix, or an answer.** A round whose fixes were all
   minor ends the review.
-- **A plan's seam pass runs only with two groups or more, or a reference specification.**
+- **A plan's seam pass runs only with two batch files or more, or a reference specification.**
 - **The revision iteration cap drops from five to three.**
 
 ## 1.2.0 — 2026-09-16
