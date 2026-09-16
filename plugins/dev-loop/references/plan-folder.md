@@ -116,6 +116,8 @@ sections of it that belong here.
 ## Progress
 
 ## State
+
+## Calibration
 ```
 
 **The "starting material" line.** When the input was a monolithic plan that was sent back to be
@@ -130,7 +132,8 @@ input was a spec, a missing line says nobody looked. Whoever drafts the tasks re
 line and works from the spec and the index, without going to look for a source document that
 does not exist.
 
-**`## Progress` is the place execution writes, and it is the only one.** One line per step of
+**`## Progress` is the place execution writes its steps**; `## State` and `## Calibration` are
+the only other two. One line per step of
 the batch procedure — the executor's work, then the tests, then the code review, then the check
 of the closing criteria, then the wrap-up — appended in order and never rewritten. The content
 of those lines — which
@@ -144,6 +147,9 @@ a sub-heading naming the skill that produced it, and leaves it there until that 
 invoked again and finished. More than one may sit there at once. It stays in the file rather
 than in the conversation because the session that asked the question may not be the session
 that receives the answer.
+
+**`## Calibration` holds the test calibration** from the first test-writing report of the plan,
+copied into the batch file that received it and passed to every later test-writing run.
 
 **Only the main thread writes into a batch file.** Executors, reviewers and forked skills
 return their work; they do not edit the folder.
@@ -172,13 +178,15 @@ sections. Empty when the plan starts from a spec.
 ## Progress
 
 ## State
+
+## Calibration
 ```
 
 The header carries the closing criteria and the verification command because there is no index
 to hold them: in a folder those belong to `00-index.md`, and here the file is its own index.
 The tasks are written empty and filled in afterwards, exactly as in a folder.
 
-**`## Progress` and `## State` mean here what they mean in a batch file**, and for the same
+**`## Progress`, `## State` and `## Calibration` mean here what they mean in a batch file**, and for the same
 reason: the single file is treated as one batch. If the places are not in the file, execution
 invents them, and two runs write in two different spots — after which resuming means guessing
 which of the two is the real record.
