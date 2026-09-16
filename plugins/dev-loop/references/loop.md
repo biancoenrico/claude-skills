@@ -15,27 +15,27 @@ measures the shipped map and turns red as soon as it goes over, so anything adde
 markers below has to buy its room from something already there.
 
 <!-- session-map:start -->
-**Classify the work first** and say which path you picked. Superpowers brainstorming may
-classify, but these four paths decide:
+**Classify the work first** and name the path. A superpowers "bounded" is checked
+against surgical first.
 
-- **spike**: a feasibility question; the code is throwaway;
-- **surgical**: mirrors a pattern already beside it, one area, no new decision, no shared
-  interface, no money, security, data or concurrency path;
+- **spike**: a feasibility question, throwaway code;
+- **surgical**: mirrors a pattern beside it, one area, no new decision, no shared interface, no
+  money, security, data or concurrency path;
 - **bounded**: a contained change to an existing flow, refactors included;
-- **architectural**: everything else.
+- **architectural**: the rest: new projects, subsystems, shared interfaces.
 
-In doubt, go heavier. Surgical work that breaks a criterion becomes bounded.
+In doubt, go heavier. Surgical that breaks a criterion is classified again, never surgical.
 
 **Architectural:** spec → `/dev-loop:spec-revision` → `/dev-loop:plan-batching` →
 `/dev-loop:plan-drafting` → `/dev-loop:plan-revision` → `/dev-loop:plan-execution` →
 `/dev-loop:design-revision` → close the branch.
 **Bounded:** note the base, implement, commit → `/dev-loop:test-writing` on `base..HEAD` →
 `/dev-loop:code-revision` on `base..HEAD`. Prose-only diff: one `dev-loop:reviewer` on `code-revision/prose.md`.
-**Surgical:** main thread, no agents: implement, run the area's tests, one test if it adds a
-logic branch, commit.
+**Surgical:** main thread, no agents or skills: implement, run the area's tests, one test for a
+new logic branch, commit.
 **Spike:** no loop at all.
 
-Where superpowers names its own step, the matching dev-loop step wins (table below).
+Superpowers' own steps yield to dev-loop's (table below).
 <!-- session-map:end -->
 
 ## The four paths, in full
@@ -44,13 +44,16 @@ Where superpowers names its own step, the matching dev-loop step wins (table bel
 
 Classification happens before anything else, and the choice is stated. With superpowers
 installed, brainstorming runs first, but it knows only three paths: a change it calls bounded is
-checked against the surgical criteria before the bounded path starts. Without superpowers, the
+checked against the surgical criteria before the bounded path starts. Its spike and architectural
+results stand as they are. Without superpowers, the
 model classifies with the four lines of the session map above.
 
 A piece of work that sits between two paths goes to the heavier one: the cost of a spec nobody
 needed is an afternoon, the cost of a subsystem built without one is the branch. The surgical
 criteria are yes-or-no questions, so this rule rarely applies to them: a change is surgical when
-every one of them holds, and bounded as soon as one does not.
+every one of them holds. As soon as one does not, the change is not surgical, and it is classified
+again between bounded and architectural by the usual rule: a shared interface, for one, is
+architectural.
 
 ### Architectural path
 
@@ -115,15 +118,22 @@ way. Every criterion has to hold:
 A refactor is never surgical, however small, because choosing a new shape for the code is a
 decision.
 
-1. The main thread implements the change. No fork, no agent, no worklog.
-2. It runs the tests that already cover the area.
+1. The main thread implements the change. No fork, no agent, no worklog, and no dev-loop skill:
+   `/dev-loop:test-writing` and `/dev-loop:code-revision` are not invoked, even though writing a
+   test would otherwise trigger the first.
+2. It runs the tests that already cover the area. When no test covers it, there is nothing to
+   run, and that alone does not move the work up a path.
 3. When the change adds a branch of logic (a condition, a case, a computation) it writes **one**
-   test that fails without that branch. A change that only adds wiring or data needs none.
+   test for it, and runs it once with that branch removed to see it fail before restoring it. A
+   change that only adds wiring or data needs no test.
 4. It commits.
+
+A prose-only surgical change skips steps 2 and 3 and gets no reviewer.
 
 **The path only goes up.** When a criterion stops holding along the way (a decision appears, the
 diff reaches a second area, a shared interface has to move) the work says so and continues on the
-bounded path, taking the commit before the change as its base. It never steps back down.
+path it is classified into again, taking the commit before the change as its base. It never
+steps back down.
 
 ### Spike
 
@@ -138,7 +148,7 @@ moments. Where the two overlap, dev-loop wins:
 | where superpowers would say | dev-loop uses |
 |---|---|
 | after brainstorming (architectural): writing-plans | `/dev-loop:spec-revision`, then the rest of the loop |
-| after brainstorming (bounded): "implement via the normal workflow" | the bounded path |
+| after brainstorming (bounded): "implement via the normal workflow" | the surgical criteria, then the surgical or bounded path |
 | writing-plans | `/dev-loop:plan-batching` + `/dev-loop:plan-drafting` |
 | executing-plans, subagent-driven-development | `/dev-loop:plan-execution` |
 | test-driven-development | `/dev-loop:test-writing`; on the surgical path, its single test |
