@@ -2,8 +2,10 @@
 name: comment-writing
 description: Decides whether a comment is needed at all and, when it is, writes it short and useful. Covers class and file comments, function comments, and the rare ones inside a function. It also runs in review mode over comments that are already there. It writes no external documentation and hunts no bugs.
 when_to_use: Commenting or documenting code just written, and reviewing the comments of a diff. Triggers - "comment this class", "add the docblocks", "explain this method", "are these comments needed", "drop the useless comments", "these comments are too wordy", "go over the comments in the diff".
-argument-hint: <paths, a diff or a range; plus the batch file of the plan, and "review" for review mode>
+argument-hint: <paths, a diff or a range; plus the batch file of the plan, any why known only from the conversation, and "review" for review mode>
 effort: high
+context: fork
+agent: general-purpose
 ---
 
 # comment-writing
@@ -17,6 +19,12 @@ brings no conventions of its own. It reads them (Step 1) and adapts.
 `/dev-loop:code-revision` delegates its comment phase here, and the criteria live only here so that
 there are never two copies to keep aligned. In writing mode it is also used on its own, while the
 code is being written.
+
+**It runs in a fork**, so its instructions and whatever it loads stay out of the caller's context.
+It does not see the conversation: the scope, and any *why* known only from the conversation,
+arrive in the arguments. Every question in this file is handed back rather than asked: the return
+is `status: question` in the shape held by `${CLAUDE_PLUGIN_ROOT}/references/agent-return.md`,
+with the report in `findings` and what a resume needs in `state`.
 
 ## The failure it exists to avoid
 
@@ -37,8 +45,8 @@ end prove that without it something would be lost.**
 ## Input and scope
 
 In order of priority: an explicit target in the arguments (paths, a diff, a range); otherwise
-`git diff HEAD`, plus the branch range when an upstream exists. If there is no target at all, ask
-what is to be commented rather than inventing a scope.
+`git diff HEAD`, plus the branch range when an upstream exists. If there is no target at all, hand back
+the question of what is to be commented rather than inventing a scope.
 
 ## Two modes, one measure
 

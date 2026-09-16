@@ -17,26 +17,25 @@ markers below has to buy its room from something already there.
 <!-- session-map:start -->
 **Classify the work first** and name the path; in doubt, go heavier.
 
-- **spike**: a feasibility question, throwaway code;
+- **spike**: a feasibility question, throwaway code, no loop;
 - **surgical**: mirrors a pattern beside it, one area, no new decision, no shared interface, no
   money, security, data or concurrency path;
 - **bounded**: a contained change to an existing flow, refactors included;
 - **architectural**: the rest: new projects, subsystems, shared interfaces.
 
-A superpowers "bounded" is checked against surgical first. Surgical that breaks a criterion is
-classified again, never surgical.
+A superpowers "bounded" is checked against surgical first; surgical that breaks a criterion is
+reclassified for good.
 
 **Architectural:** spec → `/dev-loop:spec-revision` → `/dev-loop:plan-batching` →
 `/dev-loop:plan-drafting` → `/dev-loop:plan-revision` → `/dev-loop:plan-execution` →
 `/dev-loop:design-revision` → close the branch.
-**Bounded:** note the base, implement, commit → tests (`/dev-loop:test-writing`, or inline for a
-small diff) → `/dev-loop:code-revision`, both on `base..HEAD`. Prose only: one
+**Bounded:** note the base, implement, commit → tests (`/dev-loop:test-writing`; inline if the diff is
+small) → `/dev-loop:code-revision`, both on `base..HEAD`. Prose only: a
 `dev-loop:reviewer` on `code-revision/prose.md`.
-**Surgical:** main thread, no agents or skills: implement, run the area's tests, one test for a
+**Surgical:** main thread, no agents or skills: implement, run area tests, one test per
 new logic branch, commit.
-**Spike:** no loop at all.
 
-Superpowers' own steps yield to these.
+Superpowers' steps yield to these. Keep output short: test tails, `diff --stat`.
 <!-- session-map:end -->
 
 ## The four paths, in full
