@@ -6,8 +6,9 @@ before them and the step after them; the whole picture lives here.
 ## The session map extract
 
 Everything between the two markers below is what `hooks/session-map.sh` prints at session
-start and after a compaction. It carries the classification rule, one line per path, and one
-line of precedence — nothing else, so that it stays small enough to be repeated for free.
+start and after a compaction. It carries the classification rule, one line for each path that runs a loop, and a closing
+line with the precedence over superpowers and the short-output rule below — nothing else, so
+that it stays small enough to be repeated for free.
 
 **The extract has a size budget**, and it is not advisory: read it by name — the session map
 budget — from `${CLAUDE_PLUGIN_ROOT}/references/limits.md`. `tests/session-map_test.sh`
@@ -144,6 +145,12 @@ steps back down.
 
 A feasibility question runs no loop. The answer is a direction; the code that came out of it is
 throwaway and is treated as such.
+
+## Short output in the main thread
+
+Every turn of the main conversation re-reads its whole context, so what a command prints is paid
+again on every turn after it. Show the tail of a test run rather than all of it, `git diff --stat`
+rather than a whole diff, and do not print a file an agent is about to read.
 
 ## When superpowers would suggest a different step
 

@@ -2,7 +2,7 @@
 name: comment-writing
 description: Decides whether a comment is needed at all and, when it is, writes it short and useful. Covers class and file comments, function comments, and the rare ones inside a function. It also runs in review mode over comments that are already there. It writes no external documentation and hunts no bugs.
 when_to_use: Commenting or documenting code just written, and reviewing the comments of a diff. Triggers - "comment this class", "add the docblocks", "explain this method", "are these comments needed", "drop the useless comments", "these comments are too wordy", "go over the comments in the diff".
-argument-hint: <paths, a diff or a range; plus the batch file of the plan, any why known only from the conversation, and "review" for review mode>
+argument-hint: <paths, a diff or a range; plus the batch file of the plan, any why known only from the conversation when used on its own, and "review" for review mode>
 effort: high
 context: fork
 agent: general-purpose
@@ -22,7 +22,8 @@ code is being written.
 
 **It runs in a fork**, so its instructions and whatever it loads stay out of the caller's context.
 It does not see the conversation: the scope, and any *why* known only from the conversation,
-arrive in the arguments. Every question in this file is handed back rather than asked: the return
+arrive in the arguments. Inside the loop there is no such argument: the whys it may use are the
+ones the code, the batch file and the plan already carry. Every question in this file is handed back rather than asked: the return
 is `status: question` in the shape held by `${CLAUDE_PLUGIN_ROOT}/references/agent-return.md`,
 with the report in `findings` and what a resume needs in `state`.
 

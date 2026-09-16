@@ -14,9 +14,8 @@ The main conversation holds less context, so each turn uses fewer tokens.
   arguments, and questions go back to the caller.
 - **The session map asks for short command output**: the tail of a test run and `diff --stat`
   in place of full outputs and full diffs.
-- **A large conversation gets a `/compact` suggestion between batches.** Once it is past half of
-  the context window, the batch summary suggests `/compact` or a fresh session. The batch files
-  already hold what a resume needs.
+- **Every batch summary suggests `/compact` or a fresh session** before the next batch. The batch
+  files already hold what a resume needs.
 
 ## 1.4.0 — 2026-09-16
 
