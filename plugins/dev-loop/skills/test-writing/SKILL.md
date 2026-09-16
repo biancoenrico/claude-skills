@@ -196,7 +196,7 @@ The safety of the mutation — the copy, the restore, one mutation at a time, a 
 - **Choose the test case so that the mutation crosses it.** If the logic splits a list, a
   one-element list passes with any separator and the test stays mute: it takes a list of two. If a
   condition has two branches, a case satisfying both does not tell them apart.
-- **Filter the command to the target test file**, never the whole suite: every mutation reruns it.
+- **Filter the command to the target test file**, not the whole suite: every mutation reruns it.
   Only a survivor earns a whole-suite run, to tell a weak test from a line no test intercepts.
 - **Check the command is green without the mutation before mutating.**
 - **Read the tail of the output** to confirm that what fails is the assertion of the target test,

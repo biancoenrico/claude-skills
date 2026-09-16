@@ -161,7 +161,8 @@ Exit when one of these fires:
   with the plan, a design choice, missing external information): stop and hand the question back.
 
 Phase A is capped by **the correctness round cap** named in
-`${CLAUDE_PLUGIN_ROOT}/references/limits.md`; Phases B and C are single passes and do not consume it.
+`${CLAUDE_PLUGIN_ROOT}/references/limits.md`; Phases B and C are single passes and consume it only
+through a round the Phase B safety rule sends back to.
 Phase C still has to run before approval is declared, unless it was skipped for want of comments —
 never drop it in silence because the cap was reached. A clean last round closes Phase A like any
 other. Only when the last allowed round leaves a Critical or Important fix open or unchecked,
@@ -181,8 +182,9 @@ decision away from the user **and** the awareness of having taken it. The form o
 held by `${CLAUDE_PLUGIN_ROOT}/references/asking.md`.
 
 A forked skill cannot ask the user: it returns `status: question`. When it does, the `state` field
-carries **the current phase (A, B or C), the correctness rounds already spent, the findings already
-applied with their sha, and the findings already discarded with the reason**. The phase is not a
+carries **the current phase (A, B or C), the current iteration and the last code used, the
+correctness rounds already spent, the findings already applied with their sha, and the findings
+already discarded with the reason**. The phase is not a
 detail: without it, a stop halfway through Phase B makes the resume redo the whole of Phase A;
 without the rounds spent, the resume starts the cap afresh; and without the shas of what was
 applied, the resume does not know what is already in the branch.
