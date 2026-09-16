@@ -3,6 +3,21 @@
 Kept in the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) shape, one section per
 release, newest first; the plugin follows [semantic versioning](https://semver.org/).
 
+## 1.2.0 — 2026-09-16
+
+Small changes no longer go through the full loop.
+
+### Added
+
+- **A surgical path.** A change that mirrors a pattern already beside it, stays in one area
+  and takes no new decision is made in the main thread with no agents: the area's tests run,
+  and one test is added only when the change adds a branch of logic. When one of those
+  conditions stops holding, the work moves up to the bounded path.
+
+### Changed
+
+- **Refactors go on the bounded path at least**, however small they are.
+
 ## 1.1.0 — 2026-09-16
 
 A batch now goes through the loop faster.
