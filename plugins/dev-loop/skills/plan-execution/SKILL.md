@@ -166,10 +166,9 @@ The targets are the batch's test tasks **plus** the executor's `test_targets` â€
 tests a deliberate change has broken.
 
 With targets: invoke `/dev-loop:test-writing` with the targets, `base..HEAD`, **the path of
-the batch file** and the calibration, then write the line `test-writing @<sha>`. The calibration
-is the `Calibration` section of the first test-writing report of the plan: copy it into that
-batch file under a `## Calibration` heading, and take it from the first batch file that has one
-on every later batch. All three arguments matter: a
+the batch file**, and the calibration when a batch file of the plan already has one; then write
+the line `test-writing @<sha>`. When no batch file has one yet, copy the `Calibration` section of
+this report into the current batch file under `## Calibration`. The first three always matter: a
 forked skill does not see the conversation, so everything it needs travels as arguments. The
 path is not a nicety â€” the authorisation to delete a test lives in the batch file, and without
 it test-writing can only come back `status: question`, burning a round on every batch.

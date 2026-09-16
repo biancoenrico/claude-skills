@@ -166,8 +166,8 @@ absent, the classification rule above is what replaces brainstorming.
 
 ## The branch worklog of the bounded path
 
-The bounded path has no plan folder and no batch files, so the three things that would live in a
-batch file need a home of their own. That home is the branch worklog.
+The bounded path has no plan folder and no batch files, so what would live in a
+batch file needs a home of its own. That home is the branch worklog.
 
 **One per branch, in `.dev-loop/` at the repository root.** The file is named after the branch,
 with every `/` replaced by a single `-`, plus the `.md` extension: work on `feature/rate-limit`
@@ -178,8 +178,7 @@ path would then write in two different places. The first line of the file repeat
 exactly as git spells it, so that two branches that flatten to the same file name are visible
 instead of merging quietly.
 
-**What it holds** — the three things a batch file holds on the architectural path, plus the
-calibration:
+**What it holds** — the same things a batch file holds on the architectural path:
 
 - the **base**, the SHA of `HEAD` noted before the first commit of the work, written once and
   never overwritten on resume;

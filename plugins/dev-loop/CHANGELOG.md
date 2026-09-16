@@ -13,7 +13,8 @@ Writing tests for a small change takes less time.
   the main thread follows `test-writing` inline instead of forking it, with the same steps: the
   list comes first, and every test is seen red.
 - **The test calibration is worked out once per branch.** The runner, the filtered command and
-  the test layout go into the branch worklog, or into the first batch file of a plan. Every later
+  the test layout go into the branch worklog, or into the batch file where a plan first ran
+  `test-writing`. Every later
   `test-writing` run receives them and skips its own calibration.
 - **`test-writing` reads in fewer calls.** It gathers the manifest, the runner setup and a
   neighbouring test in one shell command, because each call is a round trip to the model.

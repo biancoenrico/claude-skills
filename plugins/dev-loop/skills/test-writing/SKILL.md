@@ -24,13 +24,16 @@ prove that every test can fail.**
 
 It is invoked by `/dev-loop:plan-execution` and by the bounded path, and the step after it is
 `/dev-loop:code-revision`. **On a small bounded diff the main thread reads this file and follows
-it inline** instead of forking: the scope is `base..HEAD`, a question goes straight to the user in
-the form held by `${CLAUDE_PLUGIN_ROOT}/references/asking.md`, what would be `state` goes into the
-branch worklog, and the report shrinks to the calibration and the covered table.
+it inline** instead of forking. Inline, this holds wherever the file says otherwise: the scope is
+`base..HEAD`; the calibration comes from the branch worklog; every `status: question` or
+hand-back becomes a question to the user in the form held by
+`${CLAUDE_PLUGIN_ROOT}/references/asking.md`, and every `state` goes into the worklog; production
+code stays untouched for the whole pass, even though the main thread owns it; the report keeps
+every section that has content.
 
 ## Step 0 — The scope, and it comes first
 
-This skill runs in a fork: **it does not see the conversation**, and nothing about the target
+Forked, this skill **does not see the conversation**, and nothing about the target
 reaches it for free. The scope arrives **spelled out in the arguments** — paths, `base..HEAD`,
 targets, the batch file of the plan.
 
@@ -47,11 +50,9 @@ means nothing.
 The repair touches **the tests only**. If the red depends on production code, this skill does not
 modify it: it declares the fact and hands the question back.
 
-**Deleting a test is not repairing it.** A test is deleted **only** when the batch file received in
-the arguments explicitly declares that the behaviour is being removed. In every other case return
-`status: question`, with the test in question in `state`. The reason is worth stating: removing
-coverage stays anchored to what the plan has already decided, not to the judgement of a fork that
-cannot see the conversation. **The batch file path arrives in the arguments** — plan-execution
+**Deleting a test is not repairing it.** A test is deleted **only** when the batch file in the
+arguments declares that the behaviour is being removed. In every other case return
+`status: question`, with the test in question in `state`. **The batch file path arrives in the arguments** — plan-execution
 passes it. If it is not there, the authorisation does not exist and `status: question` always
 applies.
 
@@ -67,11 +68,12 @@ exception. What stops them is recognising the shape, and the shapes are catalogu
 
 ## Step 1 — Calibrate on the project, not on your habits
 
-**A calibration in the arguments is taken as given.** Check only that its filtered test command
-runs green, read the one neighbouring test file it names for the conventions, and go to Step 2.
+**Gather in few calls**: every tool call is a round trip to the model. Read the manifest, the
+runner configuration, the test tree and a neighbouring test in one composed shell command, and
+the unit in Step 2 the same way.
 
-**Gather in few calls**: every tool call is a round trip to the model. Read the manifest, the runner configuration, the test tree and a
-neighbouring test in one composed shell command, and do the same when reading the unit in Step 2.
+**A calibration in the arguments is taken as given.** Check only that its test command, filtered
+to the current target, runs green, read the neighbouring test file it names, and go to Step 2.
 
 Without a calibration, **assume nothing.** Establish from the facts of the repository, and state
 it in two lines:
@@ -194,7 +196,7 @@ environments, identical" is made false by the first change without anything noti
 If making something testable requires touching production code, **stop and ask** (see below): a
 change to code that ships is not a detail of writing tests.
 
-Check that the suite is green with the project's tools before Step 6.
+A new test red against production is read, never silenced by touching production. Check that the suite is green with the project's tools before Step 6.
 
 ## Step 6 — Prove them red. A test never seen red is not finished
 
@@ -246,8 +248,7 @@ The criteria live in `${CLAUDE_PLUGIN_ROOT}/skills/test-writing/audit.md`. What 
   `catalog.md` and `audit.md` — in the form prescribed by `agents/reviewer.md`, which owns that rule
   — together with the file to judge. The fan-out proceeds in waves, up to the agents-per-wave cap
   named in `${CLAUDE_PLUGIN_ROOT}/references/limits.md`;
-- once the fan-out is back, run the mutation check itself on the candidates left standing. The
-  reviewer cannot: it mutates files, and a reviewer has neither Edit nor Write;
+- once the fan-out is back, run the mutation check itself on the candidates left standing;
 - carry any question that comes back in the form held by
   `${CLAUDE_PLUGIN_ROOT}/references/asking.md`.
 
@@ -271,7 +272,7 @@ the commits in `commits`, the state in `state`. The report, compactly:
 
 ```
 ### Calibration
-Language/version · runner and filter · where the tests live · conventions taken from <where>
+Language/version · runner and filter pattern · where the tests live · neighbouring test file · comment language · instruction files read
 
 ### Covered: N
 | behaviour | line/rule that decides it | seen red |
