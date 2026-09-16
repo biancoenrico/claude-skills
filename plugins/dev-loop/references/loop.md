@@ -28,7 +28,7 @@ When in doubt, take the heavier path.
 `/dev-loop:plan-drafting` → `/dev-loop:plan-revision` → `/dev-loop:plan-execution` →
 `/dev-loop:design-revision` → close the branch.
 **Bounded:** note the base, implement, commit → `/dev-loop:test-writing` on `base..HEAD` →
-`/dev-loop:code-revision` on `base..HEAD`.
+`/dev-loop:code-revision` on `base..HEAD`. Prose-only diff: one `dev-loop:reviewer` instead.
 **Spike:** no loop at all.
 
 Where superpowers would reach for writing-plans, executing-plans, subagent-driven-development,
@@ -79,6 +79,12 @@ For a contained change to a flow that already exists.
    and commits.
 2. `/dev-loop:test-writing` on `base..HEAD`.
 3. `/dev-loop:code-revision` on `base..HEAD`.
+
+**When the diff is prose only** — markdown, instructions, configuration text — steps 2 and 3 have
+nothing to hold on to: no test can go red and there is no code to review. Launch one
+`dev-loop:reviewer` on `base..HEAD` instead, with
+`${CLAUDE_PLUGIN_ROOT}/skills/code-revision/prose.md` as its criteria, and apply what it returns
+in the main thread. A diff that also touches code takes the full path.
 
 No spec, no plan, no batch files, no executor. The main thread owns the production changes that
 turn out to be needed along the way, and keeps the base, the progress lines, and the state of a

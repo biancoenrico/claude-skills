@@ -41,12 +41,10 @@ Each entry carries five fields:
 - **Name:** the revision iteration cap
 - **Value:** 5
 - **Searchable form:** `5 iterations`
-- **Who reads it:** every skill that reviews something and can go round again — the revision
-  skills and the fork skills that iterate over their own findings, except code revision, which
-  has the correctness round cap — plus the review ledger,
-  which counts iterations per group against this cap. **What an iteration is, what does not
-  consume the budget, and what happens at the cap** live with the counter, in
-  `${CLAUDE_PLUGIN_ROOT}/references/ledger.md`.
+- **Who reads it:** the spec and plan revision skills, which review a document and can go round
+  again, plus the review ledger, which counts iterations per group against this cap. **What an
+  iteration is, what does not consume the budget, and what happens at the cap** live with the
+  counter, in `${CLAUDE_PLUGIN_ROOT}/references/ledger.md`.
 - **Where it comes from:** the specification, where it is the ceiling on review iterations and
   one of the points at which a fork skill stops and hands the question back.
 
@@ -56,8 +54,7 @@ Each entry carries five fields:
 - **Value:** 2
 - **Searchable form:** `2 correctness rounds`
 - **Who reads it:** the code revision skill, which counts its `/code-review` rounds on one batch
-  against this cap instead of the revision iteration cap. The cleaning pass itself never counts;
-  a correctness round it sends the skill back to does.
+  against this cap instead of the revision iteration cap.
 - **Where it comes from:** **a choice made to speed the loop up, not a line of the
   specification.** A batch is small and its diff is fresh: a second round checks the fixes of the
   first, and what survives two rounds needs a human decision more than a third one. Code review

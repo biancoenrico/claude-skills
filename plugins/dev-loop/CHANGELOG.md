@@ -18,6 +18,8 @@ A batch now goes through the loop faster.
   `code-revision` run at `high` effort instead of `xhigh`.
 - **Mutations in `test-writing` run only the target test file**, and the whole suite only
   for a mutation that survives.
+- **A prose-only change skips tests and code revision** on the bounded path: one
+  `dev-loop:reviewer` checks it against the new `code-revision/prose.md` criteria instead.
 
 ## 1.0.0 — 2026-09-14
 
