@@ -110,7 +110,13 @@ two findings gets a new ID for the second half; it does not renumber the first.
   written down. If new evidence genuinely undercuts that reason, it goes in as a **new finding
   that names the rejected ID and says what changed** — not as the old one re-opened.
 - **The next iteration launches fresh reviewers only on the groups that moved** — those touched
-  by a fix or by an answer. A group nobody changed has already been judged, and re-reading it
+  by a 🔴 or 🟠 fix or by an answer. A fix below 🟠 changes the wording, not the substance, and
+  moves nothing: a round whose fixes were all below 🟠, with no answer arriving, has no next
+  iteration and goes to the exits.
+- **The alternatives pass runs on the first iteration only**, whether a dedicated reviewer or
+  the single reviewer of a small document takes it. It runs again only when an answer from the
+  user moves a load-bearing decision: a fix does not change the road taken, and re-judging a
+  road nobody moved buys a different wording of the same verdict. A group nobody changed has already been judged, and re-reading it
   buys a different wording of the same verdict. Fresh reviewers, not the previous ones resumed:
   the point of the ledger is that a new pair of eyes gets the history without inheriting the
   context that produced it.

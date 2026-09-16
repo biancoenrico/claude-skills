@@ -51,6 +51,10 @@ one, how the cut is made, and what each group is entitled to are held by
 
 A document that fits in one pass is one group, and the rest of this procedure is unchanged.
 
+**A document under the small document threshold** in `${CLAUDE_PLUGIN_ROOT}/references/limits.md`
+— read the value there — is one group and gets **one reviewer**, which also takes the
+alternatives pass (step 5).
+
 ## 4 — Open the ledger
 
 The review keeps a record beside the document it reviews, at `<name>.review.md`. Its shape, what
@@ -77,7 +81,11 @@ Each reviewer receives:
 - the ledger, when one exists.
 
 The alternatives reviewer receives `${CLAUDE_PLUGIN_ROOT}/references/alternatives.md` on top of
-that, and judges the load-bearing decisions of the document rather than a group of it.
+that, and judges the load-bearing decisions of the document rather than a group of it. Under the
+small document threshold there is no separate one: the single reviewer receives both files.
+
+When the alternatives pass runs again, and which fixes start a next iteration, are held by
+`${CLAUDE_PLUGIN_ROOT}/references/ledger.md`; the single reviewer follows the same rules.
 
 How many may run at once is the agents-per-wave cap in
 `${CLAUDE_PLUGIN_ROOT}/references/limits.md`: read the value there instead of writing a number
@@ -122,8 +130,9 @@ the user to skip its findings.
 can stop agreeing with its neighbour, and a seam checked earlier is a seam checked on text that
 no longer exists.
 
-On the next iteration, launch fresh reviewers **only on the groups a fix or an answer touched**.
-A group nobody moved has already been judged.
+On the next iteration, launch fresh reviewers **only on the groups that moved**. What moves a
+group, and when a round has no next iteration at all, is held by
+`${CLAUDE_PLUGIN_ROOT}/references/ledger.md`.
 
 Carry on until one of three exits fires:
 

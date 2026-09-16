@@ -69,6 +69,11 @@ pass is not enough, the way the cut is made and what each group is entitled to a
 
 On a folder the cut is already made: **one batch file is one group.**
 
+**A plan under the small document threshold** in `${CLAUDE_PLUGIN_ROOT}/references/limits.md` —
+read the value there, counting every batch file of a folder together — is **one group**, folder
+or not, and gets **one reviewer**, which also takes the alternatives pass (step 6). The seams and
+the coverage still get their own pass after the fixes, under the rule in step 6.
+
 ## 5 — Open the ledger
 
 The review keeps its record beside the object, and where it sits depends on the shape: a single
@@ -94,7 +99,11 @@ Every reviewer receives:
 - the ledger, when one exists.
 
 The alternatives reviewer receives `${CLAUDE_PLUGIN_ROOT}/references/alternatives.md` on top, and
-judges the load-bearing construction decisions rather than one group.
+judges the load-bearing construction decisions rather than one group. Under the small document
+threshold there is no separate one: the single reviewer receives both files.
+
+When the alternatives pass runs again, and which fixes start a next iteration, are held by
+`${CLAUDE_PLUGIN_ROOT}/references/ledger.md`; the single reviewer follows the same rules.
 
 How many may run at once is the agents-per-wave cap in
 `${CLAUDE_PLUGIN_ROOT}/references/limits.md`; beyond it, fan out in waves. What comes back, and
@@ -102,7 +111,9 @@ what to do when nothing does, are held by
 `${CLAUDE_PLUGIN_ROOT}/references/agent-return.md`.
 
 **After the fixes**, one more reviewer on the seams and on coverage against the specification —
-not before, because the fixes move the seams.
+not before, because the fixes move the seams. It runs only when there is something for it to
+judge: **two batch files or more**, or **a reference specification**. A single file with no
+specification has no seam and nothing to cover.
 
 ## 7 — Questions
 
@@ -128,7 +139,8 @@ why it appeared.
 A fix the user turns down goes back to the text it had, is recorded as `rejected` with the user's
 own reason, and does not come back.
 
-Fresh reviewers on the next round go **only to the groups a fix or an answer touched**. Carry on
+Fresh reviewers on the next round go **only to the groups that moved**; what moves a group, and
+when a round has no next one, is held by `${CLAUDE_PLUGIN_ROOT}/references/ledger.md`. Carry on
 until one of three exits fires:
 
 - **Approved** — nothing 🔴 or 🟠 left, **and no question open**. An open question is the exact
