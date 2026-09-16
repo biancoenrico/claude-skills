@@ -41,15 +41,17 @@ Fix the diff under review and declare it in one line: which files, how many line
 from. Note also whether the changes are **committed or in the working tree**: it changes how the
 diffs for the later phases are generated (a range of commits versus `git diff HEAD`).
 
-Two facts about that diff decide how much of the procedure runs, and both go in the same line:
+Two facts about the diff decide how much of the procedure runs:
 
-- **Its size** against the small batch threshold in `${CLAUDE_PLUGIN_ROOT}/references/limits.md`.
-  Below it, Phases A and B become **one** `/code-review` pass at `medium`: that tool reports
-  cleanups next to bugs, and two rounds over a handful of lines read the same lines twice. Apply
-  what it returns under the rules of both phases; re-run it only for a Critical fix.
+- **Its size**, declared in that same line, against the small batch threshold in
+  `${CLAUDE_PLUGIN_ROOT}/references/limits.md`. Below it, Phases A and B become **one**
+  `/code-review` pass at the level Phase A picks: that tool reports cleanups next to bugs, and two
+  rounds over a handful of lines read the same lines twice. Apply what it returns under the rules
+  of both phases, the Phase A re-run included.
 - **Whether it adds or modifies any comment.** If not, Phase C has nothing to review and is
-  skipped, with the reason declared in the report. A comment the diff has made false still counts:
-  look at the comments next to the changed hunks before declaring none.
+  skipped, with the reason declared in the report. Judge it on the diff as Phases A and B leave it,
+  since their fixes can add or falsify comments too. A comment the diff has made false still
+  counts: look at the comments next to the changed hunks before declaring none.
 
 ## The order of the phases: correct first, then clean, comments last
 
@@ -96,10 +98,11 @@ After the fixes, check the code is still valid with the project's tools (`php -l
 linter, the build) before going on.
 
 Re-run `/code-review` **only if this round applied a Critical or Important fix**, and **only over
-the fix commits** rather than the whole scope: a fix can introduce a problem, but the lines it did
-not touch were already reviewed. A round that applied only Minors closes Phase A. The rounds are
-capped by the correctness round cap in `${CLAUDE_PLUGIN_ROOT}/references/limits.md`. Residual Minors the user
-chooses to accept do not block Phase B; record them.
+what the fixes changed** rather than the whole scope: a fix can introduce a problem, but the lines
+it did not touch were already reviewed. A round that applied only Minors, or nothing, closes Phase
+A. The rounds are capped by the correctness round cap in
+`${CLAUDE_PLUGIN_ROOT}/references/limits.md`. Residual Minors the user chooses to accept do not
+block Phase B; record them.
 
 ## Phase B — Cleaning
 
@@ -108,8 +111,9 @@ Only once correctness is closed, run `/simplify` over the scope. Apply the quali
 fall outside the diff under review — note the skips instead of forcing them.
 
 Safety rule: if a cleanup touches a point non-trivially (it changes behaviour, not only form),
-**revalidate it with a mini round of Phase A** on that point before accepting it. Cleaning must not
-reintroduce bugs.
+**revalidate it with a mini round of Phase A** on that point before accepting it. That round counts
+against the correctness round cap; with the cap spent, skip the cleanup and note it. Cleaning must
+not reintroduce bugs.
 
 **The boundary with `/dev-loop:design-revision`:** Phase B files **inside the diff**. A duplication
 that runs outside the diff, a switch that has been growing for three sprints, a class that knows too
@@ -125,7 +129,7 @@ does not converge; a cleanup that the first pass opened is structure and belongs
 
 Once correctness and cleaning are closed, the code has its final shape: only now does looking at its
 comments make sense. **Run `/dev-loop:comment-writing` in review mode** over the same scope — unless
-Step 1 declared that the diff touches no comment.
+the diff, as Phases A and B left it, touches no comment (see Step 1).
 
 The criteria — what is kept, what is rewritten, what is deleted, the cutting proof — live there and
 **are not copied here**: two copies would diverge the first time somebody touched one. This phase
@@ -150,16 +154,19 @@ or a broken delimiter breaks the file all the same.
 Exit when one of these fires:
 
 - **Approved** — `/code-review` finds no more Critical or Important, the `/simplify` pass is applied
-  **and** the pass over the comments is closed or declared skipped.
+  (or folded into `/code-review` below the small batch threshold) **and** the pass over the
+  comments is closed or declared skipped.
 - **Accepted with reservations** — only Minors remain, and the user chooses to accept them.
 - **External block** — a problem emerges that needs a decision which is not yours (a contradiction
   with the plan, a design choice, missing external information): stop and hand the question back.
 
 Phase A is capped by **the correctness round cap** named in
 `${CLAUDE_PLUGIN_ROOT}/references/limits.md`; Phases B and C are single passes and do not consume it.
-Phase C still has to run before approval is declared, unless Step 1 skipped it — never drop it in
-silence because the cap was reached. At the cap, consolidate the state and hand the question back:
-what has not closed after that many rounds needs a human decision, not more filing.
+Phase C still has to run before approval is declared, unless it was skipped for want of comments —
+never drop it in silence because the cap was reached. A clean last round closes Phase A like any
+other. Only when the last allowed round leaves a Critical or Important fix open or unchecked,
+consolidate the state and hand the question back: what has not closed after that many rounds needs
+a human decision, not more filing.
 
 ## When it is time to ask, and the state that goes with it
 
@@ -174,10 +181,11 @@ decision away from the user **and** the awareness of having taken it. The form o
 held by `${CLAUDE_PLUGIN_ROOT}/references/asking.md`.
 
 A forked skill cannot ask the user: it returns `status: question`. When it does, the `state` field
-carries **the current phase (A, B or C), the current iteration, the findings already applied with
-their sha, and the findings already discarded with the reason**. The phase is not a detail: without
-it, a stop halfway through Phase B of the second iteration makes the resume redo the whole of Phase
-A; and without the shas of what was applied, the resume does not know what is already in the branch.
+carries **the current phase (A, B or C), the correctness rounds already spent, the findings already
+applied with their sha, and the findings already discarded with the reason**. The phase is not a
+detail: without it, a stop halfway through Phase B makes the resume redo the whole of Phase A;
+without the rounds spent, the resume starts the cap afresh; and without the shas of what was
+applied, the resume does not know what is already in the branch.
 The shape of the return is held by `${CLAUDE_PLUGIN_ROOT}/references/agent-return.md`.
 
 If `Skill` or `Agent` are not available, this skill runs in the main thread with no other
@@ -229,8 +237,9 @@ These exist because the main risk of an automated review is making the code wors
 sound when it is not, or filing it until it loses its shape.
 
 - **Do not skip Phase A.** Cleaning code not yet verified correct is work at risk.
-- **Do not declare it sound without proof.** An iteration closes only after re-running the tool and
-  checking lint and build. No success claim without the evidence of the command run.
+- **Do not declare it sound without proof.** An iteration closes only after the re-run the procedure
+  calls for, if any, and after checking lint and build. No success claim without the evidence of
+  the command run.
 - **Do not change the intent of the code.** Fixes correct bugs and tidy form; they do not redesign
   the feature. If you think the design is wrong, say so as an open point.
 - **Do not hide a finding under a cleanup.** A bug masked by a simplification is worse than a

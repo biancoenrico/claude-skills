@@ -16,7 +16,8 @@ A batch now goes through the loop faster.
 - **The comment pass is skipped** when the diff adds or changes no comment.
 - **`executor` and `drafter` run on Sonnet**, and `reviewer`, `test-writing` and
   `code-revision` run at `high` effort instead of `xhigh`.
-- **Mutations in `test-writing` run only the target test file**, not the whole suite.
+- **Mutations in `test-writing` run only the target test file**, and the whole suite only
+  for a mutation that survives.
 
 ## 1.0.0 — 2026-09-14
 

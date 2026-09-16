@@ -42,7 +42,8 @@ Each entry carries five fields:
 - **Value:** 5
 - **Searchable form:** `5 iterations`
 - **Who reads it:** every skill that reviews something and can go round again — the revision
-  skills and the fork skills that iterate over their own findings — plus the review ledger,
+  skills and the fork skills that iterate over their own findings, except code revision, which
+  has the correctness round cap — plus the review ledger,
   which counts iterations per group against this cap. **What an iteration is, what does not
   consume the budget, and what happens at the cap** live with the counter, in
   `${CLAUDE_PLUGIN_ROOT}/references/ledger.md`.
@@ -55,12 +56,12 @@ Each entry carries five fields:
 - **Value:** 2
 - **Searchable form:** `2 correctness rounds`
 - **Who reads it:** the code revision skill, which counts its `/code-review` rounds on one batch
-  against this cap instead of the revision iteration cap. The cleaning phase is a single pass and
-  never counts.
+  against this cap instead of the revision iteration cap. The cleaning pass itself never counts;
+  a correctness round it sends the skill back to does.
 - **Where it comes from:** **a choice made to speed the loop up, not a line of the
   specification.** A batch is small and its diff is fresh: a second round checks the fixes of the
   first, and what survives two rounds needs a human decision more than a third one. Code review
-  runs once per batch, so the plan and spec revision cap was costing its price on every batch.
+  runs once per batch, so the revision iteration cap was costing its price on every batch.
 
 ## The small batch threshold
 
@@ -68,8 +69,8 @@ Each entry carries five fields:
 - **Value:** 50
 - **Searchable form:** `50 changed lines`
 - **Who reads it:** the code revision skill, which below the threshold folds correctness and
-  cleaning into a single `/code-review` pass. Changed lines are added plus removed, as
-  `git diff --shortstat base..HEAD` counts them, tests excluded.
+  cleaning into a single `/code-review` pass. Changed lines are the lines added plus removed in
+  the diff under review, with test files left out of the count.
 - **Where it comes from:** **a choice made to speed the loop up, not a line of the
   specification.** Below this size the correctness round and the cleaning round read the same
   handful of lines twice, and `/code-review` already reports cleanups alongside bugs.
