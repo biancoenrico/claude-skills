@@ -3,7 +3,7 @@ name: test-writing
 description: Decides what deserves a test and writes it, or judges whether the tests already there prove anything. Isolates the unit and its seams, separates the logic written here from the platform's, writes down what gets covered and what does not before writing a line, and closes by proving through mutation that every test can go red.
 when_to_use: Writing, adding or completing tests for a target; in audit mode, judging an inherited suite. Triggers - "write the tests for X", "cover this module", "the tests are missing", "do these tests prove anything", "clean up the tests". Not for hunting bugs in production code.
 argument-hint: <targets - paths, a class, a module; or base..HEAD; plus the batch file of the plan and any state from an earlier run>
-effort: xhigh
+effort: high
 context: fork
 agent: general-purpose
 background: false
@@ -196,6 +196,7 @@ The safety of the mutation — the copy, the restore, one mutation at a time, a 
 - **Choose the test case so that the mutation crosses it.** If the logic splits a list, a
   one-element list passes with any separator and the test stays mute: it takes a list of two. If a
   condition has two branches, a case satisfying both does not tell them apart.
+- **Filter the command to the target test file**, never the whole suite: every mutation reruns it.
 - **Check the command is green without the mutation before mutating.**
 - **Read the tail of the output** to confirm that what fails is the assertion of the target test,
   and not compilation, test collection or configuration.

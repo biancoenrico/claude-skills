@@ -1,6 +1,6 @@
 ---
 description: Launched by the dev-loop plan skills to draft one batch file of a plan folder, inside the shape the index has already fixed.
-model: inherit
+model: sonnet
 effort: high
 tools: Read, Grep, Glob, Bash, Write, Edit
 ---

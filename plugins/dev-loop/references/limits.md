@@ -49,6 +49,31 @@ Each entry carries five fields:
 - **Where it comes from:** the specification, where it is the ceiling on review iterations and
   one of the points at which a fork skill stops and hands the question back.
 
+## The correctness round cap
+
+- **Name:** the correctness round cap
+- **Value:** 2
+- **Searchable form:** `2 correctness rounds`
+- **Who reads it:** the code revision skill, which counts its `/code-review` rounds on one batch
+  against this cap instead of the revision iteration cap. The cleaning phase is a single pass and
+  never counts.
+- **Where it comes from:** **a choice made to speed the loop up, not a line of the
+  specification.** A batch is small and its diff is fresh: a second round checks the fixes of the
+  first, and what survives two rounds needs a human decision more than a third one. Code review
+  runs once per batch, so the plan and spec revision cap was costing its price on every batch.
+
+## The small batch threshold
+
+- **Name:** the small batch threshold
+- **Value:** 50
+- **Searchable form:** `50 changed lines`
+- **Who reads it:** the code revision skill, which below the threshold folds correctness and
+  cleaning into a single `/code-review` pass. Changed lines are added plus removed, as
+  `git diff --shortstat base..HEAD` counts them, tests excluded.
+- **Where it comes from:** **a choice made to speed the loop up, not a line of the
+  specification.** Below this size the correctness round and the cleaning round read the same
+  handful of lines twice, and `/code-review` already reports cleanups alongside bugs.
+
 ## The agents-per-wave cap
 
 - **Name:** the agents-per-wave cap
