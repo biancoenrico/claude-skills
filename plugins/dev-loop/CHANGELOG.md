@@ -3,6 +3,21 @@
 Kept in the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) shape, one section per
 release, newest first; the plugin follows [semantic versioning](https://semver.org/).
 
+## 1.3.0 — 2026-09-16
+
+Specs and plans get through review faster.
+
+### Changed
+
+- **Small documents get one reviewer.** Below the small document threshold, a single reviewer
+  checks both the criteria and the alternatives.
+- **The alternatives pass runs on the first iteration.** It runs again only when an answer from
+  the user moves a load-bearing decision.
+- **A new round starts only after a 🔴 or 🟠 fix, or an answer.** A round whose fixes were all
+  minor ends the review.
+- **A plan's seam pass runs only with two batch files or more, or a reference specification.**
+- **The revision iteration cap drops from five to three.**
+
 ## 1.2.0 — 2026-09-16
 
 Small changes no longer go through the full loop.
