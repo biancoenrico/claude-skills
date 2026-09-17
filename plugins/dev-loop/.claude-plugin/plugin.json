@@ -1,7 +1,7 @@
 {
   "name": "dev-loop",
   "description": "Spec revision, plan batching, drafting, revision and execution, test writing, code, comment and design revision, backlog writing, with fresh-eyes reviewer agents.",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "author": {
     "name": "Enrico Bianco",
     "url": "https://github.com/biancoenrico"

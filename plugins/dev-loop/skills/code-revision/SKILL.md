@@ -2,7 +2,7 @@
 name: code-revision
 description: Reviews the code of one batch until it is at once correct and clean, with /code-review for correctness bugs, then one /simplify pass for reuse, simplification, efficiency and altitude, and finally handing the comments to /dev-loop:comment-writing. It verifies code already written; it does not review a spec or a plan.
 when_to_use: A batch has just been implemented and its diff needs checking before the next one starts. Triggers - "review what was written", "check and clean up the changes", "run code-review and simplify", "clear out the useless comments", "I have finished implementing, go over it".
-argument-hint: <scope - paths, base..HEAD, a branch or a range; plus the batch file of the plan and any state from an earlier run>
+argument-hint: <scope - paths, base..HEAD, a branch or one or more ranges; plus the batch file of the plan and any state from an earlier run>
 effort: high
 context: fork
 agent: general-purpose
@@ -15,7 +15,8 @@ Reviews the code of a batch until it is at once **correct** (no bugs) and **clea
 duplication, complexity or waste), with its comments cut back to the ones that earn their place.
 
 It runs **on one batch**, not on a whole branch, and it is invoked by `/dev-loop:plan-execution`
-once the batch's tests are green.
+once the batch's tests are green. At the last batch of a plan the scope also carries the ranges of
+the leaf batches whose review was deferred: one pass over all of them.
 
 Three categories of problem escape whoever has just written the code: the **bugs** (unhandled edge
 cases, null dereferences, off-by-one, regressions), the **quality defects** (logic duplicated in
