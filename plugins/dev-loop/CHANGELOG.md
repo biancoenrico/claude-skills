@@ -3,6 +3,17 @@
 Kept in the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) shape, one section per
 release, newest first; the plugin follows [semantic versioning](https://semver.org/).
 
+## 1.6.0 — 2026-09-17
+
+A plan runs fewer code reviews.
+
+### Changed
+
+- **A batch is reviewed on the spot only when a later batch depends on it.** A leaf batch writes
+  `code-revision deferred` and moves on, and the last batch of the plan reviews its own diff
+  together with every deferred range in one pass. Batches that others build on are still
+  reviewed before anyone builds on them.
+
 ## 1.5.0 — 2026-09-16
 
 The main conversation holds less context, so each turn uses fewer tokens.
