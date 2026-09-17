@@ -72,9 +72,9 @@ For new projects, subsystems, and interfaces other code will depend on.
 6. `/dev-loop:plan-execution` runs the plan one batch at a time, without asking permission to
    move to the next one. Inside a batch: an executor does the work of the batch and commits the
    production code, `/dev-loop:test-writing` writes and repairs the tests, `/dev-loop:code-revision`
-   reviews that batch — or, when no later batch depends on it, the last batch reviews it together
-   with its own diff — and then the closing criteria from the index are checked one by one. What
-   can run in parallel inside a batch does; batches themselves stay in sequence.
+   reviews that batch or defers it, by the rule in `references/deferred-review.md`, and then the
+   closing criteria from the index are checked one by one. What can run in parallel inside a
+   batch does; batches themselves stay in sequence.
 7. `/dev-loop:design-revision` once, after the last batch and before closing: the shape of a
    branch emerges *between* the batches, not inside one.
 8. Close the branch — with the `git-flow` plugin if it is installed. The merge is the user's

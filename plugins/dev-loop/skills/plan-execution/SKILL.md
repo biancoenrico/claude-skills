@@ -85,7 +85,7 @@ wrap-up and `git log` contradict each other, **`git log` wins**, and the contrad
 **Before opening a new batch, pay the previous one's debt.** If the batch before closed without
 one of its criteria — typically the review — that comes first. A finding on code that three
 batches have since rewritten over is no longer the same finding. A `code-revision deferred` line
-is not debt: the last batch pays it.
+is debt only once no open batch is left to pay it.
 
 ## The batch procedure
 
@@ -179,23 +179,20 @@ batch file; the step closes only after the skill has been invoked again with tha
 
 ### 4. Review
 
-**Review now a batch a later open batch depends on** — in the index's dependencies or a later
-`Inherits:` line: a bug left in it becomes their base, and their tests lock it in. **A leaf waits**:
-line `code-revision deferred @<sha>`. Dependencies unclear: review now.
+**Now or deferred** is decided by `${CLAUDE_PLUGIN_ROOT}/references/deferred-review.md`, which
+also holds the scope and the line order of the last batch, who pays the deferrals. A leaf writes
+`code-revision deferred @<sha>` and goes on to step 5.
 
-**The last open batch reviews now and pays the deferrals**, in one pass: its `base..HEAD` plus,
-per deferred batch, `base` to its `criteria ok` sha. Each deferred file then gets
-`code-revision in NN @<sha>`, NN the last batch. A single-file plan is its own last batch.
-
-Invoke `/dev-loop:code-revision` on that scope **with the batch file's path** — from it
-comment-writing finds the index for its terms list — then line `code-revision @<sha>`. A
-`question` gives `code-revision (partial) @<sha>`, with the state in the file.
+Otherwise invoke `/dev-loop:code-revision` on the scope that file gives **with the batch file's
+path** — without it comment-writing misses the index and runs degraded — then line
+`code-revision @<sha>`. A `question` gives `code-revision (partial) @<sha>`, with the state in
+the file.
 
 ### 5. Criteria
 
 Walk the index's closing criteria **one at a time**, each with its own command and its own
-outcome, on code already reviewed or whose review is deferred. Line `criteria ok @<sha>`, or the list of the
-reds.
+outcome, on code already reviewed or whose review is deferred; the last batch adds the batches it
+paid, as `deferred-review.md` says. Line `criteria ok @<sha>`, or the list of the reds.
 
 - A red that depends on production goes through the unplanned-change re-entry below.
 - A red that depends on a missing or wrong test **goes back to step 3** — and the return leaves
@@ -325,7 +322,7 @@ The full rule, and what counts as a malformed return, is held in
   outcome.
 - **Do not widen a batch.** The finding is written where the remedy is.
 - **Do not skip the review, and defer only a leaf's.** Under a batch others build on, a bug
-  becomes their base; a leaf's bug waits for the last batch at no extra cost.
+  becomes their base.
 - **The tests are written by `/dev-loop:test-writing`, production by the executor.** Neither job
   moves to the main thread because it looks small.
 - **Do not ask permission to carry on.** Summarise and go. Whoever is reading can stop you; you
