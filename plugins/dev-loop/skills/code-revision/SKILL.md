@@ -2,7 +2,7 @@
 name: code-revision
 description: Reviews the code of one batch until it is at once correct and clean, with /code-review for correctness bugs, then one /simplify pass for reuse, simplification, efficiency and altitude, and finally handing the comments to /dev-loop:comment-writing. It verifies code already written; it does not review a spec or a plan.
 when_to_use: A batch has just been implemented and its diff needs checking before the next one starts. Triggers - "review what was written", "check and clean up the changes", "run code-review and simplify", "clear out the useless comments", "I have finished implementing, go over it".
-argument-hint: <scope - paths, base..HEAD, a branch or a range; plus the batch file of the plan and any state from an earlier run>
+argument-hint: <scope - paths, base..HEAD, a branch or one or more ranges; plus the batch file of the plan and any state from an earlier run>
 effort: high
 context: fork
 agent: general-purpose
@@ -15,7 +15,8 @@ Reviews the code of a batch until it is at once **correct** (no bugs) and **clea
 duplication, complexity or waste), with its comments cut back to the ones that earn their place.
 
 It runs **on one batch**, not on a whole branch, and it is invoked by `/dev-loop:plan-execution`
-once the batch's tests are green.
+once the batch's tests are green. The scope may carry several ranges, when the last batch pays
+deferred reviews (`${CLAUDE_PLUGIN_ROOT}/references/deferred-review.md`).
 
 Three categories of problem escape whoever has just written the code: the **bugs** (unhandled edge
 cases, null dereferences, off-by-one, regressions), the **quality defects** (logic duplicated in
@@ -31,7 +32,8 @@ comments.
 ## Step 1 — Determine and declare the scope
 
 This skill runs in a fork: **it does not see the conversation**. The scope arrives **spelled out in
-the arguments** — paths, `base..HEAD`, a branch or a range, plus the batch file of the plan.
+the arguments** — paths, `base..HEAD`, a branch or one or more ranges, plus the batch file of
+the plan.
 
 With no arguments, fall back to `git diff HEAD` plus the branch range when an upstream exists. If
 that too is empty, **do not invent a scope**: return `status: question` in the shape held by
@@ -39,7 +41,8 @@ that too is empty, **do not invent a scope**: return `status: question` in the s
 
 Fix the diff under review and declare it in one line: which files, how many lines, where they come
 from. Note also whether the changes are **committed or in the working tree**: it changes how the
-diffs for the later phases are generated (a range of commits versus `git diff HEAD`).
+diffs for the later phases are generated (a range of commits versus `git diff HEAD`). With several
+ranges, each later phase diffs every range and reads the results together.
 
 Declare its size in that same line, against the small batch threshold in
 `${CLAUDE_PLUGIN_ROOT}/references/limits.md`. Below it, Phases A and B become **one** `/code-review`

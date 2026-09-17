@@ -13,12 +13,11 @@ yours.
 
 The failure this skill exists to prevent is not the technical error: it is **the loop fraying**.
 A batch closes, someone asks "shall I go on?", work restarts with half the context, the review
-gets skipped because "the batch was small", and three batches later the closing criteria have
+is skipped as "small", and three batches later the closing criteria have
 become a memory. Every skipped step costs little alone; the bill arrives all at once.
 
-**It is thin by choice.** It carries no criteria of its own, no list of checks, no definition of
-"done": those live **in the plan's index**, which is the only place they can stay true. A skill
-that copied them inside itself would diverge from the plan the first time anyone touched one.
+**It is thin by choice.** No criteria, checks or definition of "done" of its own: those live
+**in the plan's index**, the only place they stay true; a copy here would drift at the first edit.
 
 It calls `dev-loop:executor` for the work, `/dev-loop:test-writing` for the tests and
 `/dev-loop:code-revision` for the review, each at its own point in the batch procedure.
@@ -31,8 +30,7 @@ In order of priority:
 2. **The plan already under discussion** in this conversation.
 3. **A single plan folder** with open batches under the usual paths (`docs/plans/`, `plans/`).
 
-With more than one candidate and none named, **ask which** — the one case where guessing costs
-more than asking.
+With more than one candidate and none named, **ask which**: here guessing costs more.
 
 ## Step 1 — Read the index, and take four things from it
 
@@ -86,7 +84,8 @@ wrap-up and `git log` contradict each other, **`git log` wins**, and the contrad
 
 **Before opening a new batch, pay the previous one's debt.** If the batch before closed without
 one of its criteria — typically the review — that comes first. A finding on code that three
-batches have since rewritten over is no longer the same finding.
+batches have since rewritten over is no longer the same finding. A `code-revision deferred` line
+is debt only once no open batch is left to pay it.
 
 ## The batch procedure
 
@@ -112,19 +111,19 @@ test-writing skipped: no targets
 test-writing (partial) @<sha>
 code-revision @<sha>
 code-revision (partial) @<sha>
+code-revision deferred @<sha>
+code-revision in NN @<sha>
 criteria ok @<sha>
 report @<sha>
 back to test-writing @<sha>
 restart from test-writing @<sha>
 ```
 
-**A machine reads those lines** — they are where a resumed run works out what to redo — so they
-are names, not prose. The rest of the batch file stays in the language of the project's
-documents: the wrap-up and the notes are written for people.
+**A machine reads those lines** to work out what a resume redoes, so they are names, not prose.
+The rest of the batch file — wrap-up, notes — stays in the language of the project's documents.
 
-**`@<sha>` is on all of them, `criteria ok` and `report` included.** Step 5 checks the criteria
-"on code that has already been reviewed", and without the sha the line does not say which code
-they passed on; picked up later, with other commits on top, it is unreadable.
+**`@<sha>` is on all of them**: without it a line does not say which code it passed on, and
+picked up later, with other commits on top, it is unreadable.
 
 ### 1. Base
 
@@ -180,25 +179,25 @@ batch file; the step closes only after the skill has been invoked again with tha
 
 ### 4. Review
 
-Invoke `/dev-loop:code-revision` on `base..HEAD`, **with the path of the batch file** in the
-arguments, then write the line `code-revision @<sha>`. A `question` gives the same
-`code-revision (partial) @<sha>` line, with the state in the file.
+**Now or deferred** is decided by `${CLAUDE_PLUGIN_ROOT}/references/deferred-review.md`, which
+also holds the scope and the line order of the last batch, who pays the deferrals. A leaf writes
+`code-revision deferred @<sha>` and goes on to step 5.
 
-The path carries work here too: from it code-revision finds the plan folder, and comment-writing
-finds the index it builds its terms list from. Without it that check always runs in its degraded
-mode.
+Otherwise invoke `/dev-loop:code-revision` on the scope that file gives **with the batch file's
+path** — without it comment-writing misses the index and runs degraded — then line
+`code-revision @<sha>`. A `question` gives `code-revision (partial) @<sha>`, with the state in
+the file.
 
 ### 5. Criteria
 
 Walk the index's closing criteria **one at a time**, each with its own command and its own
-outcome, on code that has already been reviewed. Line `criteria ok @<sha>`, or the list of the
-reds.
+outcome, on code already reviewed or whose review is deferred; the last batch adds the batches it
+paid, as `deferred-review.md` says. Line `criteria ok @<sha>`, or the list of the reds.
 
 - A red that depends on production goes through the unplanned-change re-entry below.
 - A red that depends on a missing or wrong test **goes back to step 3** — and the return leaves
   its trace: line `back to test-writing @<sha>`, which cancels the step 3, 4 and 5 lines that
-  precede it. Without that marker the `test-writing @<sha>` and `code-revision @<sha>` lines
-  would stay valid and a resumed run would restart at step 5, still red.
+  precede it; without it a resumed run would restart at step 5, still red.
 - `back to test-writing` **does not count as a re-entry**: it does not touch production, and
   only `restart from test-writing` lines enter the count.
 
@@ -322,8 +321,8 @@ The full rule, and what counts as a malformed return, is held in
 - **Do not declare anything closed without proof.** Every criterion wants its command and its
   outcome.
 - **Do not widen a batch.** The finding is written where the remedy is.
-- **Do not skip the review.** It is the step that goes first and costs the most: five short
-  reviews find more than one review over thousands of lines at the end of a branch.
+- **Do not skip the review, and defer only a leaf's.** Under a batch others build on, a bug
+  becomes their base.
 - **The tests are written by `/dev-loop:test-writing`, production by the executor.** Neither job
   moves to the main thread because it looks small.
 - **Do not ask permission to carry on.** Summarise and go. Whoever is reading can stop you; you

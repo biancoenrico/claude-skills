@@ -72,7 +72,7 @@ Each entry carries five fields:
 - **Where it comes from:** **a choice made to speed the loop up, not a line of the
   specification.** A batch is small and its diff is fresh: a second round checks the fixes of the
   first, and what survives two rounds needs a human decision more than a third one. Code review
-  runs once per batch, so the revision iteration cap was costing its price on every batch.
+  runs at most once per batch, so the revision iteration cap was costing its price on every batch.
 
 ## The small batch threshold
 
