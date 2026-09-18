@@ -3,6 +3,16 @@
 Kept in the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) shape, one section per
 release, newest first; the plugin follows [semantic versioning](https://semver.org/).
 
+## 1.7.0 — 2026-09-18
+
+Commenting a small change no longer launches agents.
+
+### Changed
+
+- **A small scope gets its comments from the caller.** Below the small batch threshold, the
+  caller follows `comment-writing` inline instead of forking it, and no fresh reviewer is
+  launched. Above it, the reviewer runs only when at least one comment survived.
+
 ## 1.6.0 — 2026-09-17
 
 A plan runs fewer code reviews.

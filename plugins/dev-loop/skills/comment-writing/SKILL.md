@@ -1,7 +1,7 @@
 ---
 name: comment-writing
 description: Decides whether a comment is needed at all and, when it is, writes it short and useful. Covers class and file comments, function comments, and the rare ones inside a function. It also runs in review mode over comments that are already there. It writes no external documentation and hunts no bugs.
-when_to_use: Commenting or documenting code just written, and reviewing the comments of a diff. Triggers - "comment this class", "add the docblocks", "explain this method", "are these comments needed", "drop the useless comments", "these comments are too wordy", "go over the comments in the diff".
+when_to_use: Commenting or documenting code just written, and reviewing the comments of a diff. Triggers - "comment this class", "add the docblocks", "explain this method", "are these comments needed", "drop the useless comments", "these comments are too wordy", "go over the comments in the diff". Below the small batch threshold, read this file and follow it inline instead of invoking it.
 argument-hint: <paths, a diff or a range; plus the batch file of the plan, any why known only from the conversation when used on its own, and "review" for review mode>
 effort: high
 context: fork
@@ -13,8 +13,7 @@ agent: general-purpose
 Writes the comments of a piece of code. The real work is not writing them: it is **deciding which
 ones exist**, and not writing the others.
 
-It is a generic skill: it does not know which language or which project it is running in, and it
-brings no conventions of its own. It reads them (Step 1) and adapts.
+It is generic: it brings no conventions of its own, and reads the project's in Step 1.
 
 `/dev-loop:code-revision` delegates its comment phase here, and the criteria live only here so that
 there are never two copies to keep aligned. In writing mode it is also used on its own, while the
@@ -23,9 +22,18 @@ code is being written.
 **It runs in a fork**, so its instructions and whatever it loads stay out of the caller's context.
 It does not see the conversation: the scope, and any *why* known only from the conversation,
 arrive in the arguments. Inside the loop there is no such argument: the whys it may use are the
-ones the code, the batch file and the plan already carry. Every question in this file is handed back rather than asked: the return
-is `status: question` in the shape held by `${CLAUDE_PLUGIN_ROOT}/references/agent-return.md`,
-with the report in `findings` and what a resume needs in `state`.
+ones the code, the batch file and the plan already carry. Every question is handed back rather
+than asked: the return is `status: question` in the shape held by
+`${CLAUDE_PLUGIN_ROOT}/references/agent-return.md`, with the report in `findings` and what a
+resume needs in `state`.
+
+**Below the small batch threshold** in `${CLAUDE_PLUGIN_ROOT}/references/limits.md` — lines added
+plus removed against `HEAD` over the scope, test files included, an untracked file counting in
+full — the caller reads this file and **follows it inline** instead of invoking it: a fork and a
+reviewer cost more than a handful of comments. Inline, this holds wherever the file says
+otherwise: the whys may also come from the conversation; a question goes into the caller's own
+return, or to the user in the form held by `${CLAUDE_PLUGIN_ROOT}/references/asking.md`; the point
+reached (candidates, verdicts, step) goes into the caller's `state`.
 
 ## The failure it exists to avoid
 
@@ -199,7 +207,8 @@ reader: hand it `catalog.md` and `gates.md` — with the paths in the form presc
 `agents/reviewer.md`, which owns that rule — together with the comments under examination, and ask
 for its judgement on the new reader's proof over comments it is seeing for the first time. That is
 exactly what whoever has just written the code cannot do in their head. The reviewer changes
-nothing: its findings come back here, and this skill decides.
+nothing: its findings come back here, and this skill decides. **Not launched below the threshold,
+forked or not, nor when no comment survived.**
 
 When a *why* is not known and cannot be deduced, it is not invented: the form of the question is
 held by `${CLAUDE_PLUGIN_ROOT}/references/asking.md`.

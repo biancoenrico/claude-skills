@@ -125,7 +125,9 @@ does not converge; a cleanup that the first pass opened is structure and belongs
 ## Phase C — Comments
 
 Once correctness and cleaning are closed, the code has its final shape: only now does looking at its
-comments make sense. **Run `/dev-loop:comment-writing` in review mode** over the same scope.
+comments make sense. **Run `/dev-loop:comment-writing` in review mode** over the same scope. Below
+the small batch threshold, declared in Step 1, read its `SKILL.md` and follow it inline instead,
+as that file prescribes; its questions and its point reached then become this skill's own.
 
 **Skip it when the diff, as Phases A and B left it, adds, modifies or makes false no comment**, and
 declare the reason in the report: a skipped Phase C is closed. Before declaring none, look at the
@@ -180,7 +182,7 @@ held by `${CLAUDE_PLUGIN_ROOT}/references/asking.md`.
 A forked skill cannot ask the user: it returns `status: question`. When it does, the `state` field
 carries **the current phase (A, B or C), the current iteration and the last code used, the
 correctness rounds already spent, the findings already applied with their sha, the findings
-already discarded with the reason, and on a Phase C stop the `state` comment-writing returned**. The phase is not a
+already discarded with the reason, and on a Phase C stop the `state` comment-writing returned, or inline the point it reached**. The phase is not a
 detail: without it, a stop halfway through Phase B makes the resume redo the whole of Phase A;
 without the rounds spent, the resume starts the cap afresh; and without the shas of what was
 applied, the resume does not know what is already in the branch.
@@ -243,9 +245,9 @@ sound when it is not, or filing it until it loses its shape.
   the feature. If you think the design is wrong, say so as an open point.
 - **Do not hide a finding under a cleanup.** A bug masked by a simplification is worse than a
   visible bug. Keep them apart: correct first, clean after.
-- **Do not do Phase C by hand.** The criteria for comments live in `/dev-loop:comment-writing`;
+- **Do not do Phase C from memory.** The criteria for comments live in `/dev-loop:comment-writing`;
   redoing them from memory here applies an old version of them. That holds even when the comments
-  touched are two.
+  touched are two: below the threshold its file is read and followed, not recalled.
 - **Trace every intervention.** Every fix and every skip is justified in the report.
 - **Respect the project's constraints.** Style, language version, commit conventions, files not to
   be touched: read them from the project's instructions before applying a fix.
