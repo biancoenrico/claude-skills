@@ -5,13 +5,16 @@ release, newest first; the plugin follows [semantic versioning](https://semver.o
 
 ## 1.7.0 — 2026-09-18
 
-Commenting a small change no longer launches agents.
+Comments take less time: a small change launches no agents, and a large one runs fewer steps.
 
 ### Changed
 
 - **A small scope gets its comments from the caller.** Below the small batch threshold, the
   caller follows `comment-writing` inline instead of forking it, and no fresh reviewer is
   launched. Above it, the reviewer runs only when at least one comment survived.
+- **`comment-writing` runs faster.** It thinks at medium effort, runs its five checks in one
+  shell command, passes the plan's terms straight to the search instead of writing a file, waits
+  for its reviewer without polling, and checks syntax on the touched files instead of building.
 
 ## 1.6.0 — 2026-09-17
 
