@@ -81,8 +81,9 @@ Each entry carries five fields:
 - **Searchable form:** `50 changed lines`
 - **Who reads it:** the code revision skill, which below the threshold folds correctness and
   cleaning into a single `/code-review` pass; and the bounded path, which below it writes the
-  tests inline instead of forking test-writing. Changed lines are the lines added plus removed in
-  the diff under review, with test files left out of the count.
+  tests inline instead of forking test-writing; and whoever would invoke comment-writing, which
+  below it is followed inline, with no fork and no reviewer. Changed lines are the lines added
+  plus removed in the diff under review, with test files left out of the count.
 - **Where it comes from:** **a choice made to speed the loop up, not a line of the
   specification.** Below this size the correctness round and the cleaning round read the same
   handful of lines twice, and `/code-review` already reports cleanups alongside bugs.

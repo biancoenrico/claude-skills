@@ -27,6 +27,11 @@ ones the code, the batch file and the plan already carry. Every question in this
 is `status: question` in the shape held by `${CLAUDE_PLUGIN_ROOT}/references/agent-return.md`,
 with the report in `findings` and what a resume needs in `state`.
 
+**Below the small batch threshold** in `${CLAUDE_PLUGIN_ROOT}/references/limits.md`, counted on
+the scope, the caller reads this file and **follows it inline**, every step included, rather than
+invoking it: a fork and a reviewer cost more than a handful of comments. Inline, the questions go
+to the caller's own return or to the user, and the new reader is judged by the gates alone.
+
 ## The failure it exists to avoid
 
 A missing comment gets noticed and added. What does not get noticed is the opposite: the comment
@@ -199,7 +204,8 @@ reader: hand it `catalog.md` and `gates.md` — with the paths in the form presc
 `agents/reviewer.md`, which owns that rule — together with the comments under examination, and ask
 for its judgement on the new reader's proof over comments it is seeing for the first time. That is
 exactly what whoever has just written the code cannot do in their head. The reviewer changes
-nothing: its findings come back here, and this skill decides.
+nothing: its findings come back here, and this skill decides. **It is not launched inline, nor when
+no comment survived**: with nothing to read, it is a round trip for nothing.
 
 When a *why* is not known and cannot be deduced, it is not invented: the form of the question is
 held by `${CLAUDE_PLUGIN_ROOT}/references/asking.md`.

@@ -125,7 +125,9 @@ does not converge; a cleanup that the first pass opened is structure and belongs
 ## Phase C — Comments
 
 Once correctness and cleaning are closed, the code has its final shape: only now does looking at its
-comments make sense. **Run `/dev-loop:comment-writing` in review mode** over the same scope.
+comments make sense. **Run `/dev-loop:comment-writing` in review mode** over the same scope. Below
+the small batch threshold, declared in Step 1, read its `SKILL.md` and follow it inline instead,
+as that file prescribes.
 
 **Skip it when the diff, as Phases A and B left it, adds, modifies or makes false no comment**, and
 declare the reason in the report: a skipped Phase C is closed. Before declaring none, look at the
