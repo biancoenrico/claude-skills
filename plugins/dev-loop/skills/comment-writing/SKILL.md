@@ -3,7 +3,7 @@ name: comment-writing
 description: Decides whether a comment is needed at all and, when it is, writes it short and useful. Covers class and file comments, function comments, and the rare ones inside a function. It also runs in review mode over comments that are already there. It writes no external documentation and hunts no bugs.
 when_to_use: Commenting or documenting code just written, and reviewing the comments of a diff. Triggers - "comment this class", "add the docblocks", "explain this method", "are these comments needed", "drop the useless comments", "these comments are too wordy", "go over the comments in the diff". Below the small batch threshold, read this file and follow it inline instead of invoking it.
 argument-hint: <paths, a diff or a range; plus the batch file of the plan, any why known only from the conversation when used on its own, and "review" for review mode>
-effort: high
+effort: medium
 context: fork
 agent: general-purpose
 ---
@@ -183,20 +183,13 @@ the prose language established in Step 1, and with the `process-ref` term list e
 Whatever did not run goes into the verifications section of the report, with the details in that
 file.
 
-**The term list of `process-ref`**, built at every invocation and deleted at the end, in every exit
-path:
+**The terms of `process-ref`** go straight into its search as extra `-e` patterns; no file is
+written.
 
 - **Where the terms come from:** the shared vocabulary of the plan's index. **The index is derived
   from the path of the batch file**, which arrives in the arguments — plan-execution passes it, and
   in its comment phase code-revision passes it on. Take its directory and look there for the index
   by the rule in `${CLAUDE_PLUGIN_ROOT}/references/plan-folder.md`.
-- **Format:** one term per line, nothing else — no comments, no headers — so that the list can be
-  fed to a fixed-string search directly.
-- **Where it lives:** under `<git-dir>/devloop-comment-gates/`, the same convention as the mutation
-  script, which keeps its copies there. The plugin's working files stay in one place, out of
-  `git status` and **never inside the user's working tree**. The name carries the **PID**, so a file
-  left behind by a killed process is recognisable as an orphan instead of being confused with the
-  one in use.
 - **When it cannot be done:** "unreachable" means **no batch file path in the arguments**, or **no
   index file in its directory**. Then the base list of terms is all there is, and **the report says
   so**, in one line: it is a declared degradation, not a silence. Those terms matter because they are
@@ -207,7 +200,8 @@ reader: hand it `catalog.md` and `gates.md` — with the paths in the form presc
 `agents/reviewer.md`, which owns that rule — together with the comments under examination, and ask
 for its judgement on the new reader's proof over comments it is seeing for the first time. That is
 exactly what whoever has just written the code cannot do in their head. The reviewer changes
-nothing: its findings come back here, and this skill decides. **Not launched below the threshold,
+nothing: its findings come back here, and this skill decides. Wait for its notification;
+never poll its output with `sleep`. **Not launched below the threshold,
 forked or not, nor when no comment survived.**
 
 When a *why* is not known and cannot be deduced, it is not invented: the form of the question is
@@ -215,8 +209,8 @@ held by `${CLAUDE_PLUGIN_ROOT}/references/asking.md`.
 
 ### Step 6 — Verify and report
 
-The project's lint, build or static analyser: a malformed docblock or a broken delimiter breaks the
-file even if "you only touched comments". Then the report, whose template lives beside the
+The project's syntax check or linter on the touched files, not the whole build: a malformed
+docblock or a broken delimiter breaks the file even if "you only touched comments". Then the report, whose template lives beside the
 verifications it lists, in `${CLAUDE_PLUGIN_ROOT}/skills/comment-writing/gates.md`.
 
 ## Workflow — review mode
