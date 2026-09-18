@@ -183,8 +183,8 @@ the prose language established in Step 1, and with the `process-ref` term list e
 Whatever did not run goes into the verifications section of the report, with the details in that
 file.
 
-**The terms of `process-ref`** go straight into its search as extra `-e` patterns; no file is
-written.
+**The terms of `process-ref`** go into a second, fixed-string pass of the same command,
+`grep -rniF -e <term> …`; no file is written.
 
 - **Where the terms come from:** the shared vocabulary of the plan's index. **The index is derived
   from the path of the batch file**, which arrives in the arguments — plan-execution passes it, and

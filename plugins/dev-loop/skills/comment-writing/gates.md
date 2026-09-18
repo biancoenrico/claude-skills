@@ -249,7 +249,7 @@ diary | crutch]
 - [crutches not extracted because the operation was not trivial, with the reason]
 
 ### Verifications
-- [lint/build/static analyser run, and the outcome]
+- [syntax check or linter on the touched files, and the outcome]
 - [the gates: existence gate, process-ref, missing-name, line-ref, tense, lost-fact — and any that
   did not run, with why]
 - [facts removed and not put back, each with why it no longer holds — empty if none]
