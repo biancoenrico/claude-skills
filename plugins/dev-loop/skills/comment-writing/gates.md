@@ -87,6 +87,9 @@ this") therefore arrives whole, while a reader counting four fields would cut it
 **And the rule that governs all five: the recipe proposes, the judgement is the skill's.** A line
 that comes out of a grep is a candidate, never a verdict.
 
+**Run the five in one shell command**, each output under its own `=== name ===` header. Every
+separate call is a round trip to the model, and the checks do not depend on one another.
+
 ### `process-ref` — references to the process
 
 Terms that live in a plan or in a conversation, not in the repository: "batch 09", "decision D1",
@@ -246,7 +249,7 @@ diary | crutch]
 - [crutches not extracted because the operation was not trivial, with the reason]
 
 ### Verifications
-- [lint/build/static analyser run, and the outcome]
+- [syntax check or linter on the touched files, and the outcome]
 - [the gates: existence gate, process-ref, missing-name, line-ref, tense, lost-fact — and any that
   did not run, with why]
 - [facts removed and not put back, each with why it no longer holds — empty if none]
