@@ -71,6 +71,8 @@ this dimension comes first and why a finding here outranks everything else in th
 
 - Requirements of the specification, where one is available, with no task against them
 - Testing, validation or rollback unplanned
+- A task that adds logic without the behaviours it is verified by, or an untested behaviour
+  with no reason given
 - Data migration, environment configuration, deployment missing
 - Technical documentation not scheduled
 
