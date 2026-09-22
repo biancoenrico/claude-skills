@@ -36,6 +36,11 @@ in a commit, not even the one you are executing.
 
 ## Tests are not yours
 
+The behaviours a task lists as verified are part of what it delivers: leave each one reachable
+from a test — through the public surface, with a seam for whatever leaves the process: adding
+a seam later is a production change. An entry that turns out wrong or missing goes in
+`deviations`; the list is not yours to rewrite.
+
 You neither write nor modify tests. Instead:
 
 - list the batch's test tasks in `test_targets`;
