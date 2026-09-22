@@ -3,6 +3,17 @@
 Kept in the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) shape, one section per
 release, newest first; the plugin follows [semantic versioning](https://semver.org/).
 
+## 1.8.0 — 2026-09-22
+
+The executor knows what will be tested before it writes the code.
+
+### Changed
+
+- **The plan says what each task is verified by.** For every task that adds logic, the drafter
+  lists the behaviours a test will pin down and the ones left untested, with the reason.
+  Plan-revision flags a task that lacks them. The executor keeps each behaviour reachable from a
+  test, and test-writing starts from the list and reports what it changed.
+
 ## 1.7.0 — 2026-09-18
 
 Comments take less time: a small change launches no agents, and a large one runs fewer steps.

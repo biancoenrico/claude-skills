@@ -52,9 +52,8 @@ modify it: it declares the fact and hands the question back.
 
 **Deleting a test is not repairing it.** A test is deleted **only** when the batch file in the
 arguments declares that the behaviour is being removed. In every other case return
-`status: question`, with the test in question in `state`. **The batch file path arrives in the arguments** — plan-execution
-passes it. If it is not there, the authorisation does not exist and `status: question` always
-applies.
+`status: question`, with the test in question in `state`. Without a batch file path in the
+arguments there is no authorisation, and `status: question` always applies.
 
 ## The principle: you test the behaviour of the code written here
 
@@ -120,7 +119,9 @@ The product of this step is **the list of boundaries**, not a test.
 
 ## Step 3 — Decide what deserves a test, in writing and before writing
 
-**It is the step that makes the difference, and the one that gets skipped.** Produce two lists:
+**It is the step that makes the difference, and the one that gets skipped.** Produce two lists.
+If the batch file lists what its tasks are verified by, start there: bind each entry to its line,
+add what the code needed, report the changes.
 
 **To cover** — one behaviour per line, with the **case** in one sentence, the **line or rule** of
 production code that decides it, and **what breaks** if that behaviour changes silently.
@@ -177,9 +178,9 @@ project's way.** Good practices are for choosing where there is no precedent.
 
 ## Step 5 — Write
 
-One block at a time, following the list from Step 3. Respect the comment language, style and
-version constraints established in Step 1. Do not widen the perimeter: if while writing you find a
-behaviour that belonged on the list, **add it to the list** and say so, instead of slipping it in.
+One block at a time, following the list from Step 3, within the constraints of Step 1. Do not
+widen the perimeter: a behaviour found while writing that belonged on the list is **added to the
+list** and declared, not slipped in.
 
 **The name and the comment say the behaviour, not the occasion.** "With empty-string fields it
 writes NULL" stands on its own; "the point the new version could have altered" ages with the
@@ -229,8 +230,7 @@ Every exit code of the script has a behaviour, and the table of all eight is in
 **Exit 4 is the only one that stops this skill.** The production file is left mutated in the working
 tree, and this is the skill that commits the tests: on exit 4 **nothing is committed**, **nothing is
 restored by hand** — the marker is removed by whoever fixes the file — and the return is
-`status: question` with the mutated file, the paths of the two copies and the marker in `state`. A
-forked skill does not send questions to the user: it hands them back.
+`status: question` with the mutated file, the paths of the two copies and the marker in `state`.
 
 **The `state` covers this step too.** An interruption arrives when part of the mutations has already
 passed, and the commits do not record which. Into `state` go **the list of mutations already tried
@@ -279,6 +279,9 @@ Language/version · runner and filter pattern · where the tests live · neighbo
 
 ### Deliberately not covered: N
 | what | why: platform / harness / already covered by <where> |
+
+### Changed from the plan
+<entries added, dropped, reworded>
 
 ### Gaps found while writing
 <lines no test intercepts, found by mutation: the most valuable result>

@@ -41,6 +41,11 @@ A task is one verifiable unit of work. Each one says three things:
 - **what it must contain in substance** — the behaviour, the rule, the shape. Enough that whoever
   executes it does not have to guess, and not so much that it becomes the code itself;
 - **how it is verified** — the command, the check, the observation that tells green from red.
+  When the task adds logic, list the behaviours a test will pin down, each with the section of
+  the specification or the index rule that decides it, and the ones deliberately left untested
+  with the reason. Go through `${CLAUDE_PLUGIN_ROOT}/skills/test-writing/catalog.md` for the
+  second list rather than from memory. The executor builds against this list, and test-writing
+  starts from it.
 
 Cite the sections of the specification instead of copying them. A paragraph copied into a batch file
 is a paragraph that will drift from the specification the first time either one is edited.
