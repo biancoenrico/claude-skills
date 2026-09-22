@@ -128,6 +128,44 @@ test_without_a_range_it_counts_the_working_tree_against_head() {
     assertEquals "0" "$DDS_STATUS"
 }
 
+test_an_untracked_file_in_a_test_directory_is_excluded() {
+    repo=$(ddsNewRepo diffsize-untracked-test)
+    ddsLines "$repo/keep.txt" 1
+    ddsLines "$repo/tests/a.txt" 5
+    ddsRun "$repo"
+    assertEquals "only keep.txt" "1" "$DDS_OUT"
+}
+
+test_non_ascii_paths_are_counted_and_classified() {
+    repo=$(ddsNewRepo diffsize-nonascii)
+    ddsLines "$repo/caffè.txt" 2
+    ddsRun "$repo"
+    assertEquals "an untracked caffè.txt counts in full" "2" "$DDS_OUT"
+    ddsLines "$repo/tests/caffè.txt" 5
+    ddsCommit "$repo" add
+    ddsRun "$repo" HEAD~1..HEAD
+    assertEquals "in a range, tests/caffè.txt is still a test file" "2" "$DDS_OUT"
+}
+
+test_from_a_subdirectory_the_whole_working_tree_is_counted() {
+    repo=$(ddsNewRepo diffsize-subdir)
+    ddsLines "$repo/top.txt" 2
+    ddsLines "$repo/sub/inner.txt" 1
+    ddsRun "$repo/sub"
+    assertEquals "the untracked top.txt counts from sub too" "3" "$DDS_OUT"
+    ddsLines "$repo/tests/a.txt" 5
+    ddsRun "$repo/tests"
+    assertEquals "from inside tests/, tests/a.txt is still a test file" "3" "$DDS_OUT"
+}
+
+test_an_untracked_file_git_cannot_read_is_an_error() {
+    repo=$(ddsNewRepo diffsize-quoted)
+    ddsLines "$repo/tab$(printf '\t')name.txt" 1
+    ddsRun "$repo"
+    assertEquals "a quoted name is not a count of zero" "3" "$DDS_STATUS"
+    assertEquals "nothing on stdout" "" "$DDS_OUT"
+}
+
 test_without_a_range_a_repository_with_no_commit_is_an_error() {
     repo=$(newTestRepo diffsize-nohead)
     ddsLines "$repo/a.txt" 2

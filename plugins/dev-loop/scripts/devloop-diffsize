@@ -13,78 +13,57 @@
 #   0  printed the count
 #   2  bad syntax: a three-dot range (<base>...<head>), or an argument that is neither
 #      a <base>..<head> range nor --
-#   3  a range was rejected by git itself (e.g. a ref that does not exist): different
-#      from a usage error, but still non-zero and with nothing printed on stdout, so a
-#      bad ref can never read back as a silent count of zero
-set -eu
+#   3  git itself failed: a range it rejected (e.g. a ref that does not exist), or an
+#      untracked file it could not read. Different from a usage error, but still non-zero
+#      and with nothing printed on stdout, so a failure never reads back as a count of zero
+#
+# Globbing is off and IFS is a newline for the whole run: every unquoted expansion
+# below is a deliberate split of a newline-separated list, and a path may hold spaces.
+set -euf
 
 DD_NL='
 '
 DD_TAB=$(printf '\t')
-
-dd_usage() {
-    printf 'usage: devloop-diffsize [--with-tests] [<range>...] [-- <path>...]\n' >&2
-}
+IFS=$DD_NL
 
 dd_quit_usage() {
     printf 'devloop-diffsize: %s\n' "$*" >&2
-    dd_usage
+    printf 'usage: devloop-diffsize [--with-tests] [<range>...] [-- <path>...]\n' >&2
     exit 2
 }
-
-# ---------------------------------------------------------------------------
-# Arguments: --with-tests anywhere before --, zero or more ranges, then optionally --
-# followed by the paths that scope every count this run makes.
-# ---------------------------------------------------------------------------
 
 DD_WITH_TESTS=0
 DD_RANGES=''
 DD_PATHS=''
-DD_AFTER_DASHDASH=0
 
 while [ $# -gt 0 ]; do
-    dd_arg=$1
-    shift
-    if [ "$DD_AFTER_DASHDASH" -eq 1 ]; then
-        DD_PATHS="$DD_PATHS$DD_NL$dd_arg"
-        continue
-    fi
-    case "$dd_arg" in
+    case "$1" in
         --with-tests) DD_WITH_TESTS=1 ;;
-        --) DD_AFTER_DASHDASH=1 ;;
-        *...*) dd_quit_usage "a three-dot range is rejected: $dd_arg" ;;
-        *..*) DD_RANGES="$DD_RANGES$DD_NL$dd_arg" ;;
-        *) dd_quit_usage "neither a range nor --: $dd_arg" ;;
+        --) shift; DD_PATHS="$*"; break ;;
+        *...*) dd_quit_usage "a three-dot range is rejected: $1" ;;
+        *..*) DD_RANGES="$DD_RANGES$DD_NL$1" ;;
+        *) dd_quit_usage "neither a range nor --: $1" ;;
     esac
+    shift
 done
 
 # ---------------------------------------------------------------------------
-# Is this a test file? Decided here, in this one place. The segment check and the
-# case-insensitive name forms all work on a lower-cased copy; *Test.*/*Tests.* do not,
-# on purpose - lower-casing them too would also catch latest.js and contest.py.
+# Is this a test file? The directory segments and the case-insensitive name forms are
+# matched on a lower-cased copy. *Test.* and *Tests.* are matched as written, because
+# lower-cased they would also catch latest.js and contest.py.
 # ---------------------------------------------------------------------------
 
 dd_is_test_file() {
-    _dd_path=$1
-    _dd_base=${_dd_path##*/}
-    _dd_base_lc=$(printf '%s' "$_dd_base" | tr 'A-Z' 'a-z')
-    case "$_dd_base_lc" in
+    _dd_lc=$(printf '%s' "$1" | tr 'A-Z' 'a-z')
+    case "/$_dd_lc/" in
+        */test/*|*/tests/*|*/__tests__/*|*/spec/*|*/specs/*) return 0 ;;
+    esac
+    case "${_dd_lc##*/}" in
         *_test.*|*.test.*|*.spec.*|test_*.*) return 0 ;;
     esac
-    case "$_dd_base" in
+    case "${1##*/}" in
         *Test.*|*Tests.*) return 0 ;;
     esac
-    _dd_rest=$_dd_path
-    while [ -n "$_dd_rest" ]; do
-        case "$_dd_rest" in
-            */*) _dd_seg=${_dd_rest%%/*}; _dd_rest=${_dd_rest#*/} ;;
-            *) _dd_seg=$_dd_rest; _dd_rest='' ;;
-        esac
-        _dd_seg_lc=$(printf '%s' "$_dd_seg" | tr 'A-Z' 'a-z')
-        case "$_dd_seg_lc" in
-            test|tests|__tests__|spec|specs) return 0 ;;
-        esac
-    done
     return 1
 }
 
@@ -95,18 +74,12 @@ dd_is_test_file() {
 # ---------------------------------------------------------------------------
 
 dd_sum_numstat() {
-    _dd_input=$1
     _dd_total=0
-    _dd_outer_ifs=$IFS
-    IFS=$DD_NL
-    set -f
-    for _dd_line in $_dd_input; do
-        IFS=$DD_TAB
-        set -- $_dd_line
-        IFS=$DD_NL
-        _dd_added=$1
-        _dd_removed=$2
-        _dd_path=$3
+    for _dd_line in $1; do
+        _dd_added=${_dd_line%%"$DD_TAB"*}
+        _dd_rest=${_dd_line#*"$DD_TAB"}
+        _dd_removed=${_dd_rest%%"$DD_TAB"*}
+        _dd_path=${_dd_rest#*"$DD_TAB"}
         if [ "$DD_WITH_TESTS" -ne 1 ] && dd_is_test_file "$_dd_path"; then
             continue
         fi
@@ -114,98 +87,64 @@ dd_sum_numstat() {
         [ "$_dd_removed" = "-" ] && _dd_removed=0
         _dd_total=$((_dd_total + _dd_added + _dd_removed))
     done
-    set +f
-    IFS=$_dd_outer_ifs
     printf '%s' "$_dd_total"
 }
 
 # ---------------------------------------------------------------------------
-# One git diff --numstat, scoped to $DD_PATHS. --no-renames always: on a rename git
-# writes "old => new" into the path field of --numstat instead of a plain path, which
-# would break both the -- <path> scope and the test-file check. The output is captured
-# by a plain assignment (never through a pipe, which would hide the exit status behind
-# its last stage) and the function's own exit status - checked by the caller through
-# "if", exempt from -eu - is git's, so a rejected range is never mistaken for zero.
+# One git diff --numstat against a range, or against HEAD for the working tree, scoped
+# to $DD_PATHS. --no-renames because on a rename git writes "old => new" in the path
+# field instead of a plain path, which breaks both the -- <path> scope and the test-file
+# check. core.quotePath=false for the same reason: git would otherwise quote and escape a
+# non-ASCII path. The output is captured by a plain assignment: a pipe would hide git's
+# exit status behind its last stage and let a rejected range read as zero.
 # ---------------------------------------------------------------------------
 
-DD_LAST_OUTPUT=''
+dd_git() {
+    git -c core.quotePath=false "$@"
+}
 
-dd_run_diff() {
-    _dd_range=$1
-    _dd_outer_ifs=$IFS
-    IFS=$DD_NL
-    set -f
-    if [ -n "$_dd_range" ]; then
-        set -- --no-renames --numstat "$_dd_range" -- $DD_PATHS
-    else
-        set -- --no-renames --numstat HEAD -- $DD_PATHS
+dd_count() {
+    if ! DD_OUTPUT=$(dd_git diff --no-renames --numstat "$1" -- $DD_PATHS); then
+        printf 'devloop-diffsize: git rejected %s\n' "$1" >&2
+        exit 3
     fi
-    set +f
-    IFS=$_dd_outer_ifs
-    DD_LAST_OUTPUT=$(git diff "$@")
+    DD_TOTAL=$((DD_TOTAL + $(dd_sum_numstat "$DD_OUTPUT")))
 }
-
-dd_untracked_files() {
-    _dd_outer_ifs=$IFS
-    IFS=$DD_NL
-    set -f
-    set -- --others --exclude-standard -- $DD_PATHS
-    set +f
-    IFS=$_dd_outer_ifs
-    git ls-files "$@"
-}
-
-# ---------------------------------------------------------------------------
-# The count itself.
-# ---------------------------------------------------------------------------
 
 DD_TOTAL=0
 
 if [ -n "$DD_RANGES" ]; then
-    DD_OUTER_IFS=$IFS
-    IFS=$DD_NL
-    set -f
     for DD_RANGE in $DD_RANGES; do
-        set +f
-        IFS=$DD_OUTER_IFS
-        if ! dd_run_diff "$DD_RANGE"; then
-            printf 'devloop-diffsize: git rejected the range %s\n' "$DD_RANGE" >&2
-            exit 3
-        fi
-        DD_PART=$(dd_sum_numstat "$DD_LAST_OUTPUT")
-        DD_TOTAL=$((DD_TOTAL + DD_PART))
-        IFS=$DD_NL
-        set -f
+        dd_count "$DD_RANGE"
     done
-    set +f
-    IFS=$DD_OUTER_IFS
 else
-    if ! dd_run_diff ""; then
-        printf 'devloop-diffsize: git diff failed\n' >&2
+    dd_count HEAD
+    # --full-name and :/ because git diff HEAD speaks for the whole repository in
+    # root-relative paths: without them, run from a subdirectory, ls-files would list only
+    # what sits under it, relative to it, and tests/a.txt seen from tests/ is just a.txt.
+    DD_CDUP=$(git rev-parse --show-cdup)
+    if ! DD_UNTRACKED=$(dd_git ls-files --others --exclude-standard --full-name -- ${DD_PATHS:-:/}); then
+        printf 'devloop-diffsize: git could not list the untracked files\n' >&2
         exit 3
     fi
-    DD_PART=$(dd_sum_numstat "$DD_LAST_OUTPUT")
-    DD_TOTAL=$((DD_TOTAL + DD_PART))
-
-    DD_UNTRACKED=$(dd_untracked_files)
-    if [ -n "$DD_UNTRACKED" ]; then
-        DD_OUTER_IFS=$IFS
-        IFS=$DD_NL
-        set -f
-        for DD_FILE in $DD_UNTRACKED; do
-            set +f
-            IFS=$DD_OUTER_IFS
-            # --no-index exits 1 when the two sides differ, which for a real file
-            # against /dev/null is every time: that is the normal case, not an error.
-            DD_U_OUTPUT=$(git diff --no-renames --no-index --numstat -- /dev/null "$DD_FILE" 2>/dev/null) || :
-            DD_U_PART=$(dd_sum_numstat "$DD_U_OUTPUT")
-            DD_TOTAL=$((DD_TOTAL + DD_U_PART))
-            IFS=$DD_NL
-            set -f
-        done
-        set +f
-        IFS=$DD_OUTER_IFS
-    fi
+    for DD_FILE in $DD_UNTRACKED; do
+        # Classified here: --no-index writes "/dev/null => <file>" as the path,
+        # which hides a test directory segment from dd_sum_numstat.
+        if [ "$DD_WITH_TESTS" -ne 1 ] && dd_is_test_file "$DD_FILE"; then
+            continue
+        fi
+        # --no-index exits 1 both when the sides differ, which against /dev/null is every
+        # time, and when it cannot read the file. So readability is checked here: an
+        # unreadable file is an error, not a silent zero.
+        # ponytail: a name with a tab, newline, " or \ comes back quoted from ls-files and
+        # stops the count here; ls-files -z if such names ever turn up.
+        if ! [ -r "$DD_CDUP$DD_FILE" ] && ! [ -L "$DD_CDUP$DD_FILE" ]; then
+            printf 'devloop-diffsize: cannot read the untracked file %s (or git quoted its name)\n' "$DD_FILE" >&2
+            exit 3
+        fi
+        DD_OUTPUT=$(dd_git diff --no-index --numstat -- /dev/null "$DD_CDUP$DD_FILE") || :
+        DD_TOTAL=$((DD_TOTAL + $(dd_sum_numstat "$DD_OUTPUT")))
+    done
 fi
 
 printf '%s\n' "$DD_TOTAL"
