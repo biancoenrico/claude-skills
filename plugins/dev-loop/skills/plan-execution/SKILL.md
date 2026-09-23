@@ -78,8 +78,9 @@ debt only once no open batch is left to pay it.
 ## The batch procedure
 
 **Two rules hold across all six steps, for every agent this skill launches** — executor,
-test-writing, code-revision alike: the main thread is the only writer of the batch files, and
-no agent stages the plan folder, not even the batch file being executed.
+test-writing, code-revision alike: the main thread is the only writer of the plan folder —
+index and batch files — so agents return their work instead of editing it, and no agent stages
+the plan folder, not even the batch file being executed.
 `${CLAUDE_PLUGIN_ROOT}/agents/executor.md` owns the detail of what that means for the executor.
 
 Every step leaves a progress line in the batch file, in the place
@@ -137,7 +138,7 @@ base.
   resumed. A new executor is given the base, and knows the commits in `base..HEAD` are the
   batch's.
 
-What parallelises inside a batch, what always stays in sequence, and how the executor's own
+Batches always run in sequence. What parallelises inside a batch, what always stays in sequence, and how the executor's own
 sub-agents behave are held by `${CLAUDE_PLUGIN_ROOT}/agents/executor.md`'s "Working in parallel inside the batch".
 
 ### 3. Tests

@@ -150,6 +150,10 @@ batch files reads as diligence, not waste, even though it costs more to navigate
 file it replaced. Each rule in the list is aimed at forcing the skill to justify a cut rather than
 default to producing one.
 
+The skill used to allow one file "when completion is already verifiable halfway through", even
+above the batching threshold, which contradicted `references/plan-folder.md`. The skill now defers
+to that file's condition, so above the threshold the plan is always a folder.
+
 ## skills/plan-drafting/SKILL.md
 
 Writing inside the fixed shape is what makes drafting parallel-safe in the first place: the shape

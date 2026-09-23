@@ -1,7 +1,7 @@
 ---
 name: plan-revision
 description: Reviews an implementation plan until it can be executed, step by step, defect-free.
-when_to_use: Reviewing or validating a plan file or batch folder, or checking it is executable. Not a spec review, see /dev-loop:spec-revision.
+when_to_use: Reviewing or validating a plan file or batch folder, checking it is executable, or when one is handed over. Not a spec review, see /dev-loop:spec-revision.
 argument-hint: "[plan path] [spec path]"
 ---
 

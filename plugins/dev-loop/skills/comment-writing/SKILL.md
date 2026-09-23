@@ -64,7 +64,7 @@ Full principle, altitudes, reference rules, shapes and forms:
 
 ### Step 1 — Read the conventions before writing a line
 
-From the project (`CLAUDE.md`/`AGENTS.md`, nested ones included) and neighbouring files: prose
+From the project (`CLAUDE.md`/`AGENTS.md`, nested ones in the touched directories included) and neighbouring files: prose
 language, mandatory docblocks and format, generators or analysers reading the annotations, style,
 width. **They win over any preference of this skill.** Declare them in one line.
 
@@ -139,8 +139,8 @@ arguments, or no index file in its directory: either way the base list of terms 
 **declared in the report, in one line**.
 
 **The new reader, for real.** The one skill launching a `dev-loop:reviewer` as a fresh reader: hand
-it `catalog.md`, `gates.md` (paths per `agents/reviewer.md`) and the comments, judging them seeing
-them for the first time. Changes nothing; findings come back for this skill to decide. **Not
+it `catalog.md`, `gates.md` (paths per `agents/reviewer.md`) and the comments, asking for its judgement
+on the new reader's proof over comments it is seeing for the first time. Changes nothing; findings come back for this skill to decide. **Not
 launched below the threshold, forked or not, nor when no comment survived.**
 
 An unknown, undeducible *why* is not invented: ask via

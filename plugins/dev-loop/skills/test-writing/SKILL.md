@@ -60,7 +60,8 @@ the neighbouring test it names, go to Step 2. Without one, **assume nothing**, a
 lines:
 
 1. **Language, version, syntax** from the manifest — a low minimum forbids modern syntax.
-2. **The runner and its filter** — Step 6 needs it.
+2. **The runner and its filter** (manifest scripts, `Makefile`/`Taskfile`, CI config, `run.sh`) —
+   Step 6 needs it.
 3. **Where the tests live**, and their correspondence to the code.
 4. **House conventions read off existing tests** — naming, setup, isolation, doubles, assertions.
    **A test clashing with its neighbours is badly written even if faultless.**

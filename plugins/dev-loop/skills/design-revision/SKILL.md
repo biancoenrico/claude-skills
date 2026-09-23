@@ -48,7 +48,7 @@ beats three brushed past.
 Level choice: explicit argument → project default → `standard`. **The report's first line declares
 both** the level and the modifier, even when there is none (`standard`, no audit) — the only line
 that tells a reader whether anything was touched. **Don't raise it yourself** — if "seen and left"
-clusters, say so and propose `high`, in one line, at the end of the pass.
+clusters in one area, say so and propose `high` over that area, in one line, at the end of the pass.
 
 ## Phase 1 — Local knowledge
 

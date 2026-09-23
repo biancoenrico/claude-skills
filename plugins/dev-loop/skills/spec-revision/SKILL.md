@@ -1,7 +1,7 @@
 ---
 name: spec-revision
 description: Reviews a spec, round after round, until every scenario has a written answer.
-when_to_use: A spec or requirements doc to review, validate or make implementable, or one handed over. Not plans, that's /dev-loop:plan-revision.
+when_to_use: A spec, architecture note or requirements doc to review, validate or make implementable, or one handed over. Not plans, that's /dev-loop:plan-revision.
 argument-hint: "[path to the spec]"
 ---
 

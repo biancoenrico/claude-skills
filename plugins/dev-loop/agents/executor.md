@@ -29,8 +29,8 @@ Commit as you go, not in one heap at the end. A commit is one coherent group of 
 message matches the language and format the project already uses — check its recent
 history before the first one.
 
-**Never stage the plan folder.** The batch files belong to the main thread: it is the only
-writer of them. You do not write them, you do not amend them, and you do not include them
+**Never stage the plan folder.** The plan folder — index and batch files — belongs to the main
+thread: it is the only writer of it. You do not write them, you do not amend them, and you do not include them
 in a commit, not even the one you are executing.
 
 ## Tests are not yours
@@ -55,9 +55,9 @@ ones.
 
 ## Working in parallel inside the batch
 
-You may launch agents in parallel inside your batch, as `general-purpose` agents — never
-`fork`: a fork inherits this whole brief, the instruction to fan out included, and launches
-the wave again. The ceiling on how many at once is **the agents-per-wave cap**, held in
+Launch independent work in the same request, not one piece after another, as parallel
+`general-purpose` agents — never `fork`: a fork inherits this whole brief, the instruction to
+fan out included, and launches the wave again. The ceiling on how many at once is **the agents-per-wave cap**, held in
 `${CLAUDE_PLUGIN_ROOT}/references/limits.md` — read the value from there and do not write
 a figure of your own; beyond it, proceed in waves, with the largest pieces of work in the
 first one: a large task left for the last wave runs alone while everything else waits.

@@ -29,17 +29,17 @@ pattern (ladder + thresholds in `patterns.md`).
   Remedy:      <first choice, and which rung of the ladder>
 ```
 
-`DSG-` + three digits. **Occurrences are counted** — file and line each; "about a dozen" isn't a
-count.
+The code is a running number, `DSG-` + three digits. **Occurrences are counted** — file and line
+each; "about a dozen" isn't a count.
 
 ## The families
 
 | Family | Smell | Signal | Remedy |
 |---|---|---|---|
-| Bloater | Long Method | too long / mixed abstraction levels | Extract method; replace a temporary with a query |
+| Bloater | Long Method | doesn't fit one screen / mixed abstraction levels | Extract method; replace a temporary with a query |
 | " | Large Class | too many responsibilities, fields only half the methods use | Extract class |
 | " | Primitive Obsession | primitive carries meaning, validation scattered | **Value Object** |
-| " | Long Parameter List / Data Clumps | same params travel together | Parameter object, extract class |
+| " | Long Parameter List / Data Clumps | same 3-4 params travel together everywhere | Parameter object, extract class |
 | OO abuse | Switch Statements | switch/if over a type, repeated, growing | Strategy or State |
 | " | Temporary Field | filled only sometimes | Extract class |
 | " | Refused Bequest | ignores half its inheritance | Composition over inheritance |
@@ -60,7 +60,7 @@ implements, indirection "for when we need it" — a **dispensable**, on the defe
 cure side. Hardest to see: it looks like craftsmanship, so nobody reports it, and it never repays
 its cost — one file, one indirection, one jump per read, each time.
 
-Cured by **taking away**: collapse into the implementer, drop the parameter, remove the layer.
+Cured by **taking away**: collapse into the implementer, drop the parameter nobody passes, remove the layer.
 Anticipated pain isn't evidence — anticipation produced the smell.
 
 Report with the same three lines: where it is, implementers/callers (counted), the deletion that

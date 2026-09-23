@@ -1,7 +1,7 @@
 ---
 name: plan-drafting
 description: Fills a plan's tasks, one drafter per batch file, writing only its file.
-when_to_use: A plan folder with index, empty batches, or single-file plan. Not batching (/dev-loop:plan-batching) or review (/dev-loop:plan-revision).
+when_to_use: A plan folder with index, empty batches, or single-file plan, or one handed over to be written. Triggers - "fill in the plan", "draft the tasks", "write the content of the batches". Not batching (/dev-loop:plan-batching) or review (/dev-loop:plan-revision).
 argument-hint: <plan folder, or single-file plan>
 ---
 

@@ -1,7 +1,7 @@
 ---
 name: plan-batching
 description: Produces a plan folder with its index and the batch files, headed and empty.
-when_to_use: Work too large for one pass, or a monolithic plan to cut. Triggers: "split this work", "prepare the batches".
+when_to_use: Work too large for one pass, an approved spec to turn into a plan, or a monolithic plan to cut. Triggers: "split this work", "prepare the batches", "break this plan up", "too big for one pass".
 argument-hint: <approved spec, or monolithic plan to cut>
 ---
 
