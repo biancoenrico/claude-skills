@@ -3,7 +3,6 @@ name: design-revision
 description: Looks at a branch's code shape — not correctness, not tidiness, but structure — and applies the smallest remedy that holds.
 when_to_use: Before closing a branch, on inherited code, before a big refactor, or: 'this is duplicated everywhere', 'this switch keeps growing'. Not correctness (`/code-review`) or diff polish (`/simplify`).
 argument-hint: "[standard|high] [audit] [path]"
-effort: xhigh
 ---
 
 # design-revision

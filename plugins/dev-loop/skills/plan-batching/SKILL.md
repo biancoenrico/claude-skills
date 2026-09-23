@@ -3,7 +3,6 @@ name: plan-batching
 description: Produces a plan folder with its index and the batch files, headed and empty.
 when_to_use: Work too large for one pass, or a monolithic plan to cut. Triggers: "split this work", "prepare the batches".
 argument-hint: <approved spec, or monolithic plan to cut>
-effort: xhigh
 ---
 
 # plan-batching

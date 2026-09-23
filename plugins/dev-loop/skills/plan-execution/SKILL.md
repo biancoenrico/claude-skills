@@ -3,7 +3,6 @@ name: plan-execution
 description: Runs a plan's batches to the end, taking shape and closing criteria from the plan's index.
 when_to_use: A plan folder with open batches, or one batch file — "pick the plan back up", "carry on with the batches".
 argument-hint: <plan folder, or batch file>
-effort: high
 ---
 
 # plan-execution

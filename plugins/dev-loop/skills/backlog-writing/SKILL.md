@@ -3,7 +3,6 @@ name: backlog-writing
 description: Breaks a brief or spec into stories and tasks sized in Fibonacci points, written to `docs/backlog/` for a ticket system.
 when_to_use: Planning, sizing, splitting or organising work into tickets. Not for a spec or a plan.
 argument-hint: "[build|split] [target]"
-effort: high
 ---
 
 # backlog-writing
