@@ -89,9 +89,8 @@ headings in the same order. Copy it as it stands and fill the tables:
 | Q-001 | <one line> | <the user's answer, or "open"> |
 ```
 
-IDs stay stable once written — they are what a report, a batch file or a commit message points
-at when it names the finding it closes. A finding that turns out to be two findings gets a new
-ID for the second half; it does not renumber the first.
+IDs stay stable once written. A finding that turns out to be two findings gets a new ID for the
+second half; it does not renumber the first.
 
 ## How a reviewer is handed the ledger
 

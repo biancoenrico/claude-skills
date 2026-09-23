@@ -31,7 +31,7 @@ caller to go get it. Fields that do not apply are left out, not filled with a pl
 ### The state of whoever stopped
 
 **`state` holds what it takes to start again.** A forked skill is resumed only by reinvoking it
-with the state it returned (I3) — it gets nothing else back, so anything worked out belongs here:
+with the state it returned (the spec's invariant I3) — it gets nothing else back, so anything worked out belongs here:
 lists decided, iteration reached, findings discarded, point reached in procedure. The caller keeps
 that state where the work is recorded and passes it back on reinvocation; a resumed executor gets
 the same treatment.

@@ -35,8 +35,8 @@ each paid batch file first, then `code-revision @<sha>` in the last batch. A res
 last batch's step 4 undone recomputes the unpaid deferrals from the definition above, so marked
 batches are not reviewed twice.
 
-**The last batch's step 5** walks the index's criteria plus its own for every batch paid in that
-pass.
+**The last batch's step 5** walks the index's criteria plus the own criteria of every batch paid
+in that pass.
 
 **When no open batch is left** — the last one was cancelled after leaves had deferred — the
 unpaid deferrals are debt under plan-execution's step 2: review them in one pass, walk the

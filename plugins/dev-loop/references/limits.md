@@ -15,8 +15,8 @@ Each entry carries four fields:
 - **Name** — what a skill calls it. Citations use the name, never the digits.
 - **Searchable form** — the exact string to grep for: a bare `8`, `5`, `6` or `2` catches every
   date, exit code and section number, while `6 agents per wave` catches only a duplicate. Each
-  form appears verbatim here; a hit elsewhere in the plugin is a copy to remove. **Exception:** a
-  test enforcing a number may carry the digits — nothing else may.
+  form appears verbatim here; a hit **for a searchable form** elsewhere in the plugin is a copy to
+  remove. **Exception:** a test enforcing a number may carry the digits — nothing else may.
 - **Value** — the number itself.
 - **Who reads it** — the parts of the plugin the number concerns; anything not listed can pass
   over the entry.

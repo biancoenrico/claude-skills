@@ -54,23 +54,17 @@ same finding.
 
 ## references/large-docs.md
 
-The 500-line / 8-unit grouping figure is the author's own review-skill heuristic, offered as a
-rough indication rather than a declared number — it is not one of the values in `limits.md`, and
-its landing on eight alongside the batching threshold is a coincidence of two unrelated
-decisions, not a shared origin.
+The 500-line / 8-unit grouping figure is the author's own review-skill heuristic, carried over
+from how the author already worked rather than derived from anything in this plugin.
 
 ## references/ledger.md
 
 The ledger's four kinds of record exist so that iterations, findings, assumptions and questions
 outlive the session that produced them, and outlive the review itself: without a `rejected`
 finding's reason recorded in the user's own words, the next reviewer sees a bare refusal with no
-ground and simply raises the same thing again. Questions are exempt from the iteration counter
-because a round spent asking and waiting is bringing in information that was not there before,
-not polishing what is already known — it is arguably the most valuable kind of round, not the
-cheapest one. Finding IDs stay stable once assigned because other artifacts — a report, a batch
-file, a commit message — point at them by number, and renumbering would break every one of those
-references. The seam pass runs only after fixes have settled because consistency between groups
-can only be judged once the groups have stopped moving. A ledger that no longer parses or no
+ground and simply raises the same thing again. Finding IDs stay stable once assigned because
+other artifacts — a report, a batch file, a commit message — point at them by number, and
+renumbering would break every one of those references. A ledger that no longer parses or no
 longer names the right object is renamed rather than edited into shape, because a ledger that
 vanishes silently takes its rejected findings with it, and the review ends up re-asking questions
 that were already settled.
@@ -109,10 +103,4 @@ it — the work has to be cut into slices that close by themselves. Any `00-*.md
 an index, not only `00-index.md`, because folders written before this plugin existed name that
 role differently, in other languages, and this rule keeps them readable regardless. Declaring
 the choice whenever more than one `00-` candidate exists matters because silently picking one is
-how the same folder ends up read two different ways by two different readers. The "first batch
-that uses it" phrasing, rather than "batch 01", matters because the two readings diverge as soon
-as the actual first reader is the third batch: dropping a shared rule into batch 01 just because
-it is shared leaves it sitting unused for two batches, while the wrong intuition still sounds
-right. The starting-material line, and the convention of leaving it present but empty when there
-is no such source, exist so nobody re-derives a spec's own work a second time, and so an empty
-line reads as "the input was a spec" rather than "nobody looked."
+how the same folder ends up read two different ways by two different readers.

@@ -68,10 +68,11 @@ Between batches, send the user a short summary; execution does not wait for a re
 ### Bounded path
 
 1. The main thread notes the base commit before the first commit, implements, and commits.
-2. The tests. Run `scripts/devloop-diffsize base..HEAD` — a path relative to
-   the plugin root this file was read from, resolved to absolute first, since this file bypasses
-   the skill loader and `${CLAUDE_PLUGIN_ROOT}` would reach the shell unexpanded — without
-   `--with-tests`, and compare its output to the small batch threshold in
+2. The tests. Run `scripts/devloop-diffsize base..HEAD` without `--with-tests`. The path is
+   relative to the plugin root this file was read from: resolve it to an absolute one before
+   running it, because a shell never expands `${CLAUDE_PLUGIN_ROOT}` — that form works for the
+   files you read yourself, not for a command. A non-zero exit is not a count: stop and report it.
+   Compare the number printed to the small batch threshold in
    `${CLAUDE_PLUGIN_ROOT}/references/limits.md`. Below it, read
    `${CLAUDE_PLUGIN_ROOT}/skills/test-writing/SKILL.md` and follow it inline: every step, list
    before code, tests seen red. At or above it, invoke `/dev-loop:test-writing` with `base..HEAD`
