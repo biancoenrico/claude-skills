@@ -1,117 +1,89 @@
 # The catalogue of shapes that pass for tests and are not
 
-The principle that governs every entry below, and the question to put to any assertion you are
-about to write or to judge:
+The question for any assertion:
 
 > **If this assertion failed, who would you open the bug against** — this repository, or the
 > language, the framework, a library?
 
-Against the second, it is not your test. The principle on its own does not stop these shapes:
-whoever writes them believes the principle and writes them anyway, because every single case,
-looked at closely, seems a reasonable exception. What stops them is **recognising the shape**.
-Learn the list, not the rule.
+Against the second, it is not your test. Recognising the shape stops these — each looks reasonable
+up close.
 
 ## 1. The platform
 
-Asserting the semantics of the language (comparisons, conversions, ordering, floating point), or
-that the framework does its job (the ORM saves, the router routes, the serializer serializes).
+Asserting the language's semantics (comparisons, conversions, floating point), or the framework's
+(ORM saves, router routes, serializer serializes).
 
-> Seen in the wild: an assertion that a loose comparison between an empty string and a string
-> zero is false, inside a test named after the production line that performs that comparison.
-> Break that line and the test stays green: it never touched it.
+> Seen in the wild: asserting a loose empty-string-vs-zero comparison false, in a test named after
+> the line performing it — break that line and the test stays green.
 
-*The thin boundary:* verifying **how we use** the platform is ours. "Our model, when saved,
-writes these columns" proves our model; "the ORM can do an INSERT" proves the ORM.
+*Thin boundary:* **how we use** the platform is ours — "our model, saved, writes these columns"
+proves our model; "the ORM can INSERT" proves the ORM.
 
 ## 2. The test harness
 
-Tests for one's own factories, builders, custom assertions, fixtures, seed data.
+Tests for one's own factories, builders, assertions, fixtures, seed data.
 
-> Seen in the wild: a long series of test methods that each apply one state to a factory and then
-> read back the column that state has just written.
+> Seen in the wild: test methods that each set one state on a factory and read back the column it
+> just wrote.
 
-**The reason it is safe not to test it, and it has to be understood or the rule does not hold:**
-the harness **verifies itself through use**. If the data builder breaks, every test that uses it
-goes red — immediately, noisily. A piece of production code can break where no test passes; the
-harness cannot, every test goes through it by definition. Testing it is paying twice for the same
-guarantee.
+The harness **verifies itself through use**: a broken builder reds out every test using it at
+once — production code can break silently.
 
-*The one possible carve-out, and it is not a permission — it is a criterion to be checked:* the
-**rejection branches** of the harness, the ones that fire only when somebody misuses it, are
-never crossed by use, so "it verifies itself" does not cover them.
+**Carve-out, not permission:** **rejection branches** (misuse only) escape self-verification — but
+existing isn't enough: ask *what happens if broken?*
 
-**But existing is not enough to deserve a test.** The question is: *with that rejection broken,
-what happens?*
+- **Noisy error** ⇒ **no test**: use catches it too, worse diagnostics only.
+- **Nothing happens** (nobody crosses that path) ⇒ **no test**: it guards an unmade mistake,
+  provable only by deleting the guard, which shows existence not need — the guard stays, the
+  **test** doesn't.
+- **False green** (bad value passes, later tests rot) ⇒ **cover it**: the only payoff case.
 
-- **A noisy error** (the insert fails, the process stops, the suite dies) ⇒ **no test.** Use
-  catches it anyway, only with worse diagnostics. You lose a good message, not correctness.
-- **Nothing happens** — no red anywhere, because *in current use nobody crosses that path* ⇒
-  **no test.** It is a guard against a mistake nobody makes yet: its test can only fail if
-  somebody deletes the guard, which proves the line exists, not that it is needed. The guard
-  stays — it is the **test** that is not paid for.
-- **A false green** (the wrong value passes and the tests carry on over rotten data) ⇒ **cover
-  it**, and it is the only case where a test on the harness pays for itself.
-
-**And the answer is measured, not guessed** — neutralise the rejection, run the suite, and
-**look at what goes red**: if the only red is the test of that rejection, you are in the second
-case, not the first. That is the distinction a count of failures does not give you.
-
-Measured on a real harness with five rejection branches: two died with a database error, one was
-unreachable on the current schema, and **two produced a single red — their own**. None to cover.
-Expect the exception to be almost always empty.
+**Measured, not guessed**: neutralise the rejection, run the suite, see what goes red — only its
+own test ⇒ case two. On a real harness with five branches: two died with a database error, one was
+unreachable on the schema, **two produced a single red — their own** — none to cover. Expect the
+exception nearly always empty.
 
 ## 3. Lint in disguise
 
-Naming conventions, formatting, folder structure, the presence of a file. They run a thousand
-times a day to answer the same question every time: that is review work, not suite work.
+Naming conventions, formatting, folder structure, a file's presence: run constantly to answer the
+same question — review work, not suite work.
 
 ## 4. The state of the infrastructure
 
-Asserting on what is in the database, the schema, the environment variables, the filesystem, the
-configuration — as a **premise** for something else.
+Asserting on the database, schema, env vars, filesystem or config as a **premise**.
 
-> Seen in the wild: a test that inserts a row and asserts that every shape of column has been
-> filled, reading the real schema. Add a NOT NULL column with a migration and it goes red — and
-> the correction belongs in the harness, never in production.
+> Seen in the wild: inserting a row and asserting every column filled, off the real schema — a
+> NOT NULL migration breaks it, a fix belonging in the harness, not production.
 
-A schema, a configuration file, a lookup table **are not code we wrote**: they are data. *The one
-legitimate case:* when that state is the **output** of the code under examination — proving that
-a migration produced that column proves the migration, which is production code. As a
-**premise**, never.
+Schema, config, lookup tables **are data, not code we wrote**, except as the **output** of the
+code under test — a migration producing the column proves the migration. As a **premise**, never.
 
 ## 5. The copied production expression
 
-The one you only recognise while writing, and the most insidious, because it *looks* targeted:
-the test cites the line in its name and in its comment, but has copied its logic instead of
-calling it. The two copies diverge and nothing goes red.
+Recognised only while writing: it names the covered line but copies its logic instead of calling
+it — the copies diverge and nothing goes red.
 
-> Seen in the wild: a test re-typing by hand the production expression that splits a
-> comma-separated list and looks for a member in it. The separator was changed in production and
-> **every** test in the suite stayed green: that line was covered by nobody, and the test
-> carrying its name was hiding the fact.
+> Seen in the wild: hand-retyping the production split-and-lookup on a comma-separated list. The
+> separator changed and **every** test stayed green — nobody covered that line, and the test named
+> after it hid the fact.
 
 ## 6. The round trip onto itself
 
-The test writes with its own tools and reads back without the production code ever having run in
-between.
+The test writes with its own tools and reads back without production code running in between.
 
 ## 7. The occasion instead of the behaviour
 
-The test exists because something happened — a language version bump, a refactor, a feature
-ticket — and the name and the comment carry the occasion instead of what the test pins down. A
-test says that function X, with those inputs, gives Y. **Whether it manages that on this
-environment is said by the run, not by the comment.**
+The test exists because something happened — version bump, refactor, ticket — its name carrying
+the occasion, not the behaviour. The ticket or refactor that brought you here belongs in the
+commit message, not in the test's name or comment. A test says function X, given inputs, gives Y —
+**the run says whether, not the comment**: a run's outcome in a comment goes stale unnoticed.
 
-> Seen in the wild: "one test for each point where the new major version of the language changes
-> semantics", and "measured on both runtimes the value is identical". The first justifies the
-> coverage with a date on the calendar; the second writes into the comment an outcome that is
-> obtained by running the suite, and that goes stale the next day without anything going red.
+> Seen in the wild: "one test per point the new major version changes semantics", and "measured on
+> both runtimes, identical" — the first justifies coverage by date, the second bakes a run's
+> outcome into the comment, stale by the next change.
 
-**It counts for the "whether", not only for the how it is written.** If the reason you are
-writing a test is that something changed, you do not have a reason yet: ask which behaviour is
-worth pinning down, and if the answer does not come the test does not get written. The occasion
-makes you look there; it does not justify the coverage.
+**It's about "whether", not the writing.** A test written because something changed has no reason
+yet — ask what behaviour matters, skip it if none comes.
 
-*The thin boundary:* a harness that exists **in order** to compare two environments may speak of
-them, because that is its job, and so may the project's documentation. It is the individual test
-that must not.
+*Thin boundary:* a harness built **to** compare environments may speak of them, and so may the
+project's documentation; a single test must not.

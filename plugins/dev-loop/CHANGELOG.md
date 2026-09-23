@@ -3,6 +3,40 @@
 Kept in the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) shape, one section per
 release, newest first; the plugin follows [semantic versioning](https://semver.org/).
 
+## 1.9.0 — 2026-09-23
+
+The skills and agents are about 30% shorter and keep the same rules, and a plan spends less time waiting.
+
+### Changed
+
+- **Rules and their reasons live in separate files.** The reason behind a rule now sits in
+  `DESIGN.md`, for maintainers. The files the model reads keep the rule in tighter wording, or
+  point to the one file that owns it. Each cut file was checked rule by rule against its previous
+  version, and anything that had gone missing was put back. Across skills, agents and references
+  the model reads about 30% less text. The target was 37%, and it was missed where reaching it
+  would have meant dropping rules.
+- **Descriptions say when to use a skill.** The trigger conditions moved into `when_to_use`, and
+  the details of how a skill works stayed in its body, so the frontmatter the model always
+  carries is shorter.
+- **One script counts changed lines.** `devloop-diffsize` measures a diff against the small batch
+  threshold, untracked files included. The skills used to compose that count by hand.
+- **Main-thread skills no longer set `effort`.** Past sessions showed that invoking a skill whose
+  effort differed from the session's rebuilt the prompt cache and wrote most of the history again.
+  The seven skills that run on the main thread drop the field. Forked skills and agents keep it.
+- **Waves run tighter.** An executor launches its sub-agents as general-purpose agents. It used
+  to launch them as forks, which re-launched the whole wave. The largest tasks go in the first
+  wave, and a background agent is awaited through its notification instead of by polling.
+- **A plan runs fewer reviews.** When a later batch depends only on a batch's order, as a
+  measurement that runs after it does, that batch's review no longer has to happen on the spot.
+  A check on the finished text belongs in the index's end-of-batch criteria, so it runs after the
+  review's fixes.
+
+### Added
+
+- **An eval suite** under `evals/`, with `run-round.sh` to run a round, as a standing measure of
+  what a loop costs. On its five cases, one run each, 1.9.0 scored 5 out of 5 against 2.5 for
+  1.8.0, and the round cost about 6% less.
+
 ## 1.8.0 — 2026-09-22
 
 The executor knows what will be tested before it writes the code.

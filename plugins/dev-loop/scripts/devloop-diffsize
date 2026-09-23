@@ -1,0 +1,150 @@
+#!/bin/sh
+# devloop-diffsize - print the number of changed lines (added plus removed) over one or
+# more diff ranges, or over the working tree against HEAD when no range is given.
+#
+#     sh devloop-diffsize [--with-tests] [<range>...] [-- <path>...]
+#
+# The full behaviour - what counts as a range, how an untracked or binary file is
+# counted, and the exact rule for "test file" - is spec §3 R5
+# (docs/specs/2026-09-22-dev-loop-slim.md); this file follows it rather than repeating
+# it. It prints one number on stdout and nothing else.
+#
+# Exit codes:
+#   0  printed the count
+#   2  bad syntax: a three-dot range (<base>...<head>), or an argument that is neither
+#      a <base>..<head> range nor --
+#   3  git itself failed: a range it rejected (e.g. a ref that does not exist), or an
+#      untracked file it could not read. Different from a usage error, but still non-zero
+#      and with nothing printed on stdout, so a failure never reads back as a count of zero
+#
+# Globbing is off and IFS is a newline for the whole run: every unquoted expansion
+# below is a deliberate split of a newline-separated list, and a path may hold spaces.
+set -euf
+
+DD_NL='
+'
+DD_TAB=$(printf '\t')
+IFS=$DD_NL
+
+dd_quit_usage() {
+    printf 'devloop-diffsize: %s\n' "$*" >&2
+    printf 'usage: devloop-diffsize [--with-tests] [<range>...] [-- <path>...]\n' >&2
+    exit 2
+}
+
+DD_WITH_TESTS=0
+DD_RANGES=''
+DD_PATHS=''
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --with-tests) DD_WITH_TESTS=1 ;;
+        --) shift; DD_PATHS="$*"; break ;;
+        *...*) dd_quit_usage "a three-dot range is rejected: $1" ;;
+        *..*) DD_RANGES="$DD_RANGES$DD_NL$1" ;;
+        *) dd_quit_usage "neither a range nor --: $1" ;;
+    esac
+    shift
+done
+
+# ---------------------------------------------------------------------------
+# Is this a test file? The directory segments and the case-insensitive name forms are
+# matched on a lower-cased copy. *Test.* and *Tests.* are matched as written, because
+# lower-cased they would also catch latest.js and contest.py.
+# ---------------------------------------------------------------------------
+
+dd_is_test_file() {
+    _dd_lc=$(printf '%s' "$1" | tr 'A-Z' 'a-z')
+    case "/$_dd_lc/" in
+        */test/*|*/tests/*|*/__tests__/*|*/spec/*|*/specs/*) return 0 ;;
+    esac
+    case "${_dd_lc##*/}" in
+        *_test.*|*.test.*|*.spec.*|test_*.*) return 0 ;;
+    esac
+    case "${1##*/}" in
+        *Test.*|*Tests.*) return 0 ;;
+    esac
+    return 1
+}
+
+# ---------------------------------------------------------------------------
+# Sums a --numstat text: skips test files unless --with-tests, counts a binary marker
+# (-) as zero. Read via a for loop, never a pipe into while read: the latter runs the
+# accumulation in a subshell under POSIX sh, and the total would be lost on return.
+# ---------------------------------------------------------------------------
+
+dd_sum_numstat() {
+    _dd_total=0
+    for _dd_line in $1; do
+        _dd_added=${_dd_line%%"$DD_TAB"*}
+        _dd_rest=${_dd_line#*"$DD_TAB"}
+        _dd_removed=${_dd_rest%%"$DD_TAB"*}
+        _dd_path=${_dd_rest#*"$DD_TAB"}
+        if [ "$DD_WITH_TESTS" -ne 1 ] && dd_is_test_file "$_dd_path"; then
+            continue
+        fi
+        [ "$_dd_added" = "-" ] && _dd_added=0
+        [ "$_dd_removed" = "-" ] && _dd_removed=0
+        _dd_total=$((_dd_total + _dd_added + _dd_removed))
+    done
+    printf '%s' "$_dd_total"
+}
+
+# ---------------------------------------------------------------------------
+# One git diff --numstat against a range, or against HEAD for the working tree, scoped
+# to $DD_PATHS. --no-renames because on a rename git writes "old => new" in the path
+# field instead of a plain path, which breaks both the -- <path> scope and the test-file
+# check. core.quotePath=false for the same reason: git would otherwise quote and escape a
+# non-ASCII path. The output is captured by a plain assignment: a pipe would hide git's
+# exit status behind its last stage and let a rejected range read as zero.
+# ---------------------------------------------------------------------------
+
+dd_git() {
+    git -c core.quotePath=false "$@"
+}
+
+dd_count() {
+    if ! DD_OUTPUT=$(dd_git diff --no-renames --numstat "$1" -- $DD_PATHS); then
+        printf 'devloop-diffsize: git rejected %s\n' "$1" >&2
+        exit 3
+    fi
+    DD_TOTAL=$((DD_TOTAL + $(dd_sum_numstat "$DD_OUTPUT")))
+}
+
+DD_TOTAL=0
+
+if [ -n "$DD_RANGES" ]; then
+    for DD_RANGE in $DD_RANGES; do
+        dd_count "$DD_RANGE"
+    done
+else
+    dd_count HEAD
+    # --full-name and :/ because git diff HEAD speaks for the whole repository in
+    # root-relative paths: without them, run from a subdirectory, ls-files would list only
+    # what sits under it, relative to it, and tests/a.txt seen from tests/ is just a.txt.
+    DD_CDUP=$(git rev-parse --show-cdup)
+    if ! DD_UNTRACKED=$(dd_git ls-files --others --exclude-standard --full-name -- ${DD_PATHS:-:/}); then
+        printf 'devloop-diffsize: git could not list the untracked files\n' >&2
+        exit 3
+    fi
+    for DD_FILE in $DD_UNTRACKED; do
+        # Classified here: --no-index writes "/dev/null => <file>" as the path,
+        # which hides a test directory segment from dd_sum_numstat.
+        if [ "$DD_WITH_TESTS" -ne 1 ] && dd_is_test_file "$DD_FILE"; then
+            continue
+        fi
+        # --no-index exits 1 both when the sides differ, which against /dev/null is every
+        # time, and when it cannot read the file. So readability is checked here: an
+        # unreadable file is an error, not a silent zero.
+        # ponytail: a name with a tab, newline, " or \ comes back quoted from ls-files and
+        # stops the count here; ls-files -z if such names ever turn up.
+        if ! [ -r "$DD_CDUP$DD_FILE" ] && ! [ -L "$DD_CDUP$DD_FILE" ]; then
+            printf 'devloop-diffsize: cannot read the untracked file %s (or git quoted its name)\n' "$DD_FILE" >&2
+            exit 3
+        fi
+        DD_OUTPUT=$(dd_git diff --no-index --numstat -- /dev/null "$DD_CDUP$DD_FILE") || :
+        DD_TOTAL=$((DD_TOTAL + $(dd_sum_numstat "$DD_OUTPUT")))
+    done
+fi
+
+printf '%s\n' "$DD_TOTAL"

@@ -15,12 +15,11 @@ execute without asking you anything.
 - the plan index, which holds the batch order, the dependencies and the shared vocabulary;
 - the path of **your own** batch file, already created and already carrying its heading sections.
 
-Instead of the specification, or alongside it, you may be handed the path of a **monolithic plan**
-that the batching started from. That is the second way work reaches the batching skill, and it is
-starting material exactly as the specification is: read it the same way, cite it the same way.
+You may instead, or also, be handed the path of a **monolithic plan** the batching started from:
+read it and cite it like the specification.
 
-Read whatever code you need in order to see what already exists. A task that asks for something the
-project already has is a task that will be executed twice.
+Read whatever code you need first: a task that asks for something the project already has gets
+executed twice.
 
 ## What you write, and where
 
@@ -41,6 +40,8 @@ A task is one verifiable unit of work. Each one says three things:
 - **what it must contain in substance** — the behaviour, the rule, the shape. Enough that whoever
   executes it does not have to guess, and not so much that it becomes the code itself;
 - **how it is verified** — the command, the check, the observation that tells green from red.
+  A check that judges the finished text or code belongs to the index, not the task
+  (`${CLAUDE_PLUGIN_ROOT}/references/plan-folder.md`): return it as a note for the index.
   When the task adds logic, list the behaviours a test will pin down, each with the section of
   the specification or the index rule that decides it, and the ones deliberately left untested
   with the reason. Go through `${CLAUDE_PLUGIN_ROOT}/skills/test-writing/catalog.md` for the

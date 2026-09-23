@@ -1,20 +1,17 @@
 ---
 name: plan-drafting
-description: Fills in the tasks of a plan whose shape is already decided — one drafter per batch file, in parallel, each writing only its own file. It does not decide the batch boundaries (`/dev-loop:plan-batching`) and it does not review the result (`/dev-loop:plan-revision`).
-when_to_use: A plan folder exists with its index and empty batch files, or a single-file plan waiting for its tasks. Triggers — "write the content of the batches", "fill in the plan", "draft the tasks", or a plan folder handed over to be written.
-argument-hint: <plan folder produced by /dev-loop:plan-batching, or the single-file plan>
-effort: high
+description: Fills a plan's tasks, one drafter per batch file, writing only its file.
+when_to_use: A plan folder with index, empty batches, or single-file plan, or one handed over to be written. Triggers - "fill in the plan", "draft the tasks", "write the content of the batches". Not batching (/dev-loop:plan-batching) or review (/dev-loop:plan-revision).
+argument-hint: <plan folder, or single-file plan>
 ---
 
 # plan-drafting
 
 Write the tasks of a plan that already has a shape, without touching the shape.
 
-The shape says what each batch delivers, what it inherits and what it may call. Writing inside
-it is a job that parallelises: every batch file has one writer, and none of them reads what
-another is writing. What does not parallelise is everything the batches share — and that is
-this skill's whole job: to hold the index still while the drafters work, and to be the only one
-who edits it once they are done.
+Every batch file has one writer, and none of them reads what another is writing. What does not
+parallelise is everything the batches share: holding the index still while the drafters work,
+and being the only one who edits it once they are done.
 
 ## Input
 
@@ -64,8 +61,8 @@ is interrupted, or comes back in a shape that cannot be read.
 **Do nothing with any return until every drafter is back.** A drafter still in flight is
 reading the index, and the index is not touched while anyone is reading it.
 
-"Back" means **all the waves**, not the current one: with twelve batch files and a cap of six,
-the index stays untouchable until the second wave has returned as well.
+"Back" means **all the waves**, not the current one: with more batch files than one wave
+holds, the index stays untouchable until the last wave has returned.
 
 ### Step 3 — The questions, in one block
 
@@ -98,9 +95,8 @@ With the index updated, resume — under the rules held in
 
 Resume waves obey the same agents-per-wave cap.
 
-**The cycle is identical every time round.** A resume can raise new questions: go back to
-"wait for every wave, then ask in one block, then the index, then resume". How many times that
-round may repeat is the drafting round cap, held in
+A resume can raise new questions: return to "wait for every wave, then ask in one block, then
+the index, then resume". How many times that round may repeat is the drafting round cap, held in
 `${CLAUDE_PLUGIN_ROOT}/references/limits.md`. Once it is spent, declare the files that are
 still incomplete as such in the report and hand the decision to the user: a half-drafted plan
 that says it is half-drafted beats a plan going round in circles.

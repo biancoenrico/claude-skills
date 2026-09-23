@@ -1,154 +1,35 @@
 # Declared numbers
 
-Every figure this plugin commits to lives here, one entry per number, and in no other prose. A
-skill or an agent that needs one **names the entry and reads the value from here**; it never
-writes the figure into its own text. Two copies of a number agree on the day they are written
-and drift at the first change, and nothing in the plugin would notice.
+Every figure this plugin commits to lives here, one entry per number, and nowhere else. A skill
+or agent that needs one **names the entry and reads the value from here** — it never writes the
+figure into its own text. Two copies of a number agree the day they're written and drift at the
+first change, with nothing in the plugin to notice.
 
-This file does not explain the machinery a number belongs to. Each mechanism is described in
-its own file, and that file cites the entry by name.
+This file does not explain the machinery a number belongs to; each mechanism is described in its
+own file, which cites the entry by name.
 
 ## How an entry is built
 
-Each entry carries five fields:
+Each entry carries four fields:
 
 - **Name** — what a skill calls it. Citations use the name, never the digits.
-- **Searchable form** — the exact string to grep for. It is the check that the number really
-  does live in one place: a grep for a bare `8`, `5`, `6` or `2` catches every date, exit code
-  and section number, while a grep for `6 agents per wave` catches a duplicate and nothing
-  else. Each form below appears verbatim in this file, and a hit anywhere else under the plugin
-  is a copy to be removed. **The one exception is a test that enforces a number**: a test
-  asserting the value is the check that keeps the entry honest, not a second statement of it,
-  so it may carry the digits. Nothing else may.
+- **Searchable form** — the exact string to grep for: a bare `8`, `5`, `6` or `2` catches every
+  date, exit code and section number, while `6 agents per wave` catches only a duplicate. Each
+  form appears verbatim here; a hit **for a searchable form** elsewhere in the plugin is a copy to
+  remove. **Exception:** a test enforcing a number may carry the digits — nothing else may.
 - **Value** — the number itself.
-- **Who reads it** — the parts of the plugin the number concerns. Anything not listed can pass
+- **Who reads it** — the parts of the plugin the number concerns; anything not listed can pass
   over the entry.
-- **Where it comes from** — the decision behind it, so that whoever re-reads it can tell a
-  specification requirement from a choice made while planning.
 
-## The batching threshold
-
-- **Name:** the batching threshold
-- **Searchable form:** `8 units of work`
-- **Value:** 8
-- **Who reads it:** the skill that decides whether a plan is cut into batch files or stays a
-  single file; the plan-folder conventions cite it by name.
-- **Where it comes from:** the specification, which sets the threshold at eight units of work
-  and calls it the only such value in the whole plugin.
-
-## The revision iteration cap
-
-- **Name:** the revision iteration cap
-- **Value:** 3
-- **Searchable form:** `3 iterations`
-- **Who reads it:** the spec and plan revision skills, which review a document and can go round
-  again, plus the review ledger, which counts iterations per group against this cap. **What an
-  iteration is, what does not consume the budget, and what happens at the cap** live with the
-  counter, in `${CLAUDE_PLUGIN_ROOT}/references/ledger.md`.
-- **Where it comes from:** the specification, where it is the ceiling on review iterations and
-  one of the points at which a revision stops and hands the question back. **The value is a
-  choice made to speed the loop up**: the specification set it at five. Once minor fixes stopped
-  starting a round, what survives three rounds needs a human decision more than a fourth one.
-
-## The small document threshold
-
-- **Name:** the small document threshold
-- **Value:** 150
-- **Searchable form:** `150 lines`
-- **Who reads it:** the spec and plan revision skills, which below the threshold review the
-  object as one group with a single reviewer instead of fanning it out. Lines are counted over the whole object:
-  the document, or every batch file of a plan folder together.
-- **Where it comes from:** **a choice made to speed the loop up, not a line of the
-  specification.** Below this size the criteria pass and the alternatives pass read the same
-  short text twice, and one reviewer holds all of it in mind at once.
-
-## The correctness round cap
-
-- **Name:** the correctness round cap
-- **Value:** 2
-- **Searchable form:** `2 correctness rounds`
-- **Who reads it:** the code revision skill, which counts its `/code-review` rounds on one batch
-  against this cap instead of the revision iteration cap.
-- **Where it comes from:** **a choice made to speed the loop up, not a line of the
-  specification.** A batch is small and its diff is fresh: a second round checks the fixes of the
-  first, and what survives two rounds needs a human decision more than a third one. Code review
-  runs at most once per batch, so the revision iteration cap was costing its price on every batch.
-
-## The small batch threshold
-
-- **Name:** the small batch threshold
-- **Value:** 50
-- **Searchable form:** `50 changed lines`
-- **Who reads it:** the code revision skill, which below the threshold folds correctness and
-  cleaning into a single `/code-review` pass; and the bounded path, which below it writes the
-  tests inline instead of forking test-writing; and whoever would invoke comment-writing, which
-  below it is followed inline, with no fork and no reviewer. Changed lines are the lines added
-  plus removed in the diff under review, with test files left out of the count.
-- **Where it comes from:** **a choice made to speed the loop up, not a line of the
-  specification.** Below this size the correctness round and the cleaning round read the same
-  handful of lines twice, and `/code-review` already reports cleanups alongside bugs.
-
-## The agents-per-wave cap
-
-- **Name:** the agents-per-wave cap
-- **Value:** 6
-- **Searchable form:** `6 agents per wave`
-- **Who reads it:** every skill that fans work out to several agents at once; beyond the cap the
-  fan-out proceeds in waves.
-- **Where it comes from:** the specification's rule on parallelism, where it is stated as a
-  declared choice rather than a measured limit.
-
-## The unplanned-change re-entry cap
-
-- **Name:** the unplanned-change re-entry cap
-- **Value:** 2
-- **Searchable form:** `2 unplanned-change re-entries`
-- **Who reads it:** the skill that executes a plan batch by batch. A production change the
-  batch did not foresee is made by the executor, and after each one the batch starts again from
-  its test step; this cap counts those restarts within a single batch. On the third the batch
-  stops and the question goes to the user. (The specification calls this mechanism I4.)
-- **Where it comes from:** the specification, which allows at most two such re-entries per
-  batch and says the cap is tighter than the revision iteration cap because each re-entry
-  redoes both the tests and the review.
-
-## The drafting round cap
-
-- **Name:** the drafting round cap
-- **Value:** 2
-- **Searchable form:** `2 drafting rounds`
-- **Who reads it:** the skill that drafts the batch files, which counts how many times the
-  questions-to-index-to-resume round repeats within one drafting run. On the third it stops and
-  the question goes to the user.
-- **Where it comes from:** **a choice made while planning, not a line of the specification.**
-  The specification describes the round — the drafters ask, the answers go into the index once
-  the fan-out is closed, the drafters resume — but never says how many times it may repeat.
-  The cap is set at two **by declared analogy with the unplanned-change re-entry cap**: it is
-  the same shape of problem, a round that redoes work already done and that, left uncapped,
-  keeps redoing it for as long as answers keep arriving. The two stop the same way, on the
-  third round, and
-  anyone re-reading this entry should be able to see that the reasoning is an analogy and not a
-  requirement.
-
-## The session map budget
-
-- **Name:** the session map budget
-- **Value:** 1200
-- **Searchable form:** `1200 bytes`
-- **Who reads it:** whoever edits the text between the `session-map` markers in
-  `${CLAUDE_PLUGIN_ROOT}/references/loop.md`, which the session hook prints at session start
-  and after every compaction. The map has to stay small enough to be repeated for free.
-  `tests/session-map_test.sh` measures the shipped map and fails when it goes over — it is the
-  one place in the plugin allowed to carry the digits.
-- **Where it comes from:** the specification, which caps the injected map at 1200 bytes.
-  Bytes, not characters: a character count depends on the locale of whoever runs the suite,
-  and the budget has to mean the same thing everywhere.
-
-## The skill file cap
-
-- **Name:** the skill file cap
-- **Value:** 17500
-- **Searchable form:** `17500 characters`
-- **Who reads it:** whoever writes or extends a `SKILL.md` in this plugin. A skill past the cap
-  moves material into a file under `references/` and cites it, rather than growing.
-- **Where it comes from:** the specification, which sets it as the ceiling on the size of a
-  single skill file.
+| Name | Searchable form | Value | Who reads it |
+|---|---|---|---|
+| the batching threshold | `8 units of work` | 8 | The skill deciding whether a plan is cut into batch files or stays a single file; the plan-folder conventions cite it by name. |
+| the revision iteration cap | `3 iterations` | 3 | The spec and plan revision skills (another review round) and the review ledger (counts iterations per group against this cap). What an iteration is, what's exempt, and the cap's outcome live with the counter in `${CLAUDE_PLUGIN_ROOT}/references/ledger.md`. |
+| the small document threshold | `150 lines` | 150 | The spec and plan revision skills: below it, one reviewer covers the object as one group instead of fanning out. Lines count over the whole object — the document, or every batch file of a plan folder together. |
+| the correctness round cap | `2 correctness rounds` | 2 | The code revision skill, counting its `/code-review` rounds on one batch against this cap instead of the revision iteration cap. |
+| the small batch threshold | `50 changed lines` | 50 | Below it: the code revision skill folds correctness and cleaning into one `/code-review` pass; the bounded path writes tests inline instead of forking test-writing; comment-writing runs inline with no fork or reviewer. Changed lines: added plus removed in the diff, test files excluded. |
+| the agents-per-wave cap | `6 agents per wave` | 6 | Every skill that fans work out to several agents at once; beyond the cap the fan-out proceeds in waves. |
+| the unplanned-change re-entry cap | `2 unplanned-change re-entries` | 2 | The skill executing a plan batch by batch: an unforeseen production change from the executor restarts it from its test step; this cap counts the restarts, and the third stops it for the user. (Spec mechanism I4.) |
+| the drafting round cap | `2 drafting rounds` | 2 | The skill drafting batch files, counting how many times the questions-to-index-to-resume round repeats in one drafting run; the third stops it for the user. |
+| the session map budget | `1200 bytes` | 1200 bytes (not characters — locale-dependent otherwise; must mean the same thing everywhere) | Whoever edits the `session-map` markers in `${CLAUDE_PLUGIN_ROOT}/references/loop.md`, printed at session start and after compaction; kept small enough to repeat for free, enforced by `tests/session-map_test.sh`, which fails over budget. |
+| the skill file cap | `17500 characters` | 17500 | Whoever writes or extends a `SKILL.md` here. Past the cap, material moves into a file under `references/` and gets cited instead of the skill growing. |
