@@ -54,5 +54,5 @@ mkdir -p "$out_dir"
 for case_name in "$@"; do
     claude plugin eval "$target" --case "$case_name" --json "$out_dir/$case_name.json" --runs 1 \
         --scaffold --ablation none --trust-plugin --allow-tools Bash Write Edit \
-        --model claude-opus-5 --judge-model claude-haiku-4-5-20251001
+        --model claude-opus-5 --judge-model claude-haiku-4-5-20251001 --keep-temp
 done
