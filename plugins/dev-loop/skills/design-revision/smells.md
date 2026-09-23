@@ -1,110 +1,70 @@
 # Code smells, by family
 
-The catalogue design-revision searches with, and the criteria file handed to each reviewer of
-the smell pass.
+design-revision's smell catalogue and reviewer criteria.
 
-## What you are judging, and what comes back
+## What you judge, and what comes back
 
-Judge **one family of smells only** — the one named in the request — over the zone you were
-handed, reading it with the map that came with it. You change nothing: not a rename, not a
-comment, not a note in a scratch file.
+Judge **one family only** — the one named — over the zone and map handed to you; change nothing.
 
-Return in the shape held by `${CLAUDE_PLUGIN_ROOT}/references/agent-return.md`, with your
-findings in the format below. **No dumps**: no file contents, and no command output beyond the
-single line that proves a finding.
+Return in the shape of `${CLAUDE_PLUGIN_ROOT}/references/agent-return.md`. **No dumps** — no file
+contents, no output beyond the proving line.
 
-**Count and show. Do not decide whether anything gets touched.** Whether a finding earns a
-remedy is settled after you return, by whoever launched you, against evidence you are not
-holding. A pass that filters its own findings comes back short, and nothing afterwards shows
-that it did.
+**Count and show — don't decide what's touched.** That's for whoever launched you, against
+evidence you don't hold; a filtered pass comes back short, with nothing to show for it.
 
-## The principle: search by observable signal
+## Search by observable signal
 
-Every entry below carries the **signal** that finds it and the **first-choice remedy** that
-answers it. Search for the signal, not for the feeling: a finding with nothing observable behind
-it is a difference of taste, and taste buries the findings that matter.
+Every entry carries the **signal** that finds it and the **remedy** answering it: search the
+signal, not the feeling — taste buries what matters.
 
-The remedies name a rung of the remedy ladder — rename, extract method or variable, extract
-class or parameter object, design pattern. The ladder and the pattern thresholds live in
-`patterns.md`, next to this file.
+Remedies name a ladder rung — rename, extract method/variable, extract class/parameter object,
+pattern (ladder + thresholds in `patterns.md`).
 
-## The format of a finding
-
-The same for every family:
+## Finding format
 
 ```
 [DSG-00N] <Smell> — <file>:<line>
   Occurrences: <where, how many> — counted, not estimated
   Signal:      <the observable thing that found it>
-  Remedy:      <first choice, and which rung of the ladder it sits on>
+  Remedy:      <first choice, and which rung of the ladder>
 ```
 
-The code is a running number, `DSG-` and three digits. **Occurrences are counted**: a list of
-places, each with file and line. An estimate (“about a dozen”) is worth nothing to whoever reads
-it, because the count is the number the decision turns on.
+`DSG-` + three digits. **Occurrences are counted** — file and line each; "about a dozen" isn't a
+count.
 
-## Bloaters — grown past their size
+## The families
 
-- **Long Method** — it does not fit on one screen, or it holds more than one level of
-  abstraction inside. → Extract method; replace a temporary with a query.
-- **Large Class** — too many responsibilities; fields that only half the methods use.
-  → Extract class.
-- **Primitive Obsession** — strings and integers carrying a meaning of their own (codes, amounts,
-  identifiers, formatted references) with the validation scattered around them.
-  → **Value Object**, the most profitable remedy in the catalogue.
-- **Long Parameter List** / **Data Clumps** — the same three or four parameters travelling
-  together everywhere. → Parameter object, extract class.
-
-## Object-orientation abuses
-
-- **Switch Statements** — the same `switch` or `if` chain over a type, repeated in several
-  places, growing with every feature. → Polymorphism: Strategy or State.
-- **Temporary Field** — fields filled only under certain circumstances and empty the rest of the
-  time. → Extract class.
-- **Refused Bequest** — the subclass ignores half of what it inherits. → Composition in place of
-  inheritance.
-
-## Change preventers — the costly ones, because they tax every future change
-
-- **Divergent Change** — one class that changes for unrelated reasons. → Split it by reason for
-  change.
-- **Shotgun Surgery** — one change that always touches the same handful of files. → Gather what
-  changes together.
-
-## Dispensables
-
-- **Duplicate Code** — the same logic in three places. → Extract it.
-- **Dead Code** — a branch nothing reaches, a parameter nobody passes, a method nobody calls.
-  → Delete it.
-- **Lazy Class** — a class that no longer earns the file it lives in. → Fold it back into its
-  caller.
-- **Speculative Generality** — see below; it has its own section because it is the one this
-  catalogue exists for.
-
-## Couplers
-
-- **Feature Envy** — a method that uses another object's data more than its own. → Move it to
-  where the data is.
-- **Message Chains** — `a.b().c().d()`, the caller walking a structure it should not know.
-  → Hide the delegate.
-- **Middle Man** — a class that only forwards. → Cut out the middle man.
+| Family | Smell | Signal | Remedy |
+|---|---|---|---|
+| Bloater | Long Method | too long / mixed abstraction levels | Extract method |
+| " | Large Class | too many responsibilities | Extract class |
+| " | Primitive Obsession | primitive carries meaning, validation scattered | **Value Object** |
+| " | Long Parameter List / Data Clumps | same params travel together | Parameter object |
+| OO abuse | Switch Statements | switch/if over a type, repeated, growing | Strategy or State |
+| " | Temporary Field | filled only sometimes | Extract class |
+| " | Refused Bequest | ignores half its inheritance | Composition over inheritance |
+| Change preventer | Divergent Change | one class, unrelated reasons to change | Split by reason |
+| " | Shotgun Surgery | touches the same files every time | Gather changes together |
+| Dispensable | Duplicate Code | same logic, 3+ places | Extract it |
+| " | Dead Code | unreached/unused/uncalled | Delete it |
+| " | Lazy Class | no longer earns its file | Fold into caller |
+| " | Speculative Generality | see below | see below |
+| Coupler | Feature Envy | uses another's data more than its own | Move to the data |
+| " | Message Chains | `a.b().c().d()` chain | Hide the delegate |
+| " | Middle Man | only forwards | Cut it out |
 
 ## Speculative Generality, said plainly
 
-An abstraction with a single implementer. A factory that builds one class. An interface nothing
-else implements. A layer of indirection “for when we need it”. It is a **dispensable**, and it
-belongs on the defect side of the catalogue, not on the cure side.
+An abstraction with one implementer, a factory for one class, an interface nothing else
+implements, indirection "for when we need it" — a **dispensable**, on the defect side, not the
+cure side. Hardest to see: it looks like craftsmanship, so nobody reports it, and it never repays
+its cost — one file, one indirection, one jump per read, each time.
 
-It is worth saying in full because it is the hardest of the lot to see: it looks like
-craftsmanship, so nobody reports it, and it never repays the cost it adds — one more file, one
-more indirection, one more mental jump on every read.
+Cured by **taking away**: collapse into the implementer, drop the parameter, remove the layer.
+Anticipated pain isn't evidence — anticipation produced the smell.
 
-It is also the one smell cured by **taking away**. The remedy is deletion: collapse the
-abstraction into its single implementer, drop the parameter nobody passes, remove the layer.
-Anticipated pain is not evidence of anything — anticipation is exactly what produced the smell.
-
-Report it with the same three lines as the rest: where the abstraction is, how many implementers
-or callers it actually has (counted), and the deletion that would answer it.
+Report with the same three lines: where it is, implementers/callers (counted), the deletion that
+answers it.
 
 ## Public references
 

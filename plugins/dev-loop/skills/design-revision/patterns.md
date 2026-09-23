@@ -1,11 +1,7 @@
-# The remedy ladder, and the patterns at the top of it
+# The remedy ladder
 
-Opened when a remedy is about to climb as far as a design pattern, and handed alongside
-`smells.md` when the family under review leads there.
-
-The thresholds here say whether a pattern is the **right shape** for the problem in front of
-you. They do not say whether the problem has earned a remedy at all: that is weighed afterwards,
-by the pain gate in Phase 3 of the skill that opened this file.
+Opened when a remedy nears a pattern, alongside `smells.md`. Thresholds say whether it's the
+**right shape**, not whether it earned a remedy — Phase 3's gate weighs that.
 
 ## The ladder
 
@@ -13,93 +9,73 @@ by the pain gate in Phase 3 of the skill that opened this file.
 rename  →  extract method / variable  →  extract class / parameter object  →  GoF pattern
 ```
 
-You climb **one rung at a time**, only when the rung below does not solve it, **and you say so**
-in the finding. Half of all smells die on the first rung: the structure was right and the name
-was wrong.
+Climb **one rung at a time**, only when the rung below fails, **and say so**: half of all smells
+die on the first rung — structure right, name wrong.
 
-Three questions close most of them without a pattern at all:
+Three questions close most without a pattern: better **name**? an **extraction**? **does the
+framework already do it**? Duplicating a framework mechanism is debt, not structure.
 
-1. Would a better **name** do it?
-2. Would an **extraction** do it?
-3. **Does the framework already do it?**
+## First tier
 
-A pattern that duplicates a mechanism the framework already offers is debt, not structure.
-
-## First tier — the twelve that pay off most often
-
-The middle column says when the pattern is the right shape. The right-hand column is the one
-that does the work.
-
-| Pattern | Needed when | Too much if |
+| Pattern | When | Skip if |
 |---|---|---|
-| **Value Object** | a primitive carries a meaning and the validation is scattered | the value has no rules of its own |
-| **Strategy** | the same switch over a type in several places, growing | there are two variants and they have not changed in years |
-| **State** | a state machine written as nested conditionals | there are two states |
-| **Template Method** | same skeleton, different steps | **the framework already does it** with its own hooks |
-| **Factory Method** | construction varies and the caller must not know how | it builds one class |
-| **Builder** | a constructor with too many optional parameters | three parameters and no illegal combination |
-| **Decorator** | behaviours that stack, the alternative being combinatorial subclasses | there is a single decoration |
-| **Adapter** | an external interface that is incompatible or unstable | the outside never changes |
-| **Facade** | a complex subsystem always used the same way | it only forwards — that is a Middle Man |
-| **Observer** | several independent parties interested in one event | there is one interested party |
-| **Chain of Responsibility** | a pipeline of handlers with conditions | two handlers, in a fixed order |
-| **Command** | actions to queue, replay or undo | there is nothing to queue and nothing to undo |
+| **Value Object** | primitive + meaning, scattered validation | no rules of its own |
+| **Strategy** | switch over a type, growing | 2 variants, static for years |
+| **State** | state machine, nested conditionals | 2 states |
+| **Template Method** | same skeleton, diff steps | framework already does it |
+| **Factory Method** | construction varies, caller unaware how | builds one class |
+| **Builder** | ctor w/ many optional params | 3 params, no illegal combo |
+| **Decorator** | stacking behaviours vs combinatorial subclasses | single decoration |
+| **Adapter** | external interface, incompatible/unstable | outside never changes |
+| **Facade** | complex subsystem, same usage always | only forwards — Middle Man |
+| **Observer** | several parties, one event | one interested party |
+| **Chain of Responsibility** | handler pipeline, conditions | 2 handlers, fixed order |
+| **Command** | queue/replay/undo | nothing to queue/undo |
 
-## Second tier — the rest of the catalogue
+## Second tier
 
-The other GoF patterns exist and are worth knowing: one you do not know is one you will not
-propose on the day it fits. They sit in a second tier because in an **ordinary line-of-business
-application** the bar for proposing them is **higher, not lower**. Almost all of them come out
-of problems — hierarchies that explode, tree-shaped data, memory pressure, polymorphic traversal
-— that an application of that shape does not have.
+Worth knowing — one you don't know, you won't propose. Bar's **higher** here: most solve problems
+(exploding hierarchies, tree data, memory pressure, polymorphic traversal) an ordinary app lacks.
+Proposing one needs naming which "when" problem already happened — the claim; Phase 3 weighs the
+evidence.
 
-| Pattern | Needed when | Why it usually is not needed here |
+| Pattern | When | Skip because |
 |---|---|---|
-| **Abstract Factory** | families of objects that must stay consistent with each other (several drivers, several suppliers) | there is one family: it is a Factory Method in disguise |
-| **Prototype** | copying an expensive or complex-stated object without depending on its class | most languages copy shallowly out of the box, and the data lives in rows |
-| **Bridge** | two dimensions varying independently (abstraction × implementation) | the second dimension is nearly always imaginary, and it collapses into Strategy |
-| **Composite** | tree structures handled uniformly (menus, categories, bills of material) | if the data is not a tree it is complexity for free |
-| **Flyweight** | very many near-identical objects that will not fit in memory | a problem of scale that does not arise here |
-| **Proxy** | controlling access: lazy loading, caching, permissions, logging around an object | the framework already offers hooks and caching |
-| **Iterator** | exposing a traversal without showing the structure underneath | the language already has iteration built in — use it rather than reinventing it |
-| **Mediator** | many objects talking to each other in a mesh | in an MVC application the controller already **is** the mediator |
-| **Memento** | undoing or restoring a previous state | when versioning is genuinely needed it is usually a table, not an object |
-| **Visitor** | new operations over a stable hierarchy without touching it | the hierarchy here is not stable, and double dispatch reads badly |
+| **Abstract Factory** | families of objects staying consistent | 1 family: Factory Method in disguise |
+| **Prototype** | copying an expensive object, class-independent | languages copy shallowly; data's in rows |
+| **Bridge** | two dimensions varying independently | 2nd usually imaginary — collapses into Strategy |
+| **Composite** | tree structures, handled uniformly | non-tree data = complexity for free |
+| **Flyweight** | many near-identical objects, memory-heavy | scale problem, rare here |
+| **Proxy** | access control: lazy load, cache, perms, logging | framework already offers hooks/caching |
+| **Iterator** | traversal w/o exposing structure | language already has iteration |
+| **Mediator** | many objects in a mesh | in MVC the controller **is** the mediator |
+| **Memento** | undoing/restoring a state | versioning is usually a table |
+| **Visitor** | new ops over a stable hierarchy | hierarchy isn't stable; double dispatch reads badly |
 
-Proposing one of these carries an extra threshold, and it is a threshold **of the pattern**:
-name **which of the problems in the middle column has already happened here**. That is the claim
-to bring; the evidence behind it is weighed by Phase 3, not here.
+## Warnings and tools
 
-## Three standing warnings
+- **Singleton: almost never** — global state, wedged tests; frameworks ship a better
+  container/loader.
+- **Repository/Gateway over a model that's already one** — in MVC the model is the gateway; a
+  layer on top carries nothing.
+- **No pattern duplicating a framework mechanism** — use the hook; a resembling abstraction is
+  debt wearing structure's look.
 
-- **Singleton: almost never.** It introduces global state, wedges the tests, and modern
-  frameworks already ship a container or a loader that does the job better.
-- **Repository / Gateway over a model that already is one.** In an MVC framework the model is
-  already the gateway to the data. A repository on top of it is a layer that carries nothing.
-- **No pattern that duplicates a framework mechanism.** Where the framework has the hook, use the
-  hook. The abstraction that merely resembles it is debt wearing the look of structure.
+Measuring beats guessing, but **nothing installs without asking**: use what the project
+declares. One per category, different ecosystems:
 
-## Tools, where a project already has them
+- **Complexity analyser** — cyclomatic/cognitive complexity, long methods, god classes (Radon).
+- **Static analyser** — types, unreachable branches, dead parameters (PHPStan).
+- **Clone detector** — duplication and its hotspots (jscpd).
+- **Automated refactoring tool** — mechanical, large-scale migrations (OpenRewrite); never a
+  design decision.
 
-Measuring beats guessing, but **nothing gets installed without asking**: use what the project
-already declares — its dependency file, its CI configuration. By category, with one example
-apiece, deliberately from different ecosystems:
-
-- **Complexity analyser** — cyclomatic and cognitive complexity, long methods, god classes
-  (Radon, in Python).
-- **Static analyser** — types, unreachable branches, dead parameters (PHPStan, in PHP).
-- **Clone detector** — duplication across files and the hotspots it clusters in (jscpd, in
-  JavaScript).
-- **Automated refactoring tool** — for mechanical, large-scale migrations (OpenRewrite, in
-  Java). Useful for a migration; never the source of a design decision.
-
-A tool reports the **symptom**. The pain is brought by whoever brings the finding.
+A tool reports the **symptom**; the pain comes from whoever finds it.
 
 ## Measuring churn
 
-Churn is how often the files of a zone actually change. It is a measurement, so it is taken with
-a command rather than remembered. `<zone>` is a git pathspec — a directory, or a glob — handed
-to `git log` unchanged; quote it, or the shell expands it before git ever sees it.
+How often a zone's files change — a command, not memory. `<zone>`: a git pathspec passed
+unchanged to `git log`; quote it or the shell expands it.
 
 ```sh
 git -c core.quotepath=false log --no-renames --format= --name-only \
@@ -108,20 +84,14 @@ git -c core.quotepath=false log --no-renames --format= --name-only \
   LC_ALL=C sort -k1,1nr -k2,2 | head -n 20
 ```
 
-`count<TAB>path`, most-changed first, the last twelve months and the first twenty files. Ties
-break on the path in byte order, so two runs over the same repository print the same thing.
-`core.quotepath=false` keeps a path outside ASCII from coming back escaped and unusable.
-`--no-renames` is deliberate: rename detection is a per-repository setting, and a count that
-changes with the reader's git configuration is not evidence.
+`count<TAB>path`, most-changed first, 12 months, top 20; ties break on path byte order.
+`core.quotepath=false` keeps non-ASCII paths readable; `--no-renames` is deliberate — rename
+detection is per-repo, so a shifting count isn't evidence.
 
-Two edge cases, both of which change what the numbers mean:
+Three edge cases:
 
-- **A path that no longer exists in the working tree.** It still counts as history — it says the
-  zone was worked over — but it is not a target. Test it with `[ -e "$path" ]` against the
-  repository root and mark it, rather than letting a vanished file be proposed for a remedy.
-- **A shallow or truncated clone.** `git rev-parse --is-shallow-repository` prints `true`, and
-  every count below is then a **floor, not a total**. Say so where the numbers are used: a
-  truncated history quietly makes a busy file look untouched.
-
-Outside a git repository there is no churn to measure. That is not a zero — it is a measurement
-that is unavailable, and it is declared as such.
+- **A path gone from the working tree** counts as history, not a target: test `[ -e "$path" ]`,
+  mark it — no remedy there.
+- **A shallow/truncated clone** (`git rev-parse --is-shallow-repository` = `true`) makes every
+  count a **floor, not a total**: a busy file can look untouched.
+- **Outside a git repository**, churn is unavailable, not zero — say so.
