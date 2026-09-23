@@ -41,6 +41,8 @@ A task is one verifiable unit of work. Each one says three things:
 - **what it must contain in substance** — the behaviour, the rule, the shape. Enough that whoever
   executes it does not have to guess, and not so much that it becomes the code itself;
 - **how it is verified** — the command, the check, the observation that tells green from red.
+  A check that judges the finished text or code belongs to the index, not the task
+  (`${CLAUDE_PLUGIN_ROOT}/references/plan-folder.md`): return it as a note for the index.
   When the task adds logic, list the behaviours a test will pin down, each with the section of
   the specification or the index rule that decides it, and the ones deliberately left untested
   with the reason. Go through `${CLAUDE_PLUGIN_ROOT}/skills/test-writing/catalog.md` for the

@@ -37,7 +37,9 @@ Where they hide:
   and in what order do they land? If the plan does not say, whoever arrives second decides,
   reading code they did not write.
 - **Criteria of doneness.** A task with no verifiable way of calling itself finished forces
-  whoever executes it to invent one, and nobody will ever know whether it was the right one.
+  whoever executes it to invent one, and nobody will ever know whether it was the right one. A
+  check on the finished text or code is the exception: it belongs in the index's end-of-batch
+  criteria (`${CLAUDE_PLUGIN_ROOT}/references/plan-folder.md`), not in the task.
 - **Technical choices left to the executor.** Which library, which data structure, where the new
   file goes. Some are harmless and stay open — but the ones the project has already settled
   elsewhere get **named**, not rediscovered.

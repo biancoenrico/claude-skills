@@ -43,14 +43,16 @@ else — extra material drifts until nobody can tell which version counts:
 
 1. **The order of the batches and their dependencies** — who cannot start before whom, and why:
    on the earlier batch's content, or only on its order (a measurement, a release that runs after
-   it). The review deferral reads the difference.
+   it). `${CLAUDE_PLUGIN_ROOT}/references/deferred-review.md` reads the difference.
 2. **The shared vocabulary and its owners** — the types, rules read by more than one batch,
    invariants between surfaces, and **where each lives**. A rule with an owner here is
    *called* by later batches, not rewritten.
 3. **What counts as the end of a batch** — the project's verification (tests, build, checks),
    passed by that batch **on its own**.
    A check that judges the finished text or code — lost rules, fidelity to the old version — goes
-   here, not in a task: step 5 runs it after the review, so it covers the review's fixes too.
+   here, not in a task: `/dev-loop:plan-execution` walks these criteria after the review, when
+   `${CLAUDE_PLUGIN_ROOT}/references/deferred-review.md` says it runs, so the check covers the
+   review's fixes too.
 
 Two cutting criteria:
 
