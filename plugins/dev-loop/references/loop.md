@@ -113,8 +113,8 @@ A refactor is never surgical: a new shape is itself a decision.
 A prose-only surgical change skips steps 2–3, with no reviewer.
 
 **The path only goes up.** When a criterion stops holding (a decision appears, a second area, a
-shared interface moves) the work reclassifies, continuing from the commit before the change —
-never back down.
+shared interface moves) the work says so and reclassifies, continuing from the commit before the
+change — never back down.
 
 ### Spike
 

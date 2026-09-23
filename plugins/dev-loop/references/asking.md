@@ -8,7 +8,7 @@ whoever works it: main thread, agent, forked skill.
 Before every question, decide who it belongs to:
 
 - **You, by reading.** It's in the code, the conventions, or another doc on the same area — read
-  it, close it, cite the source so the user can contradict it.
+  it, close it, cite the source in the report so the user can contradict it.
 - **You, by searching.** A fact about the world — standard, platform limit, physical constant,
   documented API behaviour. **Go search**, bring back the source.
 - **The user.** It depends on their intent, priority, or context no document holds. Only these

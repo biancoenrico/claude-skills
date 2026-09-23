@@ -21,7 +21,8 @@ blocked_by: <what is missing>                                 (when status is bl
 ```
 
 That order, those names — a renamed or reordered field is as broken as a missing one. `status` and
-`summary` are filled by everyone. `commits` is one entry per line, empty if none. `test_targets`
+`summary` are filled by everyone; `summary` says what was done, not how it felt. `commits` is one
+entry per line, empty if none. `test_targets`
 is the executor's, who neither writes nor repairs tests. `questions` uses the four-line form in
 `${CLAUDE_PLUGIN_ROOT}/references/asking.md` — the only route to the user, since neither an agent
 nor a forked skill can ask directly. `blocked_by` names what is missing, precisely enough for the

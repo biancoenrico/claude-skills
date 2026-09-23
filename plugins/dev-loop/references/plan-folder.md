@@ -106,7 +106,9 @@ skill that cuts the folder.
 
 **When the plan starts from scratch there is no such input, and the line stays empty.** Keep
 the line with nothing after it rather than deleting it: an empty line says the input was a
-spec, a missing line says nobody looked.
+spec, a missing line says nobody looked. Whoever drafts the tasks reads the empty line and
+works from the spec and the index, without going to look for a source document that does not
+exist.
 
 **`## Progress` is the place execution writes its steps**; `## State` and `## Calibration` are
 the only other two. One line per step of
