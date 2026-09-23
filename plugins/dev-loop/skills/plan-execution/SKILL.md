@@ -1,20 +1,14 @@
 ---
 name: plan-execution
-description: Executes a plan that is already cut into batches, one batch at a time, without asking permission at every step. It reads the shape and the closing criteria from the plan's index rather than carrying its own, works out on its own which batch is next, and records in the batch file how it went.
-when_to_use: A plan folder with open batches, or one batch file to run. Triggers — "pick the plan back up", "carry on with the batches", "go ahead on your own", "execute the plan in docs/...", or a batch folder handed over to be run.
-argument-hint: <plan folder, or a single batch file>
-effort: high
+description: Runs a plan's batches to the end, taking shape and closing criteria from the plan's index.
+when_to_use: A plan folder with open batches, or one batch file — "pick the plan back up", "carry on with the batches".
+argument-hint: <plan folder, or batch file>
 ---
 
 # plan-execution
 
 Run a folder of batches to the end, stopping **only** where a decision is needed that is not
 yours.
-
-The failure this skill exists to prevent is not the technical error: it is **the loop fraying**.
-A batch closes, someone asks "shall I go on?", work restarts with half the context, the review
-is skipped as "small", and three batches later the closing criteria have
-become a memory. Every skipped step costs little alone; the bill arrives all at once.
 
 **It is thin by choice.** No criteria, checks or definition of "done" of its own: those live
 **in the plan's index**, the only place they stay true; a copy here would drift at the first edit.
@@ -34,42 +28,37 @@ With more than one candidate and none named, **ask which**: here guessing costs 
 
 ## Step 1 — Read the index, and take four things from it
 
-Find the index by the rule held in `${CLAUDE_PLUGIN_ROOT}/references/plan-folder.md`, which
-also holds the template of a batch file. Extract, and **state in a few lines** before touching
-anything:
+Find the index per `${CLAUDE_PLUGIN_ROOT}/references/plan-folder.md` (it also holds the batch
+file's template). Extract, and **state in a few lines** before touching anything:
 
 1. **The order and the dependencies** of the batches — which cannot start before which, and why.
 2. **The closing criteria**, word for word. Cite them, do not summarise: at the gate you walk
    them one by one and each wants its own proof. Criteria a batch adds of its own hold in
    addition.
-3. **The shared vocabulary and its owners** — who creates what. It is the rule that stops two
-   batches writing the same piece: if you are about to create something the index assigns to
-   another batch, **it is not your work**, and the right place to say so is that batch's file.
+3. **The shared vocabulary and its owners** — who creates what. If you are about to create
+   something the index assigns to another batch, **it is not your work**; say so in that
+   batch's file.
 4. **The verification command** and how it is run, filter included. Without it nothing closes.
 
-Read the project's own instructions too (`CLAUDE.md`/`AGENTS.md`, nested ones included): syntax
-constraints, language, commit conventions, files not to touch. They win over any habit.
+Also read the project's own instructions (`CLAUDE.md`/`AGENTS.md`, nested included) — syntax,
+language, commit conventions, files not to touch — they win over any habit.
 
 If the plan has never been through `/dev-loop:plan-revision`, say so in one line and offer to do
-that first — executing an unreviewed plan is the most expensive way to find its holes.
+that first.
 
 ### When the plan is a single file
 
 A plan that stayed one file has no index. **Treat it as a single batch**, and read it like this:
 
-- **From the file's header** come the two things the single-file template carries: the closing
-  criteria and the verification command. Those are the two the gate at step 5 demands, so the
-  batch closes just the same.
-- **Declare the other two absent, in one line of the report**: order and dependencies (there are
-  none, there is one batch) and shared vocabulary with its owners (nobody: there is no second
-  batch that could duplicate anything). Declaring them absent is not a fallback, it is what the
-  batching threshold implies; what you do not do is deduce them or invent them.
+- **From the file's header** come the closing criteria and the verification command — the two
+  step 5 demands, so the batch closes just the same.
+- **Declare the other two absent, in one line of the report**: order/dependencies (there is one
+  batch) and shared vocabulary (no second batch to duplicate anything). Do not deduce or invent
+  them.
 - **If the closing criteria or the verification command are missing too**, the file was not
-  written from the template: stop, and the question goes to the user rather than executing with
-  no gate.
-- **The progress lines** go in the place the single-file template reserves, exactly as in a
-  batch file. The single file is both the plan and its only batch file: create no other, and
-  touch nothing else in the folder.
+  written from the template: stop, and ask the user rather than executing with no gate.
+- **The progress lines** go where the single-file template reserves them. The single file is both
+  the plan and its only batch file: create no other, and touch nothing else in the folder.
 
 ## Step 2 — Work out where you are, without asking
 
@@ -83,21 +72,20 @@ State in one line: **which batch you are opening, and which dependencies are sat
 wrap-up and `git log` contradict each other, **`git log` wins**, and the contradiction is noted.
 
 **Before opening a new batch, pay the previous one's debt.** If the batch before closed without
-one of its criteria — typically the review — that comes first. A finding on code that three
-batches have since rewritten over is no longer the same finding. A `code-revision deferred` line
-is debt only once no open batch is left to pay it.
+one of its criteria — typically the review — that comes first. A `code-revision deferred` line is
+debt only once no open batch is left to pay it.
 
 ## The batch procedure
 
-Two rules hold across all six steps:
+**Two rules hold across all six steps, for every agent this skill launches** — executor,
+test-writing, code-revision alike: the main thread is the only writer of the plan folder —
+index and batch files — so agents return their work instead of editing it, and no agent stages
+the plan folder, not even the batch file being executed.
+`${CLAUDE_PLUGIN_ROOT}/agents/executor.md` owns the detail of what that means for the executor.
 
-- **the only writer of the batch files is the main thread.** Executors, forked skills and any
-  agent they launch return their work; they do not edit the plan folder;
-- **no agent stages the plan folder**, not even the batch file being executed.
-
-Every step leaves a progress line in the batch file, in the place the template held in
-`${CLAUDE_PLUGIN_ROOT}/references/plan-folder.md` reserves for it: that file owns **the place**,
-this one owns the list.
+Every step leaves a progress line in the batch file, in the place
+`${CLAUDE_PLUGIN_ROOT}/references/plan-folder.md`'s template reserves for it: that file owns
+**the place**, this one owns **the list**.
 
 **The markers are fixed, and they are in English**, even when the plan is written in another
 language:
@@ -131,7 +119,7 @@ Write the base of the batch — the sha of `HEAD` — **once only**. On a resume
 overwritten. Line `base @<sha>`.
 
 **If the base no longer resolves on a resume** — `git cat-file -e <sha>^{commit}` fails, or the
-sha is no longer an ancestor of `HEAD`: a rebase, a reset, an amend on the branch — then the
+sha is no longer an ancestor of `HEAD`: a rebase, a reset, an amend on the branch — the
 `base..HEAD` range that three of the steps depend on is lost. Do **not** rewrite the line and do
 **not** guess a new base: look for the equivalent commit in the `reflog`, and put the question
 to the user in the shape held by `${CLAUDE_PLUGIN_ROOT}/references/asking.md`. If the user
@@ -150,14 +138,8 @@ base.
   resumed. A new executor is given the base, and knows the commits in `base..HEAD` are the
   batch's.
 
-Inside a batch, independent work is launched in the same request rather than one piece after
-another, and the test is single: **two pieces of work are parallel only when neither reads what
-the other writes.** These always stay in sequence: the batches themselves, mutations, commits,
-and anything that goes through the same database or the same container.
-
-Here the work is the executor's, and it may launch agents of its own. Those agents **never
-stage and never commit**, and their questions do not stop with them: they travel up through the
-executor as part of its own `status: question`.
+Batches always run in sequence. What parallelises inside a batch, what always stays in sequence, and how the executor's own
+sub-agents behave are held by `${CLAUDE_PLUGIN_ROOT}/agents/executor.md`'s "Working in parallel inside the batch".
 
 ### 3. Tests
 
@@ -165,12 +147,12 @@ The targets are the batch's test tasks **plus** the executor's `test_targets` �
 tests a deliberate change has broken.
 
 With targets: invoke `/dev-loop:test-writing` with the targets, `base..HEAD`, **the path of
-the batch file**, and the calibration when a batch file of the plan already has one; then write
+the batch file**, the calibration when a batch file of the plan already has one, and the two
+rules above; then write
 the line `test-writing @<sha>`. When no batch file has one yet, copy the `Calibration` section of
-this report into the current batch file under `## Calibration`. The first three always matter: a
-forked skill does not see the conversation, so everything it needs travels as arguments. The
-path is not a nicety — the authorisation to delete a test lives in the batch file, and without
-it test-writing can only come back `status: question`, burning a round on every batch.
+this report into the current batch file under `## Calibration`. A forked skill does not see the
+conversation, so everything it needs travels as arguments — the path is not a nicety, the
+authorisation to delete a test lives in the batch file.
 
 Without targets the step is **skipped**: line `test-writing skipped: no targets`.
 
@@ -184,7 +166,8 @@ also holds the scope and the line order of the last batch, who pays the deferral
 `code-revision deferred @<sha>` and goes on to step 5.
 
 Otherwise invoke `/dev-loop:code-revision` on the scope that file gives **with the batch file's
-path** — without it comment-writing misses the index and runs degraded — then line
+path** — without it comment-writing misses the index and runs degraded — and the two rules
+above, then line
 `code-revision @<sha>`. A `question` gives `code-revision (partial) @<sha>`, with the state in
 the file.
 
@@ -204,11 +187,10 @@ paid, as `deferred-review.md` says. Line `criteria ok @<sha>`, or the list of th
 ### 6. Wrap-up
 
 In the batch file: what was done and with which commits, where the plan did not get it right
-(the executor's `deviations` and test-writing's "Changed from the plan"), and what is left open. Where the plan folder is tracked by git, the main thread commits the
-wrap-up. Line `report @<sha>`. Then a few lines of summary, and **the next batch opens without
-asking**. The summary ends with one line suggesting `/compact` or a fresh session
-before the next batch: every turn re-reads the whole context, and the batch files already hold
-everything a resume needs.
+(the executor's `deviations` and test-writing's "Changed from the plan"), and what is left open.
+Where the plan folder is tracked by git, the main thread commits the wrap-up. Line `report @<sha>`.
+Then a few lines of summary, and **the next batch opens without asking**. End the summary with one
+line suggesting `/compact` or a fresh session before the next batch.
 
 ## The unplanned-change re-entry
 
@@ -218,10 +200,9 @@ thread, never by test-writing. There are two triggers, and **they reach the user
 - **test-writing asks for a production change** → this is a stop. The forked skill returns
   `status: question`, and the executor restarts only if the user approves.
 - **a criterion at step 5 is red because of production** → **this is not a stop.** The criterion
-  is in the index, the remedy is inside the batch's perimeter, and stopping would mean asking
-  permission to do work the plan has already assigned. The executor restarts on its own. The
-  usual exception holds: if the remedy changes a visible behaviour the batch did not foresee, it
-  falls back into stop 4 and the question goes to the user.
+  is in the index and the remedy is inside the batch's perimeter, so the executor restarts on its
+  own. The usual exception holds: if the remedy changes a visible behaviour the batch did not
+  foresee, it falls back into stop 4 and the question goes to the user.
 
 In both cases the main thread resumes the executor — or launches a new one with the base and the
 state — and the executor commits. Then write the line `restart from test-writing @<sha>`,
@@ -248,8 +229,7 @@ stops and the question goes to the user.
 
 ## Autonomy, and its limits
 
-The point of this skill is not asking. So it has to be said exactly what is not asked and what
-is, or autonomy becomes a matter of mood.
+What is not asked and what is has to be exact.
 
 **Decide on your own, always:** the order within the tasks, the names, the structure of the
 files, how to turn a red green, when to commit and with what message, whether a finding is
@@ -268,9 +248,8 @@ fixed here or noted elsewhere, and **whether to open the next batch**.
    is the user's.
 5. **The work is about to leave the plan** — a batch widening until it swallows another.
 
-The shape of the question is not copied here: it is held in
-`${CLAUDE_PLUGIN_ROOT}/references/asking.md`, together with the filter that decides which
-findings are questions at all and how a partial answer is handled.
+The shape of the question is held in `${CLAUDE_PLUGIN_ROOT}/references/asking.md`, together with
+the filter that decides which findings are questions at all and how a partial answer is handled.
 
 **Before stopping, finish everything that does not depend on that answer.** A stop that also
 blocks independent work costs twice. The one exception is the one that file states: inside a
