@@ -200,8 +200,7 @@ reader: hand it `catalog.md` and `gates.md` — with the paths in the form presc
 `agents/reviewer.md`, which owns that rule — together with the comments under examination, and ask
 for its judgement on the new reader's proof over comments it is seeing for the first time. That is
 exactly what whoever has just written the code cannot do in their head. The reviewer changes
-nothing: its findings come back here, and this skill decides. Wait for its notification;
-never poll its output with `sleep`. **Not launched below the threshold,
+nothing: its findings come back here, and this skill decides. **Not launched below the threshold,
 forked or not, nor when no comment survived.**
 
 When a *why* is not known and cannot be deduced, it is not invented: the form of the question is

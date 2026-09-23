@@ -45,6 +45,12 @@ there and ask whether they could carry on from it.
 line number, not the function around it; the one failing assertion, not the whole log. Same for
 reasoning — what was concluded and what proves it, not the route taken.
 
+## Waiting for it
+
+A background agent announces its return with a notification: wait for that. Never poll its
+output file or the working tree with `sleep`, `tail -f` or a timed loop — the caller sits out
+the whole timeout, and what it reads meanwhile is half written.
+
 ## When nothing comes back
 
 Failing, being interrupted, and returning something unreadable are the same case, handled the
