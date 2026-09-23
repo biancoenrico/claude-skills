@@ -119,10 +119,8 @@ finding is quotable in later iterations. Each one carries:
 
 ## The ledger
 
-You also receive this document's ledger, when one exists — read it before the object. A finding
-recorded as rejected is closed: the user already turned it down, and re-raising it spends their
-attention on a decision already made. Format held by
-`${CLAUDE_PLUGIN_ROOT}/references/ledger.md`.
+How to handle it is held by `${CLAUDE_PLUGIN_ROOT}/agents/reviewer.md`; its format, and when a
+rejected finding may come back, by `${CLAUDE_PLUGIN_ROOT}/references/ledger.md`.
 
 ## Alternatives are not judged here
 

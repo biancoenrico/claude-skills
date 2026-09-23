@@ -56,7 +56,7 @@ Collect:
   named by name and path.
 
 Assign **an owner** to each: which module, type or file holds it. Where it has no home yet,
-note it is created **once**, in the first batch that uses it — never the second.
+say so; Step 2 places it.
 
 ### Step 2 — The boundaries
 
@@ -67,15 +67,14 @@ their readers), and the self-check against the cut — apply them as written the
 
 ### Step 3 — Write the folder
 
-The plan becomes a folder with the same name the file would have had.
 `${CLAUDE_PLUGIN_ROOT}/references/plan-folder.md` holds the folder convention, the index's
 three things and why, the batch-file template (headed and empty: delivers, inherits, leaves to
 later batches), and how a monolithic plan's starting material carries into a batch header —
 apply it as written there.
 
-**The threshold is not a number written here.** Read it by name — the batching threshold —
-from `${CLAUDE_PLUGIN_ROOT}/references/limits.md`. Below it, say so and write
-`<plan folder>/<name>.md` from the single-file template that same reference holds. That's a
+**Folder or one file** is decided by that reference's "When a plan becomes a folder" section,
+not by the threshold alone. When the plan stays one file, say so and write
+`<plan folder>/<name>.md` from the single-file template the same reference holds. That's a
 delivery, not a refusal to act.
 
 ### Step 4 — The questions
@@ -98,7 +97,7 @@ home for it.
 
 ### The shared vocabulary
 - [rule/type] -> owned by [where] — called by batches [N, M]
-- [rule with no home] -> to be created in batch 01
+- [rule with no home] -> to be created in batch [NN, the first that uses it]
 
 ### The batches
 - **01 — [name]** · delivers: [...] · closes with: [...]
@@ -117,9 +116,7 @@ still open, stop and say so: the shape isn't decided until they're answered.
 ## Rules of behaviour
 
 - **Do not write the tasks.** That trade belongs to `/dev-loop:plan-drafting`.
-- **Below the batching threshold, write one file, not a folder.**
+- **Folder or one file: plan-folder.md's "When a plan becomes a folder" decides.**
 - **Do not invent owners.** No home yet → say so and name the batch that creates it, never
   attribute it to a module that doesn't fit — a lying index is worse than none.
-- **A batch that does not close is not a batch.** Change the cut, never the verification
-  criterion.
-- **The index holds three things, and nothing else.**
+- **Never loosen the verification criterion to make a batch close.** Change the cut instead.

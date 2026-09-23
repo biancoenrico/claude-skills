@@ -67,8 +67,8 @@ own), the group it judges (named by section range), and the ledger when one exis
 
 The alternatives reviewer also gets `${CLAUDE_PLUGIN_ROOT}/references/alternatives.md`, judging
 the document's load-bearing decisions rather than a group. Under the small document threshold
-there is no separate one: the single reviewer takes both files and the same ledger-held rules on
-when that pass reruns.
+there is no separate one: the single reviewer takes both files. When the alternatives pass
+reruns, for either reviewer, is held by `${CLAUDE_PLUGIN_ROOT}/references/ledger.md`.
 
 The agents-per-wave cap in `${CLAUDE_PLUGIN_ROOT}/references/limits.md` bounds how many run at
 once; beyond it, fan out in waves. What comes back, and what to do when nothing does, are held
@@ -117,8 +117,8 @@ Carry on until one of three exits fires:
   product.
 
 The revision iteration cap in `${CLAUDE_PLUGIN_ROOT}/references/limits.md` bounds how many
-rounds you take on your own. **Questions do not consume it**, and **when the answers arrive the
-counter starts again** on the area they touch.
+rounds you take on your own. What an iteration is, what is exempt, and what happens at the cap
+are held by `${CLAUDE_PLUGIN_ROOT}/references/ledger.md`.
 
 A partial answer is used for what it says: apply what was decided, leave the rest open, and
 declare nothing approved.

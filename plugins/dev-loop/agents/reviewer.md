@@ -64,8 +64,8 @@ Return `status: question`, in the four-line shape held by
 `${CLAUDE_PLUGIN_ROOT}/references/asking.md`.
 
 First check it really is a question: if it closes by reading the repository, read it and close
-it yourself, citing what you read. If it closes by looking up a standard or a published limit,
-search for it and bring the source back.
+it yourself, citing what you read. If it closes by looking up a standard, a documented
+behaviour or a published limit, search for it and bring the source back.
 
 ## Closing
 

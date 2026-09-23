@@ -81,7 +81,7 @@ debt only once no open batch is left to pay it.
 **Two rules hold across all six steps, for every agent this skill launches** — executor,
 test-writing, code-revision alike: the main thread is the only writer of the batch files, and
 no agent stages the plan folder, not even the batch file being executed.
-`plugins/dev-loop/agents/executor.md` owns the detail of what that means for the executor.
+`${CLAUDE_PLUGIN_ROOT}/agents/executor.md` owns the detail of what that means for the executor.
 
 Every step leaves a progress line in the batch file, in the place
 `${CLAUDE_PLUGIN_ROOT}/references/plan-folder.md`'s template reserves for it: that file owns
@@ -139,7 +139,7 @@ base.
   batch's.
 
 What parallelises inside a batch, what always stays in sequence, and how the executor's own
-sub-agents behave are held by `agents/executor.md`'s "Working in parallel inside the batch".
+sub-agents behave are held by `${CLAUDE_PLUGIN_ROOT}/agents/executor.md`'s "Working in parallel inside the batch".
 
 ### 3. Tests
 
@@ -147,7 +147,8 @@ The targets are the batch's test tasks **plus** the executor's `test_targets` �
 tests a deliberate change has broken.
 
 With targets: invoke `/dev-loop:test-writing` with the targets, `base..HEAD`, **the path of
-the batch file**, and the calibration when a batch file of the plan already has one; then write
+the batch file**, the calibration when a batch file of the plan already has one, and the two
+rules above; then write
 the line `test-writing @<sha>`. When no batch file has one yet, copy the `Calibration` section of
 this report into the current batch file under `## Calibration`. A forked skill does not see the
 conversation, so everything it needs travels as arguments — the path is not a nicety, the
@@ -165,7 +166,8 @@ also holds the scope and the line order of the last batch, who pays the deferral
 `code-revision deferred @<sha>` and goes on to step 5.
 
 Otherwise invoke `/dev-loop:code-revision` on the scope that file gives **with the batch file's
-path** — without it comment-writing misses the index and runs degraded — then line
+path** — without it comment-writing misses the index and runs degraded — and the two rules
+above, then line
 `code-revision @<sha>`. A `question` gives `code-revision (partial) @<sha>`, with the state in
 the file.
 
@@ -227,7 +229,7 @@ stops and the question goes to the user.
 
 ## Autonomy, and its limits
 
-What is not asked and what is has to be exact, or autonomy becomes a matter of mood.
+What is not asked and what is has to be exact.
 
 **Decide on your own, always:** the order within the tasks, the names, the structure of the
 files, how to turn a red green, when to commit and with what message, whether a finding is

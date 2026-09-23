@@ -62,8 +62,8 @@ is interrupted, or comes back in a shape that cannot be read.
 **Do nothing with any return until every drafter is back.** A drafter still in flight is
 reading the index, and the index is not touched while anyone is reading it.
 
-"Back" means **all the waves**, not the current one: with twelve batch files and a cap of six,
-the index stays untouchable until the second wave has returned as well.
+"Back" means **all the waves**, not the current one: with more batch files than one wave
+holds, the index stays untouchable until the last wave has returned.
 
 ### Step 3 — The questions, in one block
 

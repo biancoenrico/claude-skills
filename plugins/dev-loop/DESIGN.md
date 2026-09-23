@@ -1,8 +1,8 @@
 # Design notes
 
-Maintainer-facing rationale for `plugins/dev-loop/references/`, moved out of the files the model
-reads so it never enters a session's context. It holds no rule the model needs — only the
-reasoning kept for whoever maintains the plugin, one section per source file.
+Maintainer-facing rationale for files under `plugins/dev-loop/` (references and skills), moved
+out of the files the model reads so it never enters a session's context. It holds no rule the
+model needs — only the reasoning kept for whoever maintains the plugin, one section per source file.
 
 ## references/agent-return.md
 

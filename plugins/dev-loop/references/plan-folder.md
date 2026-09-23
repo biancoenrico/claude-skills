@@ -134,8 +134,9 @@ session may not be the one that answers.
 **`## Calibration` holds the test calibration** from the plan's first test-writing report,
 copied into the batch file that received it, passed to every later test-writing run.
 
-**Only the main thread writes into a batch file.** Executors, reviewers and forked skills
-return their work rather than edit the folder.
+**Only the main thread writes into a batch file**, with one exception: during drafting, each
+drafter writes its own batch file and only that. Executors, reviewers and forked skills return
+their work rather than edit the folder.
 
 ## The template of a plan that stays one file
 

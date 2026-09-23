@@ -55,14 +55,11 @@ group.**
 **Under the small document threshold** (`${CLAUDE_PLUGIN_ROOT}/references/limits.md`, batch
 files counted together): the whole thing is **one group, folder or not**, with **one reviewer**,
 also taking the alternatives pass (step 6); seams and coverage still get their own pass after
-fixes.
+fixes, when step 6's condition holds.
 
 ## 5 — Open the ledger
 
-Beside the object: `<name>.review.md` for a single file, one shared `review.md` in a folder —
-contents and conflicts: `${CLAUDE_PLUGIN_ROOT}/references/ledger.md`.
-
-**Only this thread writes it** — reviewers return findings; rows, IDs, states are yours.
+Location, contents, conflicts, who writes it: `${CLAUDE_PLUGIN_ROOT}/references/ledger.md`.
 
 ## 6 — Fan out to the reviewers
 
@@ -72,8 +69,9 @@ gets its criteria file (full path,
 the reference spec and ledger, where they exist.
 
 The alternatives reviewer also gets `${CLAUDE_PLUGIN_ROOT}/references/alternatives.md`, judging
-load-bearing decisions, not one group. Under the small document threshold the single reviewer
-takes both files and rules, reruns included (`${CLAUDE_PLUGIN_ROOT}/references/ledger.md`).
+load-bearing decisions, not one group; when it reruns: `${CLAUDE_PLUGIN_ROOT}/references/ledger.md`.
+Under the small document threshold the single reviewer gets both criteria.md and alternatives.md,
+under the same rerun rule.
 
 Agents-per-wave cap: `${CLAUDE_PLUGIN_ROOT}/references/limits.md`; beyond it, more waves. Returns,
 and what to do when none comes: `${CLAUDE_PLUGIN_ROOT}/references/agent-return.md`.
@@ -99,8 +97,8 @@ and unchanged in approach, else shown first.
 **Preserve intent**: reorganise and clarify, never redesign. A doubted approach is a question
 with its options and cost, never a quiet rewrite. Added tasks carry their reason into the ledger.
 
-A rejected fix reverts to its text, recorded `rejected` with the user's reason, and never
-returns.
+A rejected fix reverts to its text, recorded `rejected` with the user's reason, and returns
+only as `${CLAUDE_PLUGIN_ROOT}/references/ledger.md` allows.
 
 Next round's reviewers go **only to groups that moved**
 (`${CLAUDE_PLUGIN_ROOT}/references/ledger.md`: what moves one, when a round has none). One of
@@ -113,8 +111,8 @@ three exits:
   arrive.
 
 Revision iteration cap: `${CLAUDE_PLUGIN_ROOT}/references/limits.md` bounds unaided rounds.
-Questions don't consume it; an answer restarts it on the area touched. A partial answer applies
-what's decided, leaves the rest open, approves nothing.
+What consumes it: `${CLAUDE_PLUGIN_ROOT}/references/ledger.md`, "What the counter counts". A
+partial answer applies what's decided, leaves the rest open, approves nothing.
 
 **Output:** reviewed plan plus a summary — changes applied, tasks added with reasons,
 assumptions, accepted risks, open points. Ledger stays; committing it is the project's call.

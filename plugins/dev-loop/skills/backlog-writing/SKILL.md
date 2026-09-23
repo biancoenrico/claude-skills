@@ -39,7 +39,7 @@ The text of this skill is English. The output splits along one boundary: prose v
 Two modes:
 
 1. **Build** (default) — a brief, an idea or an approved spec becomes a backlog.
-2. **Split** — a task that outgrew 13 points gets re-cut in place, inside the backlog that
+2. **Split** — a task that reached 13 points gets re-cut in place, inside the backlog that
    already exists.
 
 Accepted inputs: a spoken brief, an approved spec, an existing backlog to extend. With no scope
@@ -163,6 +163,9 @@ Deux lignes: à quoi sert la story, pourquoi maintenant.
 Ticket: PRJ-43 · État: fait
 
 Ce qui change, et où le travail s'arrête si ce n'est pas évident. 1-3 lignes. Pas de «comment».
+
+## Ajoute les remises et les arrondis   [3]
+Ticket: — · État: à faire
 ```
 
 **A blank line always separates the metadata line from the description**, on tasks as well as on
@@ -206,7 +209,7 @@ No state in the index: state lives in the story files.
 
 ## Split mode
 
-A task that grew past 13 doesn't need a new backlog, only a re-cut. Steps 4 and 5 are the whole
+A task that reached 13 doesn't need a new backlog, only a re-cut. Steps 4 and 5 are the whole
 job: split along a vertical axis, re-estimate against the same anchors already in the index, and
 put the proposal in chat before touching a file.
 
