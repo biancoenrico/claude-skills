@@ -105,6 +105,28 @@ role differently, in other languages, and this rule keeps them readable regardle
 the choice whenever more than one `00-` candidate exists matters because silently picking one is
 how the same folder ends up read two different ways by two different readers.
 
+## skills/backlog-writing/SKILL.md
+
+The opening paragraph this file used to carry — that the hard part is not typing tickets but
+deciding where the line falls between a story and its tasks, and what each one weighs — existed
+to justify why a six-step skill is needed at all: done by feel, that line lands wherever a
+sentence happened to end, producing tasks that are single actions, stories that are shapeless
+containers, and estimates that are vibrations wearing Fibonacci numbers as a costume. The
+sentence right after it drew the same judgement's parallel to `/dev-loop:plan-batching`, one
+level higher: that skill decides how to slice the *execution* of already-defined work, this one
+decides how to slice *the work itself* before anyone has defined it. Both are framing rather than
+obligation, and the "Does / Doesn't" table already does the orientation work a reader needs, so
+neither earns its place in a file the model reads every run.
+
+The paragraph motivating the `humanizer:humanizer` pass argued that backlog prose is the one
+output of this skill that *leaves*: it gets typed into the ticket system and read by the team
+under the user's name, and it is short — exactly where model tics show most (not-X-but-Y
+contrasts, closing fragments that restate the line above, triads of adjectives). Removing them
+costs nothing while the text is still in chat, and a full rewrite of the folder plus the open
+tickets once it has shipped. The operative half of the rule survives in the file (invoke the
+skill if available; declare in the report when it is skipped); this is the half that only a
+maintainer deciding whether the step is worth keeping needs to see.
+
 ## skills/comment-writing/gates.md
 
 These five checks live in this file, spelled out as commands anyone can run by hand, for a
@@ -118,3 +140,60 @@ rule now stands on its own under "When a check does not run" in gates.md.
 
 The `lost-fact` line marker is `base@NN` where the specification writes `base:NN`; the reason
 lives under "The five checks" in gates.md.
+
+## skills/plan-batching/SKILL.md
+
+The rules of behaviour exist against a single failure mode: cutting for the sake of cutting. A
+skill whose whole job is imposing structure has every incentive to find structure whether or not
+the work needs it, and the failure mode is quiet — a folder with an index and a few near-empty
+batch files reads as diligence, not waste, even though it costs more to navigate than the single
+file it replaced. Each rule in the list is aimed at forcing the skill to justify a cut rather than
+default to producing one.
+
+## skills/plan-drafting/SKILL.md
+
+Writing inside the fixed shape is what makes drafting parallel-safe in the first place: the shape
+already says what each batch delivers, inherits and may call, so one writer per file needs no
+coordination with the others. The index is the one thing that is not scoped to a single batch,
+which is why touching it is reserved to this skill alone rather than left to whichever drafter
+gets there first.
+
+## skills/plan-execution/SKILL.md
+
+The failure this skill exists to prevent is not a technical error: it is the loop fraying. A
+batch closes, someone asks "shall I go on?", work restarts with half the context, the review
+gets skipped as "small", and three batches later the closing criteria have become a memory —
+each skipped step costs little alone, and the bill arrives all at once. That is also why the
+autonomy section spells out exactly what is and is not asked: left implicit, autonomy becomes a
+matter of mood, which is the same fraying under another name.
+
+Offering `/dev-loop:plan-revision` before executing an unreviewed plan exists because finding a
+plan's holes mid-execution is the most expensive way to find them — a batch already committed on
+top of a bad assumption is no longer a hole, it is a foundation.
+
+## skills/plan-revision/SKILL.md
+
+The opening paragraph used to justify the whole skill by contrast with spec-revision: a plan
+review is not about whether something should be built, only about whether whoever picks it up
+can walk it without stopping to ask "and how is this done?" — a step needing something created
+five tasks later is worse than no plan at all, because it fakes readiness instead of admitting
+gaps. The body now states only the operative half of that ("this skill checks how the work gets
+built") in step 1; the "why order matters more than existing" argument lives here instead of in
+every session's context.
+
+## skills/plan-revision/criteria.md
+
+Sequence and dependency errors sit first among the seven dimensions, and outrank every other
+finding in the report, because a wrong order is the one defect that only becomes visible once
+execution has already started — by the time it shows up, redoing the work costs more than
+getting the order right the first time would have. Every other dimension can be caught and fixed
+on paper; this one is caught on paper or paid for in rework.
+
+## skills/spec-revision/SKILL.md
+
+The opening paragraph this trim removed argued that a specification's whole point is saying what
+to build unambiguously: a document that contradicts itself, leaves terms open to two readings, or
+announces sections nobody wrote produces divergent implementations, since everyone fills the
+holes their own way and the defect only shows up once the work is done. Catching that on paper
+costs a fraction of catching it in code — the entire reason this review runs before
+implementation starts rather than being treated as optional polish.
