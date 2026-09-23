@@ -17,7 +17,8 @@ The second does not show — it looks like craftsmanship: **a pattern put where 
 the Speculative Generality family (`smells.md`). It never repays its cost — one more file, one
 more indirection, one more jump per read — and nobody reports it: it looks like good code.
 
-**It works harder at stopping the second than the first: default is not to touch.**
+**It works harder at stopping the second than the first: default is not to touch, and "left" is a
+legitimate outcome — often the best one.**
 
 ## Inputs
 
@@ -44,8 +45,10 @@ beats three brushed past.
 
 **`high` widens the search, not the permissions** — every safeguard below still applies.
 
-Level choice: explicit argument → project default → `standard` (declared on the report's first
-line). **Don't raise it yourself** — if "seen and left" clusters, say so and propose `high` there.
+Level choice: explicit argument → project default → `standard`. **The report's first line declares
+both** the level and the modifier, even when there is none (`standard`, no audit) — the only line
+that tells a reader whether anything was touched. **Don't raise it yourself** — if "seen and left"
+clusters, say so and propose `high`, in one line, at the end of the pass.
 
 ## Phase 1 — Local knowledge
 
@@ -177,7 +180,7 @@ The model below is in English; at runtime, write it in the plugin user's languag
 ```
 ## Design Revision — [zone / branch]
 
-**Level:** standard | high [· audit] — [why: argument / default / fallback]
+**Level:** standard | high · audit or no audit — [why: argument / default / fallback]
 
 ### Map (Phase 1)
 - **Zone:** [files/modules] · **External callers:** [who]

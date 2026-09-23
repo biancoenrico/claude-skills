@@ -26,8 +26,9 @@ and the plan already carry. Every question is handed back: `status: question` pe
 **Below the small batch threshold** in `${CLAUDE_PLUGIN_ROOT}/references/limits.md` — measured with
 `sh ${CLAUDE_PLUGIN_ROOT}/scripts/devloop-diffsize --with-tests` over the scope — the caller follows
 this file **inline**: a fork and a reviewer cost more than a handful of comments. Inline, whys may
-also come from the conversation, a question goes to the user via
-`${CLAUDE_PLUGIN_ROOT}/references/asking.md`, and the point reached feeds the caller's `state`.
+also come from the conversation, a question goes into the caller's own return, or to the user via
+`${CLAUDE_PLUGIN_ROOT}/references/asking.md`, and the point reached — candidates, verdicts, step —
+feeds the caller's `state`.
 
 ## The failure it exists to avoid
 
@@ -112,7 +113,8 @@ Runs **only on prose**; "what is not touched" stays intact. A rewrite changing w
 not just its form, is an error of the pass.
 
 **On a large target, batch** a few files at a time, reading every comment's full text; twenty-five
-at once, skim by eye instead.
+at once, skim by eye instead. The rewrite itself still happens **one file at a time**, whatever the
+reading batch size.
 
 ### Step 5 — The gates
 
@@ -132,13 +134,15 @@ against a base reference in review mode, without one in writing mode, Step 1's p
 **`process-ref` terms** get a second, fixed-string pass, `grep -rniF -e <term> …`; no file written.
 Source: the plan index's shared vocabulary via the batch file path in the arguments
 (plan-execution passes it, code-revision passes it on) and
-`${CLAUDE_PLUGIN_ROOT}/references/plan-folder.md`. Unreachable → the base list is all there is,
-**declared in the report**.
+`${CLAUDE_PLUGIN_ROOT}/references/plan-folder.md`. **Unreachable** means no batch file path in the
+arguments, or no index file in its directory: either way the base list of terms is all there is,
+**declared in the report, in one line**.
 
 **The new reader, for real.** The one skill launching a `dev-loop:reviewer` as a fresh reader: hand
 it `catalog.md`, `gates.md` (paths per `agents/reviewer.md`) and the comments, judging them seeing
-them for the first time. Changes nothing; findings come back for this skill to decide. **Not
-launched below the threshold, forked or not, nor when no comment survived.**
+them for the first time. Changes nothing; findings come back for this skill to decide. Wait for its
+notification; never poll its output with `sleep`. **Not launched below the threshold, forked or
+not, nor when no comment survived.**
 
 An unknown, undeducible *why* is not invented: ask via
 `${CLAUDE_PLUGIN_ROOT}/references/asking.md`.
@@ -165,8 +169,9 @@ reviews, more beautiful each time. Rephrasing happens **after** deciding it stay
 **Step 3″ — One verdict per comment**, reason in half a line:
 
 - **Kept** — pays its rent as is.
-- **Rewritten** — needed but ill-formed (catalogue's paraphrase/ceremony, or reads as generated) —
-  humanizer rewrites it, Step 4's limits apply.
+- **Rewritten** — the information is needed, the form is not: ceremony, wordiness, it explained the
+  *what*, or it reads as generated. **In that last case** the rewrite is the humanizer's, with
+  Step 4's limits.
 - **Corrected** — false or stale.
 - **Brought to the present** — catalogue shapes 8–9: keep the live constraint, discard the story.
   **Holds only if that constraint alone passes Step 3′** — often not, and the verdict is "removed".

@@ -84,5 +84,5 @@ whether, not the comment.**
 **It's about "whether", not the writing.** A test written because something changed has no reason
 yet — ask what behaviour matters, skip it if none comes.
 
-*Thin boundary:* a harness built **to** compare environments may speak of them; a single test must
-not.
+*Thin boundary:* a harness built **to** compare environments may speak of them, and so may the
+project's documentation; a single test must not.

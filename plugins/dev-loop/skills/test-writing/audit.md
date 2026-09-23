@@ -18,7 +18,7 @@ Reading first, a suite run last: arrive with few candidates.
 | 1 | **Reaches production code?** Follow indirection (helpers, clients) at least one level | `NO-REACH` |
 | 2 | **Ours or the platform's?** | `PLATFORM` |
 | 3 | **Name promises the body?** A precise line/rule name promotes it to the mutation check | `NAME-OVERSELLS` |
-| 4 | **Fails on any environment?** Literal-only assertions, per-env branches, copied production expressions | `TAUTOLOGY` |
+| 4 | **Fails on any environment?** Literal-only assertions, a per-env branch asserting what that environment does, copied production expressions | `TAUTOLOGY` |
 | 5 | **If red, where's the fix?** Always test code ⇒ a harness verification script | `SELF-TEST` |
 | 5b | **Asserts on infra state** (schema, config, env, filesystem) as premise, not output? | `INFRA` |
 
@@ -47,7 +47,7 @@ One mutation per call: `sh ${CLAUDE_PLUGIN_ROOT}/scripts/devloop-mutate <file> <
 | exit | what the skill does |
 |---|---|
 | 10 | caught: confirm via the output tail it's the target assertion, then continue |
-| 11 | survived: relaunch unfiltered — others red ⇒ `SURVIVES-MUTATION`, none ⇒ `UNCOVERED` (write mode rewrites the test to call the code; here, the finding) |
+| 11 | survived: relaunch unfiltered — others red ⇒ `SURVIVES-MUTATION`, none ⇒ `UNCOVERED`, the relaunch's own exit read by these two outcomes and not by this table (write mode rewrites the test to call the code; here, the finding) |
 | 12 | no verdict: one relaunch; repeats ⇒ not run |
 | 3 | refused (live lock, untracked/changed file, `<find>` missing/repeated): nothing mutated — finding, not run |
 | 4 | **restore impossible/failed** — see below |

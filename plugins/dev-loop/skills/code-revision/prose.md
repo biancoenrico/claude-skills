@@ -13,4 +13,4 @@ runs, so only a followed instruction can break. Judge the diff; read the repo on
 5. **Declared limits.** Caps or mechanical checks — sizes, budgets, versions — pushed past or
    out of step.
 
-Wording taste is not a finding.
+A finding outside these five does not belong in the return: wording taste is not a finding.

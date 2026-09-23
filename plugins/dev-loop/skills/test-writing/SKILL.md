@@ -79,9 +79,10 @@ Draw the boundary **before reading in depth**, or you end up testing half the sy
 
 - **The public surface**: what a caller can reach; private methods are exercised through it, never
   head-on.
-- **The collaborators**: **real or double?** Double whatever leaves the process or its control
-  (network, clock, randomness, filesystem, queues, external services); else stays real, or the
-  double just proves it obeys you.
+- **The collaborators**: **real or double?** The criterion is not convenience — it is **what
+  happens if you leave it real**. Double whatever leaves the process or its control (network,
+  clock, randomness, filesystem, queues, external services); else stays real, or the double just
+  proves it obeys you.
 - **The seams**, where a collaborator can be substituted without rewriting the unit.
   **Introducing one is a production change this skill does not make** — hand it back as a
   question.
@@ -93,10 +94,11 @@ The product is **the list of boundaries**, not a test.
 ## Step 3 — What deserves a test
 
 **The step that gets skipped.** Produce two lists; if the batch file
-lists what its tasks are verified by, start there.
+lists what its tasks are verified by, start there: bind each entry to its line, add what the code
+needs beyond it, and report the changes.
 
-**To cover** — one behaviour per line: the **case**, the **line or rule** that decides it, **what
-breaks** if it changes silently. Look for the **branches** (the case that fires each **and** the
+**To cover** — one behaviour per line: the **case** in one sentence, the **line or rule** that
+decides it, **what breaks** if it changes silently. Look for the **branches** (the case that fires each **and** the
 one that does not — a lone negative assertion stays green even without the branch); the
 **boundaries** (first, empty, absent, on threshold, duplicate); the **domain invariants** no
 schema knows about; what the code **rejects**, with which message when it is a contract; the
@@ -116,8 +118,9 @@ commits already made.
 
 With the list in hand the shape almost follows:
 
-- **One test per behaviour, not per method**, named for it — it must **promise exactly what the
-  body does**, or it hides a gap behind a name that looks like coverage.
+- **One test per behaviour, not per method**, named for it in **the language of the domain** — it
+  must **promise exactly what the body does**, or it hides a gap behind a name that looks like
+  coverage.
 - **Identical-form, different-data cases ⇒ a table**, in the runner's own mechanism, **plus a
   completeness check** that fails when a case is missing — enumerated by reflection or over the
   type, else case N+1 stays uncovered until remembered.
@@ -126,8 +129,9 @@ With the list in hand the shape almost follows:
   point.
 - **Assert a value, not a shape**: a shape passes even when production **exits politely** instead
   (fallback, empty list, zero) — only a value existing *iff* the right branch ran will notice.
-- **No dependency on order**, no state surviving between tests; **determinism** — time, randomness,
-  generated identifiers pinned or declared volatile.
+- **No dependency on order**, no state surviving between tests: repeating one test in isolation has
+  to give the same outcome; **determinism** — time, randomness, generated identifiers pinned or
+  declared volatile.
 - **Fixtures built by composition**, not a copied forty-field literal.
 
 Governing all: **if the project does otherwise and it works, do it that way** — good practice is

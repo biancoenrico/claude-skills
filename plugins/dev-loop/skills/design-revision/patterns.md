@@ -20,7 +20,7 @@ framework already do it**? Duplicating a framework mechanism is debt, not struct
 | Pattern | When | Skip if |
 |---|---|---|
 | **Value Object** | primitive + meaning, scattered validation | no rules of its own |
-| **Strategy** | switch over a type, growing | 2 variants, static for years |
+| **Strategy** | switch over a type, in several places, growing | 2 variants, static for years |
 | **State** | state machine, nested conditionals | 2 states |
 | **Template Method** | same skeleton, diff steps | framework already does it |
 | **Factory Method** | construction varies, caller unaware how | builds one class |
@@ -42,10 +42,10 @@ evidence.
 | Pattern | When | Skip because |
 |---|---|---|
 | **Abstract Factory** | families of objects staying consistent | 1 family: Factory Method in disguise |
-| **Prototype** | copying an expensive object, class-independent | languages copy shallowly; data's in rows |
+| **Prototype** | copying an expensive or complex-stated object, class-independent | languages copy shallowly; data's in rows |
 | **Bridge** | two dimensions varying independently | 2nd usually imaginary — collapses into Strategy |
 | **Composite** | tree structures, handled uniformly | non-tree data = complexity for free |
-| **Flyweight** | many near-identical objects, memory-heavy | scale problem, rare here |
+| **Flyweight** | many near-identical objects, memory-heavy | a scale problem that does not arise here |
 | **Proxy** | access control: lazy load, cache, perms, logging | framework already offers hooks/caching |
 | **Iterator** | traversal w/o exposing structure | language already has iteration |
 | **Mediator** | many objects in a mesh | in MVC the controller **is** the mediator |
@@ -90,8 +90,9 @@ detection is per-repo, so a shifting count isn't evidence.
 
 Three edge cases:
 
-- **A path gone from the working tree** counts as history, not a target: test `[ -e "$path" ]`,
-  mark it — no remedy there.
+- **A path gone from the working tree** counts as history, not a target: test `[ -e "$path" ]`
+  against the repository root, mark it — no remedy there.
 - **A shallow/truncated clone** (`git rev-parse --is-shallow-repository` = `true`) makes every
-  count a **floor, not a total**: a busy file can look untouched.
+  count a **floor, not a total**: a busy file can look untouched. Say so where the numbers are
+  used.
 - **Outside a git repository**, churn is unavailable, not zero — say so.

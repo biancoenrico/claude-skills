@@ -36,10 +36,10 @@ count.
 
 | Family | Smell | Signal | Remedy |
 |---|---|---|---|
-| Bloater | Long Method | too long / mixed abstraction levels | Extract method |
-| " | Large Class | too many responsibilities | Extract class |
+| Bloater | Long Method | too long / mixed abstraction levels | Extract method; replace a temporary with a query |
+| " | Large Class | too many responsibilities, fields only half the methods use | Extract class |
 | " | Primitive Obsession | primitive carries meaning, validation scattered | **Value Object** |
-| " | Long Parameter List / Data Clumps | same params travel together | Parameter object |
+| " | Long Parameter List / Data Clumps | same params travel together | Parameter object, extract class |
 | OO abuse | Switch Statements | switch/if over a type, repeated, growing | Strategy or State |
 | " | Temporary Field | filled only sometimes | Extract class |
 | " | Refused Bequest | ignores half its inheritance | Composition over inheritance |

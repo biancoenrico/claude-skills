@@ -126,4 +126,5 @@ shape**.
 - **One comment, one fact** — different facts, different comments, different places.
 - **Prose language per the project** (`CLAUDE.md`/`AGENTS.md`, else the file's existing comments);
   **names stay as in the code**, never translated.
-- **Reads like one developer explaining a thing to another** — the measure before all the rest.
+- **Reads like one developer explaining a thing to another** — the measure before all the rest: a
+  colleague who reads it once and understands means the comment is finished.
