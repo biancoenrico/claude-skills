@@ -13,7 +13,8 @@ Climb **one rung at a time**, only when the rung below fails, **and say so**: ha
 die on the first rung — structure right, name wrong.
 
 Three questions close most without a pattern: better **name**? an **extraction**? **does the
-framework already do it**? Duplicating a framework mechanism is debt, not structure.
+framework already do it**? **No pattern duplicating a framework mechanism** — use the hook; a
+resembling abstraction is debt wearing structure's look, not structure.
 
 ## First tier
 
@@ -58,8 +59,6 @@ evidence.
   container/loader.
 - **Repository/Gateway over a model that's already one** — in MVC the model is the gateway; a
   layer on top carries nothing.
-- **No pattern duplicating a framework mechanism** — use the hook; a resembling abstraction is
-  debt wearing structure's look.
 
 Measuring beats guessing, but **nothing installs without asking**: use what the project
 declares. One per category, different ecosystems:

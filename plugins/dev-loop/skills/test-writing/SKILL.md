@@ -17,7 +17,8 @@ like a test and is not — it hides a gap and costs upkeep every refactor.
 Hence the order: **decide what to cover and write it down; write the code; then prove every test
 can fail.**
 
-Invoked by `/dev-loop:plan-execution` and the bounded path; next is `/dev-loop:code-revision`. **On
+Invoked by `/dev-loop:plan-execution` and the bounded path, next `/dev-loop:code-revision`; and by
+`/dev-loop:design-revision` when a zone about to move has no net, next the refactor. **On
 a small bounded diff the main thread follows this file inline** instead of forking: scope is
 `base..HEAD`; calibration comes from the branch worklog; `status: question` or hand-back is a user
 question per `${CLAUDE_PLUGIN_ROOT}/references/asking.md`; `state` goes into the worklog;
@@ -45,12 +46,9 @@ authorisation.
 
 ## The principle
 
-> **The question, for every test you are about to write:** if this assertion failed, who would you
-> open the bug against — this repository, or the language, the framework, a library?
-
-Against the second, delete the line. Recognising the shape stops it — each looks like a reasonable
-exception up close — and the shapes are catalogued in
-`${CLAUDE_PLUGIN_ROOT}/skills/test-writing/catalog.md`.
+For every test about to be written: if it failed, would the bug go against this repository or
+against the platform? Against the platform, delete the line. The question, its rationale and the
+shapes it catches: `${CLAUDE_PLUGIN_ROOT}/skills/test-writing/catalog.md`.
 
 ## Step 1 — Calibrate on the project
 
@@ -111,8 +109,8 @@ this step was skipped.
 **Done when** both lists exist and every "to cover" entry names the line or rule it pins down.
 Ambiguous behaviours or a seam get asked **now**, not after tests exist.
 
-**The two lists are the `state` of the return** — a resumed invocation restarts from them and the
-commits already made.
+**If this skill stops (`status: question`), the two lists go into `state`** — a resumed invocation
+restarts from them and the commits already made.
 
 ## Step 4 — Choose the structure
 
@@ -142,12 +140,11 @@ only for where there is no precedent.
 One block at a time, per the Step 3 list, within Step 1's constraints. A behaviour found while
 writing is **added to the list** and declared, not slipped in.
 
-**The name and comment say the behaviour, not the occasion**: the ticket or refactor that brought
-you here belongs in the commit message, not the test.
+Name and comment say the behaviour, not the occasion, and carry no run's outcome:
+`${CLAUDE_PLUGIN_ROOT}/skills/test-writing/catalog.md` §7.
 
 **The comment explains, it does not point**: no line numbers, paths, or method names — the test's
-name says that. Unexplainable without pointing at code ⇒ wrong or unnecessary; nor does a run's
-outcome belong in a comment, since it goes stale unnoticed.
+name says that. Unexplainable without pointing at code ⇒ wrong or unnecessary.
 
 Testability that needs a production-code change means **stop and ask**: not a detail of writing
 tests. A red test against production is read, never silenced by editing production. Check the
@@ -174,8 +171,8 @@ Every exit code's behaviour — including the one that stops this skill and how 
 tail — is tabulated in `${CLAUDE_PLUGIN_ROOT}/skills/test-writing/audit.md`.
 
 **`state` covers this step too**: an interruption can land mid-mutation with the commits silent on
-which passed. Into it go the mutations tried with their outcome, plus, after a tree-mutating exit,
-"tree dirty from mutation, see marker" — without them a resume redoes everything blind.
+which passed. Into it go the mutations tried with their outcome, plus, after an exit 4 (the one that
+leaves the file mutated, see `audit.md`), "tree dirty from mutation, see marker" — without them a resume redoes everything blind.
 
 If the suite is not runnable, Step 6 **is not done**: declare it, say the tests were not seen to
 fail. Do not fake the proof.
@@ -185,7 +182,7 @@ fail. Do not fake the proof.
 Criteria: `${CLAUDE_PLUGIN_ROOT}/skills/test-writing/audit.md`. Launches **one `dev-loop:reviewer`
 per test file** on the reading checks, handing it `catalog.md` and `audit.md` per
 `agents/reviewer.md`, fanning out in waves up to the agents-per-wave cap in
-`${CLAUDE_PLUGIN_ROOT}/references/limits.md`; once back, runs the mutation check on survivors;
+`${CLAUDE_PLUGIN_ROOT}/references/limits.md`; once back, runs the mutation check on the candidates left standing after the reading checks;
 carries any question per `${CLAUDE_PLUGIN_ROOT}/references/asking.md`.
 
 ## When to ask
@@ -197,7 +194,8 @@ and must be **decided**, not endured. Form: `${CLAUDE_PLUGIN_ROOT}/references/as
 
 ## The return
 
-Shape: `${CLAUDE_PLUGIN_ROOT}/references/agent-return.md` (`findings`/`commits`/`state`). The
+Shape: `${CLAUDE_PLUGIN_ROOT}/references/agent-return.md` (`findings`/`commits`, plus `state` on
+`status: question`). The
 report, compactly:
 
 ```

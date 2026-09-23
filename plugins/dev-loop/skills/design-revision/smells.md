@@ -23,7 +23,7 @@ pattern (ladder + thresholds in `patterns.md`).
 ## Finding format
 
 ```
-[DSG-00N] <Smell> — <file>:<line>
+[DSG-NNN] <Smell> — <file>:<line>
   Occurrences: <where, how many> — counted, not estimated
   Signal:      <the observable thing that found it>
   Remedy:      <first choice, and which rung of the ladder>

@@ -111,13 +111,10 @@ These five checks live in this file, spelled out as commands anyone can run by h
 specific reason: a skill file has a character cap and a reference file does not, and the step
 that invokes them cites this file rather than carrying the commands inline — not because a check
 is mechanical, since the recipe only ever proposes and the judgement stays with the skill. An
-earlier draft of the plugin shipped these checks as a shell script; the script was withdrawn, and
-the plugin now ships a single script, for mutation, in its place.
+earlier draft of the plugin shipped these checks as a shell script; the script was withdrawn.
 
-Two of the "when a check does not run" cases used to be exit codes of that retired script. What
-survives of them is the rule on its own terms, independent of the script that once encoded it: a
-check that does not run is reported as not run, never as clean.
+Two of the "when a check does not run" cases used to be exit codes of that retired script; the
+rule now stands on its own under "When a check does not run" in gates.md.
 
-The `lost-fact` check reads the line marker as `base@NN`, not the `base:NN` the specification
-writes — a deviation already declared where the format was defined, chosen because a fourth `:`
-inside the line field would break the split rule stated under "The five checks".
+The `lost-fact` line marker is `base@NN` where the specification writes `base:NN`; the reason
+lives under "The five checks" in gates.md.

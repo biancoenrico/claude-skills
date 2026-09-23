@@ -14,16 +14,17 @@ The first shows: duplicated logic, a growing switch, a class that knows everythi
 only forwards.
 
 The second does not show — it looks like craftsmanship: **a pattern put where there was no pain**,
-the Speculative Generality family (`smells.md`). It never repays its cost — one more file, one
-more indirection, one more jump per read — and nobody reports it: it looks like good code.
+the Speculative Generality smell (a Dispensable, `smells.md`, which says why it never repays its
+cost and why nobody reports it).
 
 **It works harder at stopping the second than the first: default is not to touch, and "left" is a
 legitimate outcome — often the best one.**
 
 ## Inputs
 
-`/dev-loop:plan-execution` calls this once batches finish, or the user directly before closing a
-branch; it calls `/dev-loop:test-writing` when the zone has no net. In order of priority:
+It runs as loop step 7 (`${CLAUDE_PLUGIN_ROOT}/references/loop.md`), after
+`/dev-loop:plan-execution`, or when the user runs it directly before closing a branch; it calls
+`/dev-loop:test-writing` when the zone has no net. In order of priority:
 
 1. **Explicit target** — a path, a module, a class.
 2. **The branch against its base** — `git diff <base>...HEAD` **plus the zone it runs through**:
@@ -113,7 +114,7 @@ For **every** smell, three lines; missing any one, **it does not get touched**:
 | | `standard` (default) | `high` |
 |---|---|---|
 | **Gate** | decides: no evidence, no remedy | sorts: every item leaves labelled |
-| **Evidence that suffices** | 3 occurrences, or 1 documented pain | any, including none — the label says so |
+| **Evidence that suffices** | any of the three above — 3 occurrences, 1 documented pain, or measured churn | any, including none — the label says so |
 | **Without evidence** | "seen and left", with the count | enters the menu as **shape only**, recommendation: leave |
 
 What fails the gate is **"seen and left"**, with its count — what the next pass checks against the
@@ -121,9 +122,9 @@ rule of three.
 
 ## Phase 4 — The remedy, climbing from the lowest rung
 
-Climb one rung at a time, only when the rung below fails, and say which one; don't count lines as
-a victory — fewer lines with three more indirections is a loss. Ladder and pattern thresholds:
-`${CLAUDE_PLUGIN_ROOT}/skills/design-revision/patterns.md`, opened where a remedy nears a pattern.
+Climb the ladder by the rule in `${CLAUDE_PLUGIN_ROOT}/skills/design-revision/patterns.md`, which
+also holds the pattern thresholds, opened where a remedy nears a pattern. Don't count lines as a
+victory — fewer lines with three more indirections is a loss.
 
 ## Phase 5 — Apply, with the net
 
@@ -146,7 +147,7 @@ even picked from the menu, split it first.
 
 ## The menu, at `high`
 
-Ordered by benefit vs cost, pain first. Each item (`[DSG-0NN] <Smell> — <location>`) carries five
+Ordered by benefit vs cost, pain first. Each item (`[DSG-NNN] <Smell> — <location>`) carries five
 fields, or the menu hands the user your work: **Evidence** (label · count) · **Remedy** (rung +
 pattern if any) · **Cost** (files, callers, tests) · **Benefit** · **Recommendation**
 (APPLY/leave + reason).

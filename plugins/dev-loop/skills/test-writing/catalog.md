@@ -74,8 +74,9 @@ The test writes with its own tools and reads back without production code runnin
 ## 7. The occasion instead of the behaviour
 
 The test exists because something happened — version bump, refactor, ticket — its name carrying
-the occasion, not the behaviour. A test says function X, given inputs, gives Y — **the run says
-whether, not the comment.**
+the occasion, not the behaviour. The ticket or refactor that brought you here belongs in the
+commit message, not in the test's name or comment. A test says function X, given inputs, gives Y —
+**the run says whether, not the comment**: a run's outcome in a comment goes stale unnoticed.
 
 > Seen in the wild: "one test per point the new major version changes semantics", and "measured on
 > both runtimes, identical" — the first justifies coverage by date, the second bakes a run's

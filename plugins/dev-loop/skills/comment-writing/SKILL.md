@@ -25,10 +25,10 @@ and the plan already carry. Every question is handed back: `status: question` pe
 
 **Below the small batch threshold** in `${CLAUDE_PLUGIN_ROOT}/references/limits.md` — measured with
 `sh ${CLAUDE_PLUGIN_ROOT}/scripts/devloop-diffsize --with-tests` over the scope — the caller follows
-this file **inline**: a fork and a reviewer cost more than a handful of comments. Inline, whys may
-also come from the conversation, a question goes into the caller's own return, or to the user via
-`${CLAUDE_PLUGIN_ROOT}/references/asking.md`, and the point reached — candidates, verdicts, step —
-feeds the caller's `state`.
+this file **inline**: a fork and a reviewer cost more than a handful of comments. Inline, this
+overrides the fork rules above: whys may also come from the conversation, a question goes into the
+caller's own return, or to the user via `${CLAUDE_PLUGIN_ROOT}/references/asking.md`, and the point
+reached — candidates, verdicts, step — feeds the caller's `state`.
 
 ## The failure it exists to avoid
 

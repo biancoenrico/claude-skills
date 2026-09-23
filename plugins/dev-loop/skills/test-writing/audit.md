@@ -4,8 +4,8 @@ Same principle and catalogue as writing: `${CLAUDE_PLUGIN_ROOT}/skills/test-writ
 Judgement arrives **afterwards** — nothing rewritten or deleted, only findings; deleting is for
 whoever asked.
 
-Calibration comes first, unchanged (language, runner/filter, where tests live, conventions,
-instructions, platform boundary): without it, every finding is air.
+Calibration comes first, unchanged (`${CLAUDE_PLUGIN_ROOT}/skills/test-writing/SKILL.md` Step 1):
+without it, every finding is air.
 
 **Precondition:** suite red now ⇒ stop, mutation against red proves nothing.
 
@@ -41,8 +41,8 @@ build the case **so the mutation crosses it**.
 
 ### Exit codes
 
-One mutation per call: `sh ${CLAUDE_PLUGIN_ROOT}/scripts/devloop-mutate <file> <find> <replace> --
-<filtered test command>` (unfiltered to relaunch a survivor). Every code has a behaviour:
+One mutation per call, invoked as in `${CLAUDE_PLUGIN_ROOT}/skills/test-writing/SKILL.md` Step 6
+(test command unfiltered to relaunch a survivor). Every code has a behaviour:
 
 | exit | what the skill does |
 |---|---|
@@ -63,11 +63,10 @@ file, the two copies' paths, and the marker in `state`.
 
 Not from the table above:
 
-- **`CEREMONY`** — N near-identical tests differing only in data; fix: a table *plus* a
-  completeness check on a missing case (by reflection or over the type) — without it, case N+1
-  stays uncovered.
+- **`CEREMONY`** — N near-identical tests differing only in data; fix: the table plus completeness
+  check of `${CLAUDE_PLUGIN_ROOT}/skills/test-writing/SKILL.md` Step 4.
 - Tests with no assertions.
-- Tests asserting twenty fields for one axis, hiding what changed behind unrelated failure.
+- Tests asserting more than their axis (SKILL.md Step 4, "assert the axis, not the world").
 
 ## Two rules of severity
 

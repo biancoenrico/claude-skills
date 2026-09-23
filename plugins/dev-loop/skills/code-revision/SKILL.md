@@ -31,8 +31,12 @@ one together), and — from `${CLAUDE_PLUGIN_ROOT}/scripts/devloop-diffsize` (ne
 `--with-tests`) — its size against the small batch threshold in
 `${CLAUDE_PLUGIN_ROOT}/references/limits.md`:
 
-- **ranges, or `-- <path>...`:** `sh ${CLAUDE_PLUGIN_ROOT}/scripts/devloop-diffsize <range...>
-  [-- <path>...]`.
+- **ranges:** `sh ${CLAUDE_PLUGIN_ROOT}/scripts/devloop-diffsize <range...> [-- <path>...]`.
+- **paths only:** committed changes are measured over the branch range,
+  `sh ${CLAUDE_PLUGIN_ROOT}/scripts/devloop-diffsize <merge-base>..HEAD -- <path>...` (merge-base
+  computed as in the branch case); uncommitted ones against the working tree,
+  `sh ${CLAUDE_PLUGIN_ROOT}/scripts/devloop-diffsize -- <path>...` — with no range it counts only
+  the working tree, so committed changes would read 0.
 - **a branch:** `sh ${CLAUDE_PLUGIN_ROOT}/scripts/devloop-diffsize $(git merge-base <base>
   <branch>)..<branch>` — never `<branch>..<branch>`, never the whole history.
 - **no scope:** sum `sh ${CLAUDE_PLUGIN_ROOT}/scripts/devloop-diffsize` (working tree vs `HEAD`)
@@ -95,9 +99,10 @@ diff falsified still counts.
 
 Its criteria — kept, rewritten, deleted, the proof — live there, not copied here. Hand it
 **only comments touched or introduced by the diff** (pre-existing ones are somebody else's code,
-except those falsified); the Step 1 constraints (prose language, docblocks, annotations not to
-touch); and, per its argument-hint, **the batch file's path**, already in this skill's arguments
-— plus this iteration's balance for the comments section.
+except those falsified); the project constraints (read from project instructions: prose language,
+docblocks, annotations not to touch); and, per its argument-hint, **the batch file's path**,
+already in this skill's arguments. Carry its balance into the comments section of this
+iteration's report.
 
 Its open points (a crutch not trivially extracted) join the final output's, unforced; a
 `status: question` from it becomes this skill's own, `state` folded into this skill's Phase C
@@ -114,7 +119,8 @@ Exit on one of:
   missing information): stop, hand the question back.
 
 At the Phase A round cap, a clean last round still closes it; a Critical/Important still open or
-unchecked after it hands the question back instead — never drop Phase C for reaching the cap.
+unchecked after it hands the question back instead, never dropping Phase C in silence: the
+question's `state` records Phase C as still to run.
 
 ## When to ask, and the state it carries
 
