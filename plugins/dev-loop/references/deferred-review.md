@@ -8,7 +8,8 @@ produces — neither copies it.
 
 A batch is reviewed **now** when a later open batch in the index builds on it:
 
-- the index's dependencies name it;
+- the index's dependencies name it for its content — a dependency only on order, as a
+  measurement or a release that runs after it, does not count;
 - a later batch's `Inherits:` line names an entry the index says this batch owns;
 - a later batch's tasks touch a file this batch changes.
 

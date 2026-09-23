@@ -41,12 +41,16 @@ the plan becomes a folder with the same name the file would have had:
 **`00-index.md` is the piece that makes the rest work**: it holds three things and nothing
 else — extra material drifts until nobody can tell which version counts:
 
-1. **The order of the batches and their dependencies** — who cannot start before whom, and why.
+1. **The order of the batches and their dependencies** — who cannot start before whom, and why:
+   on the earlier batch's content, or only on its order (a measurement, a release that runs after
+   it). The review deferral reads the difference.
 2. **The shared vocabulary and its owners** — the types, rules read by more than one batch,
    invariants between surfaces, and **where each lives**. A rule with an owner here is
    *called* by later batches, not rewritten.
 3. **What counts as the end of a batch** — the project's verification (tests, build, checks),
    passed by that batch **on its own**.
+   A check that judges the finished text or code — lost rules, fidelity to the old version — goes
+   here, not in a task: step 5 runs it after the review, so it covers the review's fixes too.
 
 Two cutting criteria:
 
