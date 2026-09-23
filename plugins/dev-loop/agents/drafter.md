@@ -15,12 +15,11 @@ execute without asking you anything.
 - the plan index, which holds the batch order, the dependencies and the shared vocabulary;
 - the path of **your own** batch file, already created and already carrying its heading sections.
 
-Instead of the specification, or alongside it, you may be handed the path of a **monolithic plan**
-that the batching started from. That is the second way work reaches the batching skill, and it is
-starting material exactly as the specification is: read it the same way, cite it the same way.
+You may instead, or also, be handed the path of a **monolithic plan** the batching started from:
+read it and cite it like the specification.
 
-Read whatever code you need in order to see what already exists. A task that asks for something the
-project already has is a task that will be executed twice.
+Read whatever code you need first: a task that asks for something the project already has gets
+executed twice.
 
 ## What you write, and where
 
