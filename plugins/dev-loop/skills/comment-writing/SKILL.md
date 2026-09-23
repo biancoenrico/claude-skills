@@ -140,9 +140,8 @@ arguments, or no index file in its directory: either way the base list of terms 
 
 **The new reader, for real.** The one skill launching a `dev-loop:reviewer` as a fresh reader: hand
 it `catalog.md`, `gates.md` (paths per `agents/reviewer.md`) and the comments, judging them seeing
-them for the first time. Changes nothing; findings come back for this skill to decide. Wait for its
-notification; never poll its output with `sleep`. **Not launched below the threshold, forked or
-not, nor when no comment survived.**
+them for the first time. Changes nothing; findings come back for this skill to decide. **Not
+launched below the threshold, forked or not, nor when no comment survived.**
 
 An unknown, undeducible *why* is not invented: ask via
 `${CLAUDE_PLUGIN_ROOT}/references/asking.md`.
